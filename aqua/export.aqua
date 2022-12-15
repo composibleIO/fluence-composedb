@@ -1,10 +1,6 @@
 module Export
-import getNeighborhood, isConnected, listServices, getPeerInfo, getContact, identify, identifyVia from "./network.aqua"
-import explore from "./explore.aqua"
 import Peer from "@fluencelabs/aqua-lib/builtin.aqua"
-import CeramicResult, didNew, tileCreate, streamState, streamCommits, tileContent from "./did.aqua"
 import cdbQuery, cdbMutate, cdbStoreKey, cdbTest, cdbContratorDetails, cdbConnect from "./composedb.aqua"
 import getRecords from "./registry.aqua"
 
--- import getResourceFromRelay, getResourceProvidersFromRelay from "./resource.aqua"
-export getNeighborhood, isConnected, listServices, getPeerInfo, getContact, identify, identifyVia, explore, CeramicResult, didNew, tileCreate, streamState, streamCommits, tileContent, cdbQuery, cdbMutate, cdbStoreKey, cdbTest, cdbContratorDetails, cdbConnect, getRecords
+export cdbQuery, cdbMutate, cdbStoreKey, cdbTest, cdbContratorDetails, cdbConnect, getRecords

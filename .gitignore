@@ -1,4 +1,5 @@
 build_frontend
 build_peer
+frontend
 scripts/.env 
 docker/.env
