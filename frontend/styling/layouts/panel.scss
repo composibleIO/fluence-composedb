@@ -1,0 +1,19 @@
+#panel {
+
+    position: absolute;
+    width: 360px;
+    background: #F9F3EE;
+    height: calc(100vh - 4rem);
+    padding: 2rem 1rem;
+
+    top: 0;
+    right: -500px;
+    left: auto;
+    transition : rigth 250 ease-in-out;
+
+    &.inview {
+
+        right: 0;
+   
+    }
+}

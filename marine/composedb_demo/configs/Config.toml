@@ -1,0 +1,26 @@
+modules_dir = "../artifacts/"
+
+
+[[module]]
+    name = "curl_adapter"
+    # logger_enabled = false
+
+    [module.mounted_binaries]
+    curl = "/usr/bin/curl"
+
+[[module]]
+    name = "composedb_adapter"
+    max_heap_size = "500 Kib"
+    logger_enabled = true
+
+[[module]]
+    name = "facade"
+    # logger_enabled = true
+
+    [module.wasi]
+    preopened_files = ["../composites"]
+    # this is where files will be stored
+    mapped_dirs = { "composites" = "../composites" }
+
+
+

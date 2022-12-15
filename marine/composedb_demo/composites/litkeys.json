@@ -1,0 +1,5 @@
+type LitKey @createModel(accountRelation: LIST, description: "Store for encrypted Lit keys") {
+    ethAddress: String! @string(minLength: 42, maxLength: 42)
+    encryptedSymmetricKey: String! @string(maxLength: 1000)
+    encryptedString: String! @string(maxLength: 1000)
+  }

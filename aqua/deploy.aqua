@@ -1,0 +1,36 @@
+import Dist from "@fluencelabs/aqua-lib/builtin.aqua"
+import Ipfs from "@fluencelabs/aqua-ipfs/ipfs.aqua"
+-- hoe werkt dit nu met die config in json ?? 
+
+func deploy_service_on(peer: string, file_path: string) : 
+
+    Ipfs.connect(peer)
+    ipfs_res <- Ipfs.put(file_path)
+
+    on peer:
+
+        -- check if has blueprint
+        -- check if has cid locally 
+
+        -- i want to know more about the connectivity of the ipfs node 
+     --         FLUENCE_ENV_AQUA_IPFS_EXTERNAL_API_MULTIADDR: /dns4/fluence-2/tcp/5552
+     --         FLUENCE_ENV_AQUA_IPFS_EXTERNAL_SWARM_MULTIADDR: /dns4/fluence-2/tcp/4442
+     -- can i check if ports are open? 
+     -- get_external_swarm_multiaddr() -> IpfsMultiaddrResult
+
+        -- why would i use the local ipfs? 
+        -- is it isolated? 
+        -- how to send wasm to it
+        res <- Ipfs.get(ipfs_res.hash)
+        -- name: string, mem_pages_count: ?u32, max_heap_size: ?string, logger_enabled: ?bool, preopened_files: ?[]string, envs: ?Pairs, mapped_dirs: ?Pairs, mounted_binaries: ?Pairs, logging_mask: ?i32
+        
+        mem_page_count: ?u32 
+        mem_page_count <<- 100
+        max_heap_size: ?string
+        max_heap_size <<- "100000000"
+
+        -- parse json for aqua .. 
+        -- read from file? 
+        
+        -- conf <- Dist.make_module_config("personalisation-service", mem_page_count, max_heap_size, true, preopened_files: ?[]string, envs: ?Pairs, mapped_dirs: ?Pairs, mounted_binaries: ?Pairs, )
+        -- hash <- Dist.add_module_from_vault(res.path, conf)logging_mask: ?i32

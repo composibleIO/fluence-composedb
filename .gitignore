@@ -1,0 +1,4 @@
+build_frontend
+build_peer
+scripts/.env 
+docker/.env

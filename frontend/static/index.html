@@ -1,0 +1,103 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Transport Union - ComposeDB demo</title>
+  <meta name="description" content="">
+  <meta name="author" content="Joera Mulders">
+
+  <link rel="stylesheet" type="text/css" href="./styles.css">
+
+</head>
+
+
+
+<body>
+
+    <aside id="identity-pane">
+
+        
+        <div id="local_peer" class="block" style="display: none;">
+          <label>local peer:</label>
+          <button id="select-local-peer" type="button">Sign in</button>
+        </div>
+        <div id="relay_peer" class="block" style="display: none;">
+          <label>relay peer:</label>
+          <button id="select-relay-peer" type="button" >Connect</button>
+        </div>
+        <div id="relay_peer" class="block" style="display: none;">
+          <label>resource provider:</label>
+          <button id="select-contractor" type="button" >Connect</button>
+        </div>
+        <!-- <div id="relay_peer" class="block" style="display: none;">
+          <label>service id:</label><br/>
+          <button id="select-service" type="button" >Connect</button>
+        </div> -->
+     
+       
+
+    
+
+    </aside>
+
+    <main id="main">  <!-- all action here -->
+
+      <section>
+        <h1>Fluence + ComposeDB</h1>
+        <p>This is a proof of concept demo to show:</p>
+        <ol>
+          <li>decentralized access to ComposeDB providers,</li>
+          <li>how a Ethereum address creates a DID to write composeDB records,</li>
+    
+        </ol>
+       
+    </section>
+
+    <section>
+
+      <div id="eth-address" class="block" style="display: flex;">
+        <label>eth address:</label>
+        <button id="eth-address" type="button" >Sign in with Metamask</button>
+        <span id="eth-did"></span>
+
+      </div>
+
+  </section>
+
+  <section>
+    <div id="spinner" style="display:none;"> ... establishing write capabilities at the decentralized database ... </div>
+  </section>
+
+            <!-- <nav>
+              <ul>
+                <li><button id="select-map-view" type="button">Map</button></li>
+              </ul>
+            </nav> -->
+
+            <!-- <div><button id='siweBtn'>Sign-in with Ethereum</button></div>  -->
+
+<!--     
+            <form id="select-relay-form" name="SelectRelayForm" class="block">
+              <label for="relay_peer">Pick a user:</label>
+              <select id="relay_peer" name="relay_peer" class="block"  size="5" required aria-required="true"> <!-- onchange="SelectRelayForm.submit()" -->
+    <!--            <option class="relay-tab tab" value="0">..</option>
+                <option class="relay-tab tab" value="1">..</option>
+                <option class="relay-tab tab" value="2">..</option>
+                <option class="relay-tab tab" value="3">..</option>
+                <option class="relay-tab tab" value="4">..</option>
+                <option class="relay-tab tab" value="5">..</option>
+                
+               
+              </select>
+              <button type="submit">Connect</button>
+            </form> -->
+
+          
+    </main>
+
+  <script src="./scripts.js"></script>
+</body>
+</html>

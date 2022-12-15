@@ -1,0 +1,1 @@
+# ipfs --api /ip4/64.227.70.116/tcp/5001 add -r public

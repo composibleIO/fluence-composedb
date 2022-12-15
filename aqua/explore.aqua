@@ -1,0 +1,73 @@
+import Peer, PeerId, Info, Contact, Kademlia from "@fluencelabs/aqua-lib/builtin"
+import getNeighborhood from "./network.aqua"
+
+data NodeInfo:
+    node_version: string
+    air_version: string
+
+data PeerObject:
+    peerId: string
+    public_peer: ?bool
+    addresses: []string
+    neighbors: []PeerId
+    tested_connections: []string
+    versions: ?NodeInfo
+
+service Exp("exp"):
+
+    newNodeInfo(node_version: string, air_version: string) -> NodeInfo
+    newPeerObject(peerId: string, public_peer: ?bool, addresses: *string, neighbors: []PeerId, tested_connections: *string, versions: ?NodeInfo) -> PeerObject
+
+func explore (peer: PeerId) -> PeerObject, *PeerObject:
+
+    po: *PeerObject
+    nbh: *PeerObject
+
+    on peer: 
+
+        Exp "exp other"
+
+        public_peer: ?bool
+        addresses: *string
+        tested_connections: *string
+
+        info <- Peer.identify()
+
+        for a <- info.external_addresses:
+            addresses <<- a
+
+        neighbors <- Kademlia.neighborhood(peer,nil,nil)
+
+        for n <- neighbors: 
+
+            status: *string
+            n_addresses: *string
+            versions: ?NodeInfo
+
+            on n: 
+                n_info <- Peer.identify()
+                status <<- "ok"
+
+            par status <- Peer.timeout(5000, "timeout") 
+
+            if status! == "ok": 
+                
+                for a <- info.external_addresses:
+                    n_addresses <<- a
+                versions <- Exp.newNodeInfo(n_info.node_version, n_info.air_version)
+                tested_connections <<- n
+
+            else : 
+                public_peer <<- false
+                contact <- Peer.get_contact(n)
+                if contact != nil:
+                   for a <- contact!.addresses:
+                        n_addresses <<- a
+
+            -- write wasm service to deal with this 
+
+            nbh <- Exp.newPeerObject(n,public_peer,n_addresses,nil,nil,versions)
+
+    po <- Exp.newPeerObject(peer,public_peer,addresses,neighbors,tested_connections,nil)
+
+    <- po!, nbh

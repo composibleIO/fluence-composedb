@@ -1,0 +1,46 @@
+##globals
+
+    nvm use 16
+    npm -g i @fluencelabs/aqua@0.7.7-363 @fluencelabs/registry@0.7.0 @fluencelabs/trust-graph@3.0.4 
+    #if needed
+    npm -g i typescript@4.9.3
+
+##install 
+
+    docker-compose -f docker/docker-compose.yaml up -d 
+
+
+## deploy the marine service 
+
+    1/ sh scripts/dev/build.sh
+    2/ sh scripts/dev/deploy.sh
+    3/ copy returned service_id into scripts/.env file
+    4/ sh scripts/registry/unregister.sh
+    5/ sh scripts/registry/register.sh
+
+##init 
+
+    1/ sh scripts/init/serve.sh 
+
+
+## serve frontend on localhost:3000
+
+    cd frontend/ 
+    npm i
+    npm run serve
+
+
+## changes to aqua 
+
+    cd frontend
+    npm run compile-aqua 
+
+## changes to node-server 
+
+    cd node_server 
+    npm run build
+    npm run deploy
+    # on server ... 
+    docker-compose up -d --build composedb-server
+    
+

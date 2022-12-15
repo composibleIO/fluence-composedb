@@ -1,0 +1,27 @@
+import "@fluencelabs/aqua-lib/builtin.aqua"
+import "@fluencelabs/registry/resources-api.aqua"
+import "@fluencelabs/registry/registry-service.aqua"
+
+func registerResource(name: string) -> ?ResourceId, *Error:
+
+    id, errors <- createResource(name)
+   
+    <- id, errors
+
+func registerExternalService(resource_id: ResourceId, name: string, peer_id: PeerId, service_id: ?string) -> bool, *Error:
+   
+   success, errors <- registerService(resource_id, name, peer_id, service_id)
+   
+   <- success, errors
+
+func stopProvideExternalService(resource_id: ResourceId, peer_id: PeerId) -> bool, *Error:
+   
+   success, errors <- unregisterService(resource_id, peer_id)
+
+   <- success, errors
+
+func getRecords(resource_id: ResourceId, consistency_level: i16) -> ?[]Record, *Error:
+   
+   records, error <- resolveResource(resource_id, consistency_level)
+   
+   <- records, error

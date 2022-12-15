@@ -1,0 +1,29 @@
+{
+  "composedb_demo": {
+    "modules": [
+      {
+        "name": "curl_adapter",
+        "path": "./marine/composedb_demo/artifacts/curl_adapter.wasm",
+        "mounted_binaries": [["curl","/usr/bin/curl"]],
+        "mem_page_count": 1,
+        "logger_enabled": true
+      },
+      {
+        "name": "composedb_adapter",
+        "path": "./marine/composedb_demo/artifacts/composedb_adapter.wasm",
+        "preopened_files": ["/tmp"],
+        "mapped_dirs": [["composites", "/tmp"]],
+        "logger_enabled": true,
+        "mem_page_count": 1
+      },
+      {
+        "name": "facade",
+        "path": "./marine/composedb_demo/artifacts/facade.wasm",
+        "preopened_files": ["/tmp"],
+        "mapped_dirs": [["composites", "/tmp"]],
+        "logger_enabled": true
+      }
+    ]
+  }
+}
+

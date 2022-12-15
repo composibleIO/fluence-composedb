@@ -1,0 +1,34 @@
+import Srv, Service from "@fluencelabs/aqua-lib/builtin.aqua"
+
+func list_services(node: string) -> []Service : 
+
+    on node: 
+
+        list <- Srv.list()
+
+    <- list
+
+
+
+    -- wanneer ik deze draai ben ik niet de node die in het script de services creeert ... 
+    -- ik haal dus eigenlijk alleen de signer weg 
+func clear_services(owner_id: string, node: string) -> *string : 
+
+    removed_services : *string
+
+    on node: 
+
+        srvList <- Srv.list()
+
+        for s <- srvList:
+            if s.owner_id == owner_id:
+                -- if s.id != KRAS2_SIGNER_SERVICE_ID:
+                --     if s.id != KRAS3_SIGNER_SERVICE_ID:
+                --         if s.id != QUEUESERVICEID:
+                Srv.remove(s.id)
+                removed_services <<- s.id
+
+    <- removed_services
+
+
+

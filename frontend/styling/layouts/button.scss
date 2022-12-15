@@ -1,0 +1,36 @@
+label + button {
+    margin-top: 5px;
+}
+
+button {
+    background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+    padding: .25rem .5rem;
+    line-height: 1;
+    background: #fff;
+    border: 1px solid $middelgrijs;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    font-family: 'Operator Book';
+    font-size: .85rem;
+    border-radius: 4px;
+
+
+    &:hover {
+
+        background: black; 
+        border: 1px solid black;
+        color: white
+    }
+
+    &.connected {
+
+        background: green;
+        color: white;
+    }
+}

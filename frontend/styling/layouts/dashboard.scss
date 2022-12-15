@@ -1,0 +1,107 @@
+body {
+
+    display: flex;
+    flex-direction: row;
+
+}
+
+aside#identity-pane {
+
+    width: 240px;
+    border-right: 1px solid #dedede;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    // opacity: .25;
+    background: repeating-linear-gradient( 45deg, #efefef, #efefef 1px, #ffffff 2px, #ffffff 10px );
+}
+
+main {
+
+
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: flex-start;
+    padding-top: 3rem;
+
+    width: calc(100% - 240px);
+    border-right: 1px solid #dedede;
+    height: 100vh;
+    overflow: hidden;
+    
+    nav {
+        position: relative;
+        z-index: 102;
+    }
+
+    section {
+        position: relative;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+
+        min-width: 600px;
+
+        .block {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            border: 1px solid #dedede;
+        
+            margin: 1.5rem 0 0 0;
+            padding: 1.5rem;
+
+            button {
+                margin-bottom: 1.5rem;
+            }
+        }
+
+        #spinner {
+            padding: 1.5rem;
+        }
+    }
+
+   
+   
+}
+
+// aside#marketplace-pane {
+
+//     width: 14%;
+//     border-right: 1px solid #dedede;
+//     height: 100vh;
+//     display: flex;
+//     flex-direction: column;
+//     background: repeating-linear-gradient( -45deg, #efefef, #efefef 1px, #ffffff 2px, #ffffff 10px );
+
+// }
+
+aside#network-pane {
+
+
+
+    width: calc(50% - 120px);
+    // border-right: 1px solid #ccc;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    background-color: #ffffff;
+    background-image: radial-gradient(#dedede 0.7500000000000001px, #ffffff 0.7500000000000001px);
+    background-size: 12px 12px;
+   
+
+    > div {
+        max-height: calc(100% - 4rem);
+        overflow-y: auto;
+    }
+  
+    
+}
+
+.block {
+    padding: .75rem;
+    max-width: 480px;
+}

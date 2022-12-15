@@ -1,0 +1,30 @@
+{
+    "anchor": {},
+    "http-api": {
+        "cors-allowed-origins": [
+            ".*"
+        ],
+	"admin-dids" : ["dbb3dfacc7d6ab5d60c097ac3d3c17cc80eda8ed21300354bfce9823f87f7080"]
+    },
+    "ipfs": {
+        "mode": "remote",
+        "host": "/dns4/cdb1_ceramic-ipfs/tcp/5001"
+    },
+    "logger": {
+        "log-level": 0, 
+        "log-to-files": true
+    },
+    "network": {
+        "name": "testnet-clay"
+    },
+    "node": {},
+    "state-store": {
+        "mode": "fs",
+        "local-drectory": "/root/.ceramic/statestore" 
+    },
+   "indexing": {
+      "db": "sqlite:///root/.ceramic/indexing.sqlite",
+      "allow-queries-before-historical-sync": true,
+      "models": []
+   }
+}

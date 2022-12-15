@@ -1,0 +1,78 @@
+services:
+  cdb1_fluence:
+    command: -f ed25519 -m ${MANAGEMENTKEY} -t 7770 -w 9990  # -c /.fluence/v1/Config.toml
+    container_name: cdb1_fluence
+    environment:
+      RUST_BACKTRACE: full
+      RUST_LOG: info,network=trace,aquamarine=info,aquamarine::actor=info,tokio_threadpool=info,tokio_reactor=info,mio=info,tokio_i>
+      WASM_LOG: info
+      FLUENCE_ENV_AQUA_IPFS_EXTERNAL_API_MULTIADDR: /ip4/${IP}/tcp/15001
+      FLUENCE_ENV_AQUA_IPFS_LOCAL_API_MULTIADDR: /dns4/cdb1_ceramic-ipfs/tcp/5001
+      FLUENCE_ENV_AQUA_IPFS_EXTERNAL_SWARM_MULTIADDR: /ip4/{IP}/tcp/14001
+      CERAMIC_HOST: /dns4/cdb1_ceramic-sidecar/tcp/7007
+    image: fluence-composedb
+    build:
+       context: ../fluence-composedb
+       dockerfile: ./fluence.dockerfile
+    ports:
+      - 7770:7770 # tcp
+      - 9990:9990 # ws
+      - 18080:18080 # metrics
+      - 15001:5001 
+      - 14001:4001
+    restart: unless-stopped
+    volumes: 
+      - cdb1-fluence:/.fluence
+    networks:
+      - cdb1
+
+  cdb1_composedb-server:
+    image: composedb-server-nodejs
+    container_name: cdb1_composedb-server
+    build:
+      context: .
+      dockerfile: ./composedbserver.dockerfile
+    restart: unless-stopped
+    volumes:
+      - /opt/composites:/opt/composites
+    networks:
+      - cdb1
+
+  cdb1_ceramic-ipfs:
+    image: ceramicnetwork/go-ipfs-daemon:latest
+    container_name: cdb1_ceramic-ipfs
+    environment:
+      CERAMIC_NETWORK: "testnet-clay"
+    ports:
+      - 8081:8081 #swarm ws
+      - 4001:4001 # swarm tcp
+      - 5001:5001 # api server
+    networks:
+      - cdb1
+    restart: unless-stopped
+
+  cdb1_ceramic-sidecar:
+    image: ceramicnetwork/js-ceramic:latest # ceramic-sidecar
+    container_name: cdb1_ceramic-sidecar
+    # build:
+    #    context: .
+    #    dockerfile: ./ceramic.dockerfile
+    command: echo "export CERAMIC_ENABLE_EXPERIMENTAL_COMPOSE_DB=true" >> .bashrc && ceramic daemon --network=testnet-clay --config=/root/.ceramic/daemon.config.json
+    environment:
+      CERAMIC_ENABLE_EXPERIMENTAL_COMPOSE_DB: "true"
+    ports:
+      - 7007:7007
+    volumes:
+      - ./daemon.config.json:/root/.ceramic/daemon.config.json
+      - ./ceramic_logs:/root/.ceramic/logs
+      - cdb1-ceramic:/root/.ceramic/statestore
+    networks:
+      - cdb1
+
+version: "3.5"
+volumes:
+  cdb1-fluence: null
+  cdb1-ceramic: null
+
+networks:
+  cdb1: null
