@@ -1,0 +1,49 @@
+table {
+
+    margin: 3rem 0 0 0;
+    border-collapse: collapse; 
+  
+
+    tbody {
+
+        tr {
+            border-bottom: 1px solid #dedede;
+
+            &.active {
+                background: green;
+                color: white;
+            }
+        }
+
+        td {
+            padding: 0.2rem 0.75rem;
+
+            &:first-of-type {
+
+                // padding-left: 0;
+
+                > span {
+
+                    display: block;
+                    width: .5rem;
+                    height: .5rem;
+                    border-radius: 50%; 
+                    border: 1px solid #dedede;
+                }
+            }
+
+            &:last-of-type {
+                // padding-right: 0;
+
+                button {
+                    color: black;
+                    border: none;
+
+                    &:hover {
+                        color: white;
+                    }
+                }
+            }
+        }
+    }
+}

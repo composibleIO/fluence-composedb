@@ -1,0 +1,22 @@
+mutation CreateKeyMutation(
+    $did: String!
+    $encrypted_key: String!
+    $intermediary: String!  
+    $recipient: String!
+)
+{
+    createTU_Key(input:{content:{
+        did: $did,
+        encrypted_key: $encrypted_key,
+        intermediary: $intermediary
+        recipient: $recipient
+    }})
+    {
+        document {
+            did,
+            encrypted_key,
+            intermediary
+            recipient
+        }
+    }
+}

@@ -6,7 +6,6 @@
   "scripts": {
     "build": "tsc",
     "postbuild": "cp package.json dist/package.json && cd dist && npm install --only=production",
-    "deploy": "cd dist && git commit -am 'hallo' && git push zomi master",
     "start": "nodemon src/index.ts"
   },
   "author": "",
@@ -16,6 +15,7 @@
     "body-parser": "^1.20.1",
     "child_process": "^1.0.2",
     "child-process-promise": "^2.2.1",
+    "dotenv": "^16.0.3",
     "ethereumjs-util": "^7.1.5",
     "express": "^4.18.2"
   },

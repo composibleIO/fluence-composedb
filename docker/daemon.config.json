@@ -4,11 +4,11 @@
         "cors-allowed-origins": [
             ".*"
         ],
-	"admin-dids" : ["dbb3dfacc7d6ab5d60c097ac3d3c17cc80eda8ed21300354bfce9823f87f7080"]
+	"admin-dids" : ["did:key:z6Mko9kkiohcyhdwvir6aaPsTa4yfoH8DzYnXqW1CiosX4tt"]
     },
     "ipfs": {
         "mode": "remote",
-        "host": "/dns4/cdb1_ceramic-ipfs/tcp/5001"
+        "host": "/dns4/cdb1_ipfs/tcp/5001"
     },
     "logger": {
         "log-level": 0, 

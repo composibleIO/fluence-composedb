@@ -18,9 +18,8 @@ modules_dir = "../artifacts/"
     # logger_enabled = true
 
     [module.wasi]
-    preopened_files = ["../composites"]
-    # this is where files will be stored
-    mapped_dirs = { "composites" = "../composites" }
+    preopened_files = ["/tmp"]
+    mapped_dirs = { "tmp" = "/tmp" }
 
 
 

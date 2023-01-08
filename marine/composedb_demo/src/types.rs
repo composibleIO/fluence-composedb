@@ -1,5 +1,5 @@
 use marine_rs_sdk::marine;
-use serde::Deserialize;
+use serde::{Deserialize, Serialize};
 
 
 #[marine]
@@ -13,33 +13,72 @@ pub struct Result {
 #[marine]
 #[derive(Debug, Deserialize)]
 pub struct Connection {
-    pub aud: String,
-    pub pid: String,
-    pub port: String
+    pub composite: String,
+    pub model: String,
+    pub name: String,
+    pub pid: u64,
+    pub port: String,
+    pub timestamp: u64,
+    pub user: String
 }
 
+#[marine]
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ComposeDbPublicInfo {
+    pub eth_address: String,
+    pub public_encryption_key: String
+}
 
 #[marine]
-#[derive(Debug, Deserialize)]
-pub struct ComposeDbConfig {
-    pub ceramic_sidecar: String,
-    pub composedb_sidecar: String,
-    pub express_port: String,
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ComposeDbDirections {
     pub ceramic_port: String,
-    pub readonly_port: String 
+    pub express_port: String,
+    pub n: String,
+    pub namespace: String
 }
 
 #[marine]
-#[derive(Debug, Deserialize)]
-pub struct Middleware {
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ComposeDbIndex {
+    pub composite: String,
+    pub model: String,
+    pub name: String,
+    pub port: String,
+}
+
+#[marine]
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ComposeDbConfig {
+    pub directions: ComposeDbDirections,
+    pub indexes: Vec<ComposeDbIndex>,
+    pub public_info: ComposeDbPublicInfo,
+}
+
+#[marine]
+#[derive(Debug, Deserialize, Serialize)]
+pub struct ContractorDetails {
     pub composedb : ComposeDbConfig
 }
 
 #[marine]
-#[derive(Debug, Deserialize)]
-pub struct ContractorDetails {
-    pub eth_address: String,
-    pub public_encryption_key: String,
-    pub middleware: Middleware
+#[derive(Debug, Deserialize, Serialize)]
+pub struct Intermediary {
+    pub composedb : ComposeDbConfig
 }
 
+#[marine]
+#[derive(Debug, Deserialize, Clone)]
+pub struct TUKey {
+    pub encrypted_key: String,
+    pub recipient: String
+}
+
+#[marine]
+#[derive(Debug, Deserialize)]
+pub struct TUIntermediary {
+    pub aud: String,
+    pub did: String,
+    pub iss: String,
+    pub keys: Vec<TUKey>
+}

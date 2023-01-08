@@ -1,0 +1,21 @@
+mutation CreateIntermediaryMutation(
+    $aud: String!
+    $did: String!
+    $iss: String!
+
+)
+{
+    createTU_Intermediary(input:{content:{
+        aud: $aud,
+        did: $did,
+        iss: $iss
+    }})
+    {
+        document {
+            id,
+            aud,
+            did,
+            iss
+        },
+    }
+}

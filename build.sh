@@ -1,6 +1,9 @@
 rm -rf build_frontend/*
 cp -r frontend/public/* build_frontend/
 
+cd node_server 
+npm run build
+cd ..
 
 rm -rf build_network/*
 cp -r docker/* build_network

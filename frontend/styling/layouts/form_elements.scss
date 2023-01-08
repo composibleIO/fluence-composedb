@@ -1,0 +1,249 @@
+form {
+
+	
+	p  { line-height: 1.44; margin: 1.5rem 0; font-size: 1rem; }
+
+	input, textarea, select {
+
+		font-family: "Operator book";
+		color: $zwart;
+		font-size: 1.06rem;
+		line-height: 1.45;
+	}
+
+	input {
+		padding: .25rem 0;
+		border: none;
+		border-bottom: 1px dotted black;
+		-webkit-appearance: none;
+		-moz-appearance: none;
+		appearance: none;
+		margin-bottom: 1.5rem;
+		width: calc(100% - 4rem);
+
+		&:focus {
+			border-color: $donkerrood; outline: none;
+		}
+
+	}
+
+	textarea {
+
+		//margin: 1rem 0 0 0;
+		padding: 5px 10px;
+		border: none;
+		border: 1px solid $grijs;
+
+		&:focus {
+			border-color: $donkerrood;
+			outline: none;
+		}
+	}
+
+	.field-wrapper {
+
+		position: relative;
+		top: auto;
+		left: auto;
+		width: auto;
+		margin: 1rem auto;
+		list-style: none;
+
+		li.checkbox {
+			padding: 0;
+			display: block;
+			position: relative;
+			width: 1.9rem;
+			height: 1.9rem;
+			background: white;
+			margin: 0 .5rem .75rem 0;
+
+			input[type=checkbox] {
+				top: 0px;
+				margin-left: 8px;
+				opacity: 0;
+				position: relative;
+				cursor: pointer;
+				width: 8rem;
+				height: 1.6rem;
+				z-index: 999;
+			}
+
+			label {
+
+				display: block;
+				position: absolute;
+				left: 2.5rem;
+				top: .3rem;
+				min-width: 20rem;
+				color: $zwart;
+				font-size: 1rem;
+				line-height: 1.5;
+
+				@media (min-width : $breakpoint-md) {
+
+					min-width: 50rem;
+
+				}
+			}
+		}
+
+
+		input,select,textarea {
+
+			position: relative;
+			width: calc(100% - 2rem);
+			padding: .6rem 1rem .4rem 1rem;
+
+			@media (min-width : $breakpoint-sm) {
+				//width: calc(100% - 2rem);
+			}
+		}
+
+			input  {
+				width: calc(100% - 2rem);
+			}
+
+		textarea {
+			padding: 1rem;
+			width: calc(100% - 2rem);
+		}
+
+		select {
+			position: relative;
+			background-color: white;
+			-webkit-appearance: none;
+			-moz-appearance: none;
+			appearance: none;       /* remove default arrow */
+			//background-image: url('/assets/icons/checkmark.svg');   /* add custom arrow */
+			//background-position: 97% 50%;
+			//background-repeat: no-repeat;
+			border-radius: 0;
+			width: 100%;
+			border: none;
+			border-bottom: 1px solid $grijs;
+
+			background-size: 1.8rem 1.8rem;
+		//	background-image: url('/assets/icons/chevron-up.svg') no-repeat 95% 22px;
+
+
+		}
+
+		textarea {
+
+			min-height: 200px;
+		}
+
+
+		textarea:focus ~ label, textarea:valid ~ label {  /* , input:valid ~ label */ 
+		font-size: 1rem;
+		color: $wit;
+		left: 0rem;
+		top: -2.5rem;
+		}
+
+		input:required:not([type="checkbox"]):after {  /* textarea:valid ~ label:after */
+
+			display: inline-block;
+			content: ' ';
+		//	background-image: url('/assets/icons/required.svg');
+			background-size: 1rem 1rem;
+			height: 1rem;
+			width: 1rem;
+			margin-left: .5rem;
+			position: absolute;
+			top: 3.75rem;
+			right: 1rem;
+			z-index: 999;
+		}
+
+		/* :after does not work on input element directly */ 
+		input:required:valid:not([type="checkbox"]):after {  /* textarea:valid ~ label:after */
+
+			display: inline-block;
+			content: ' ';
+		//	background-image: url('/assets/icons/check.svg');
+			background-size: 1rem 1rem;
+			height: 1rem;
+			width: 1rem;
+			margin-left: .5rem;
+			position: absolute;
+			top: 3.75rem;
+			right: 1rem;
+			z-index: 999;
+		}
+
+		input[aria-invalid="true"]:after {
+
+			display: inline-block;
+			content: ' ';
+		//	background-image: url('/assets/icons/warning.svg');
+			background-size: 1rem 1rem;
+			height: 1rem;
+			width: 1rem;
+			margin-left: .5rem;
+			position: absolute;
+			top: 3.75rem;
+			right: 1rem;
+			z-index: 999;
+		}
+
+		input[aria-invalid="true"].warning {
+
+			color: $rood;
+		}
+
+	}
+
+	.field-wrapper.half {
+
+		width: 100%;
+
+		@media (min-width : $breakpoint-sm) {
+			width: calc(50% - .5rem);
+		}
+
+		&:nth-child(odd) {
+
+			@media (min-width : $breakpoint-sm) {
+				width: calc(50% - 2.5rem);
+				padding-right: 2rem;
+			}
+		}
+	}
+
+	.field-wrapper.full {
+
+		width: 100%;
+	}
+
+	#error, div[role=alert] {
+
+		width: 100%; 
+		color: #fff;
+		line-height: 2rem;
+    	margin-top: 1rem;
+		margin-bottom: 1rem;
+		font-size: 1rem;
+		display: block;
+		background: $lichtgeel;
+		padding: 1rem;
+		color: black;
+		transition: opacity 500ms ease;
+	}
+
+	#error:not(:empty), div[role=alert]:not(:empty) {
+		opacity: 1;
+
+	}
+
+	#error:empty, div[role=alert]:empty {
+		opacity: 0;
+		display: none;
+	}
+
+
+}
+
+
+

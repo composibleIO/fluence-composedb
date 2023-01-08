@@ -1,0 +1,48 @@
+data CeramicResult:
+    stdout: string
+    stderr: string
+
+data CdbConnection:
+    composite: string
+    model: string
+    name: string
+    pid: u64
+    port: string
+    timestamp: u64
+    user: string
+
+data CdbDirections:
+    namespace: string
+    n: string
+    express_port: string
+    ceramic_port: string
+
+data CdbPublicInfo:
+    eth_address: string
+    public_encryption_key: string
+
+data CdbIndex: 
+    composite: string
+    model: string
+    name: string
+    port: string
+
+data CdbConfig:
+    directions: CdbDirections
+    indexes: []CdbIndex
+    public_info: CdbPublicInfo
+
+data CdbContractorDetails:
+    composedb: CdbConfig
+
+data CdbKey:
+    encrypted_key: string
+    recipient: string
+
+data CdbIntermediary:
+    aud: string
+    did: string
+    iss: string
+    keys: []CdbKey
+
+    

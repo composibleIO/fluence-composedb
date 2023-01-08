@@ -1,6 +1,6 @@
 module Export
 import Peer from "@fluencelabs/aqua-lib/builtin.aqua"
-import cdbQuery, cdbMutate, cdbStoreKey, cdbTest, cdbContratorDetails, cdbConnect from "./composedb.aqua"
+import cdbQuery, cdbMutate, cdbContratorDetails, cdbHasIntermediary, cdbStoreIntermediary, cdbConnect from "./composedb.aqua"
 import getRecords from "./registry.aqua"
 
-export cdbQuery, cdbMutate, cdbStoreKey, cdbTest, cdbContratorDetails, cdbConnect, getRecords
+export cdbQuery, cdbMutate, cdbContratorDetails, cdbHasIntermediary, cdbStoreIntermediary, cdbConnect, getRecords

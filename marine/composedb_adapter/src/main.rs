@@ -50,11 +50,9 @@ fn create_jsondata_for_curl(cmd: Vec<String>) -> String {
 }
 
 #[marine]
-pub fn cdb_request(cmd: Vec<String>) -> MountedBinaryResult {     
+pub fn cdb_request(endpoint: String, cmd: Vec<String>) -> MountedBinaryResult {     
    
     let data = create_jsondata_for_curl(cmd);
-
-    let endpoint = "http://composedb-server:3000/bin";
 
     let args = vec![
         "-s".to_owned(),
@@ -64,7 +62,7 @@ pub fn cdb_request(cmd: Vec<String>) -> MountedBinaryResult {
         "Content-Type: application/json".to_owned(),
         "--data".to_owned(),
         data.to_owned(),
-        endpoint.to_owned()
+        endpoint
     ];
 
     curl_request(args)

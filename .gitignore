@@ -1,5 +1,3 @@
 build_frontend
-build_peer
-frontend
-scripts/.env 
-docker/.env
+build_network
+deploy.sh

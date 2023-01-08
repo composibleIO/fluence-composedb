@@ -1,181 +1,118 @@
 import Peer, PeerId from "@fluencelabs/aqua-lib/builtin.aqua"
+import "@fluencelabs/registry/resources-api.aqua"
+import "@fluencelabs/registry/registry-service.aqua"
 
-data CeramicResult:
-    stdout: string
-    stderr: string
-
-data ModelRef:
-    id: string
-    name: string
-    description: string
-
-data CdbSignature:
-    signature: string
-    protected: string
-
-data CdbJws: 
-    payload: string
-    signatures: []CdbSignature
-    link:string
-
-data CdbModel: 
-    id: string
-    jws: CdbJws
-    linkedBlock: string
-
-data CompositeRef:
-    aliases: []string
-    models: []CdbModel
-    version: string
-
-data CdbConnection:
-    aud: string
-    pid: string 
-    port: string
-
-data CdbLitKey:
-    ethAddress: string
-    encryptedSymmetricKey: string
-    encryptedString: string
-
-data CdbServerConfig:
-    ceramic_sidecar: string
-    composedb_sidecar: string
-    express_port: string
-    ceramic_port: string
-    readonly_port: string 
-
-data CdbMiddleware:
-    composedb: CdbServerConfig
-    
-
-data CdbContractorDetails:
-    eth_address: string
-    public_encryption_key: string
-    middleware: CdbMiddleware
-
-
+import "./types.aqua"
 
 service ComposeDBSrv("ComposeDBSrv"):
-    -- newDid(ceramic_url: string) -> CeramicResult
-    getContractorDetails() -> CdbContractorDetails
-    create_from_schema(composite_name: string, ceramic_url: string) -> CeramicResult
-    deploy_from_schema(composite_name: string, ceramic_url: string) -> CeramicResult
-    deploy_from_model(model_id: string, url: string) -> CeramicResult
-    deploy_from_composite(url: string) -> CeramicResult
-    query(server_config: CdbServerConfig) -> CeramicResult
-    mutate(display_name: string, cap: string, connection: CdbConnection, server_config: CdbServerConfig) -> CeramicResult
-    storeKey(ethAddress: string, encryptedString: string, encryptedSymmetricKey: string, ceramic_url: string) -> CeramicResult
-    serve(composite_name: string, port: string, ceramic_url: string) -> CdbConnection
-    authenticate(composite_name: string, pk: string, port: string, ceramic_url: string) -> CdbConnection
-    kill(pid: string) -> CeramicResult
-    dedicate(composite_name: string, pk: string, ceramic_url: string) -> CdbConnection
-    connect(cap: string, server_config: CdbServerConfig) -> CdbConnection
-    test() -> CeramicResult
+    init(namespace: string, n: string, indexes: []CdbIndex) -> string
+    contractor_details(cid: string) -> CdbContractorDetails
+    has_intermediary(user_address: string, cid: string) -> []CdbIntermediary
+    store_intermediary(intermediary: CdbIntermediary, cid: string) -> []CdbIntermediary
+    deploy_index(index: CdbIndex, cid: string) -> string
+    query(connection: CdbConnection, cid: string) -> CeramicResult
+    mutate(display_name: string, cap: string, connection: CdbConnection, cid: string) -> CeramicResult
+    serve(index: CdbIndex, cid: string) -> CdbConnection
+    connect(index: CdbIndex, cap: string, cid: string) -> CdbConnection
 
-func cdbContratorDetails(peer_id: string, service_id: string) -> CdbContractorDetails:
+func cdbInit(resource_id: ResourceId,  peer_id: PeerId, service_id: ?string, namespace: string, n: string, indexes: []CdbIndex) -> string, *string, *CdbConnection, bool, *Error:
 
+    results: *string
+    connections: *CdbConnection
+
+    on peer_id: 
+
+        ComposeDBSrv service_id!
+        -- store contractor details on ipfs and return cid
+        cid <- ComposeDBSrv.init(namespace, n, indexes)
+
+        for i <- indexes: 
+            -- deploy composite 
+            results <- ComposeDBSrv.deploy_index(i, cid)
+            connections <- ComposeDBSrv.serve(i, cid)
+
+        success, errors <- registerService(resource_id, cid, peer_id, service_id)
+   
+    <- cid, results, connections, success, errors
+
+
+
+func cdbContratorDetails(peer_id: string, service_id: string, cid: string) -> *string, bool, CdbContractorDetails:
+
+    status: *string
+
+    error: *string
+    success: *bool
+    values: *CdbContractorDetails
+     
     on peer_id:
 
         ComposeDBSrv service_id
 
-        ref = ComposeDBSrv.getContractorDetails()
+        values <- ComposeDBSrv.contractor_details(cid)
+        status <<- "ok"
 
-    <- ref
+    par status <- Peer.timeout(3000, "timeout") 
 
+    if status! == "timeout":
+        success <<- false
+        error <<- status! 
+    else: 
+        success <<- true
 
-func cdbCreate(node: string, service_id: string, composite_name: string, ceramic_url: string) -> CeramicResult:
-
-    on node: 
-
-        ComposeDBSrv service_id
-
-        ref <- ComposeDBSrv.create_from_schema(composite_name, ceramic_url)
-
-    <- ref
-
-func cdbServeKeystore(node: string, service_id: string, composite_name: string, port: string, ceramic_url: string) -> CeramicResult, CdbConnection,CdbConnection:
-
-    on node: 
-
-        ComposeDBSrv service_id
-
-        ref <- ComposeDBSrv.deploy_from_schema(composite_name, ceramic_url)
-        s <- ComposeDBSrv.serve(composite_name, port, ceramic_url)
-        -- authenticated server on :5500
-        auth <- ComposeDBSrv.authenticate(composite_name, "", "5500", ceramic_url)
-
-    <- ref, s, auth
-
-func cdbStoreKey(node: string, service_id: string,ethAddress: string, encryptedString: string, encryptedSymmetricKey: string, ceramic_url: string) -> CeramicResult:
-
-    on node:
-
-        ComposeDBSrv service_id
-        res <- ComposeDBSrv.storeKey(ethAddress, encryptedString, encryptedSymmetricKey, ceramic_url)
-
-    <- res
-
-func cdbServe(node: string, service_id: string, model_id: string, port: string, ceramic_url: string) -> CeramicResult, CdbConnection:
-
-    on node:
-
-        ComposeDBSrv service_id
-
-        ref <- ComposeDBSrv.deploy_from_model(model_id,ceramic_url)
-        s <- ComposeDBSrv.serve(model_id, port, ceramic_url)
-
-    <- ref, s
-
-func cdbQuery(node: string, service_id: string, server_config: CdbServerConfig) -> CeramicResult:
-
-    on node:
-
-        ComposeDBSrv service_id
-
-        ref <- ComposeDBSrv.query(server_config)
-
-    <- ref
-
-func cdbMutate(node: string, service_id: string, display_name: string, cap: string, connection: CdbConnection, server_config: CdbServerConfig) -> CeramicResult:
-
-    on node:
-
-        ComposeDBSrv service_id
-        -- c <- ComposeDBSrv.authenticate(composite_name, pk, "", ceramic_url)
-        res <- ComposeDBSrv.mutate(display_name, cap, connection, server_config)
-        -- res2 <- ComposeDBSrv.kill(c.pid)
-
-    <- res 
+    <- error, success!, values!
 
 
-func cdbKill(pid: string, node: string, service_id: string) -> CeramicResult:
 
-    on node:
+func cdbHasIntermediary(peer_id: string, service_id: string, user_address: string, cid: string) -> []CdbIntermediary:
 
-        ComposeDBSrv service_id
-        res2 <- ComposeDBSrv.kill(pid)
+    msg: *[]CdbIntermediary
 
-    <- res2
+    on peer_id: 
 
-func cdbConnect(peer_id: PeerId, service_id: string, cap: string, server_config: CdbServerConfig) -> CdbConnection:
+      ComposeDBSrv service_id
+      msg <- ComposeDBSrv.has_intermediary(user_address, cid)
+
+    <- msg!
+
+func cdbStoreIntermediary(peer_id: string, service_id: string, intermediary: CdbIntermediary, cid: string) -> []CdbIntermediary:
+
+    msg: *[]CdbIntermediary
+
+    on peer_id: 
+
+      ComposeDBSrv service_id
+      msg <- ComposeDBSrv.store_intermediary(intermediary, cid)
+
+    <- msg!
+
+
+func cdbConnect(peer_id: PeerId, service_id: string, index: CdbIndex, cap: string, cid: string) -> CdbConnection:
 
     on peer_id: 
 
         ComposeDBSrv service_id
-        c <- ComposeDBSrv.connect(cap, server_config)
+        c <- ComposeDBSrv.connect(index, cap, cid)
 
     <- c
 
-func cdbTest(node: string, service_id: string) -> CeramicResult:
+func cdbQuery(node: string, service_id: string, connection: CdbConnection, cid: string) -> CeramicResult:
 
-    on node: 
+    on node:
 
         ComposeDBSrv service_id
+        ref <- ComposeDBSrv.query(connection, cid)
 
-        c <- ComposeDBSrv.test()
+    <- ref
 
-    <- c
+func cdbMutate(node: string, service_id: string, display_name: string, cap: string, connection: CdbConnection, cid: string) -> CeramicResult:
+
+    on node:
+
+        ComposeDBSrv service_id
+        res <- ComposeDBSrv.mutate(display_name, cap, connection, cid)
+
+    <- res 
 
 
 

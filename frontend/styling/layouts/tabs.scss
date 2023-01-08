@@ -1,0 +1,15 @@
+.tab {
+    padding: .25rem;
+    line-height: 1.55;
+    border: 1px solid black;
+    border-radius: 4px;
+    font-size: .825rem;
+
+    &:hover {
+        background: black;
+        color: white;
+        cursor: pointer;
+    }
+}
+
+
