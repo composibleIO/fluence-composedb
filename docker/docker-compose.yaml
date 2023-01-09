@@ -76,7 +76,7 @@ volumes:
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: '/media/drive-blue/transport-union/fluence-composedb/cdb${N}-fluence'
+      device: '${DATAFOLDER}/cdb${N}-fluence'
     
   ceramic:
     name: cdb${N}-ceramic
@@ -84,7 +84,7 @@ volumes:
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: '/media/drive-blue/transport-union/fluence-composedb/cdb${N}-ceramic'
+      device: '${DATAFOLDER}/cdb${N}-ceramic'
 
   ipfs: 
     name: cdb${N}-ipfs
@@ -92,7 +92,7 @@ volumes:
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: '/media/drive-blue/transport-union/fluence-composedb/cdb${N}-ipfs'
+      device: '${DATAFOLDER}/cdb${N}-ipfs'
 
   composites: 
     name: cdb${N}-composites
@@ -100,7 +100,7 @@ volumes:
     driver_opts:
       type: 'none'
       o: 'bind'
-      device: '/media/drive-blue/transport-union/fluence-composedb/cdb${N}-composites'
+      device: '${DATAFOLDER}/cdb${N}-composites'
 
 networks:
   cdb:
