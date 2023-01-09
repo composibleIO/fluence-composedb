@@ -8,7 +8,7 @@ Say you would want to store blockchain data in a decentralised database. How wou
 [ComposeDB](https://composedb.js.org/) is a decentralised database build on top of Ceramic/IPFS with a graphql interface. Normally, dapps have their own composeDB instance running on a server with a single endpoint. 
 
 ### Protocol pairs
-This demo explores the pairing of fluence nodes with a ComposeDB/Ceramic nodes. Have a look at the docker compose file. 
+This demo explores the pairing of fluence nodes with a ComposeDB/Ceramic nodes. Have a look at the [docker-compose file](./docker/docker-compose.yaml). 
 
 Such a pairing then registers itself on a distributed hashtable on the fluence network, signaling it wishes to facilitate access to a ComposeDB index. These are then called resource providers. 
 
