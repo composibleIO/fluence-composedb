@@ -1,5 +1,5 @@
 
-##Fluence+ComposeDB
+# Fluence+ComposeDB
 
 Fluence and its aqua language provide a logistics functionality to web3. Fluence nodes can pair with nodes of other protocols within a closed docker network, so that we can program actions across the fleunce network piecing together functionality from other protocols into dapps that run in a network (rather than in your browser or on a single server) 
 
