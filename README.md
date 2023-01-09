@@ -1,11 +1,11 @@
 
 # Fluence+ComposeDB
 
-Fluence and its aqua language provide a logistics functionality to web3. Fluence nodes can pair with nodes of other protocols within a closed docker network, so that we can program actions across the fleunce network piecing together functionality from other protocols into dapps that run in a network (rather than in your browser or on a single server) 
+[Fluence](https://fluence.dev/docs/learn/overview) and its aqua language provide a logistics functionality to web3. Fluence nodes can pair with nodes of other protocols within a closed docker network, so that we can program actions across the fleunce network piecing together functionality from other protocols into dapps that run in a network (rather than in your browser or on a single server) 
 
 Say you would want to store blockchain data in a decentralised database. How would you program the scraper, the cleaning and formatting of the data without becoming depended on a single server and using fixed endpoints? 
 
-ComposeDB is a decentralised database build on top of Ceramic/IPFS with a graphql interface. Normally, dapps have their own composeDB instance running on a server with a single endpoint. 
+[ComposeDB](https://composedb.js.org/) is a decentralised database build on top of Ceramic/IPFS with a graphql interface. Normally, dapps have their own composeDB instance running on a server with a single endpoint. 
 
 ### Protocol pairs
 This demo explores the pairing of fluence nodes with a ComposeDB/Ceramic nodes. Have a look at the docker compose file. 
