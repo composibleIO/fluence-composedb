@@ -5,6 +5,8 @@ Fluence and its aqua language provide a logistics functionality to web3. Fluence
 
 Say you would want to store blockchain data in a decentralised database. How would you program the scraper, the cleaning and formatting of the data without becoming depended on a single server and using fixed endpoints? 
 
+ComposeDB is a decentralised database build on top of Ceramic/IPFS with a graphql interface. Normally, dapps have their own composeDB instance running on a server with a single endpoint. 
+
 ### Protocol pairs
 This demo explores the pairing of fluence nodes with a ComposeDB/Ceramic nodes. Have a look at the docker compose file. 
 
