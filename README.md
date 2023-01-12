@@ -1,7 +1,7 @@
 
 # Fluence+ComposeDB
 
-The Transport Union explores distributed backend applications that are governed by collective decision making, seeking innovations by combining functionalities of various decentrlasid protocols. 
+The Transport Union explores distributed backend applications that are governed by collective decision making, seeking innovations by combining functionalities of various decentralized protocols. 
 
 This is a proof of concept demo to show:
 
@@ -17,15 +17,7 @@ This is a proof of concept demo to show:
 
 [ComposeDB](https://composedb.js.org/) is a decentralised database build on top of Ceramic/IPFS with a graphql interface. Normally, dApps have their own ComposeDB instance running on a server with a single endpoint. 
 
-### Protocol pairs
-
-This demo explores the pairing of Fluence nodes with a ComposeDB/Ceramic nodes. Have a look at the [docker-compose file](./docker/docker-compose.yaml). 
-
-Such a pairing then registers itself on a distributed hashtable on the fluence network, signaling it wishes to facilitate access to a ComposeDB index. These are then called resource providers. 
-
-On the frontend you can select one of the available resource providers to make a read only connection. 
-
-### Identity ... 
+## About identity and identifiers 
 
 To write to ComposeDB we need to set up an authenticated connection, using the secret of a DID. 
 
