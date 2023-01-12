@@ -1,31 +1,52 @@
 body {
 
     display: flex;
-    flex-direction: row;
+
+    flex-direction: column;
+
+    @media(min-width: $breakpoint-sm) {
+        flex-direction: row;
+    }
 
 }
 
 aside {
 
-    height: 100vh;
     display: flex;
     flex-direction: column;
     background-color: #ffffff;
+
+    @media(min-width: $breakpoint-sm) {
+        height: 100vh;
+    }
 }
 
 aside#identity-pane {
 
-    width: 240px;
-    border-right: 1px solid #dedede;
-    padding-top: 2.5rem;
- //   background: repeating-linear-gradient( 45deg, #efefef, #efefef 1px, #ffffff 2px, #ffffff 10px );
+    width: calc(100% - 2rem);
+    border-bottom: 1px solid #dedede;
+    padding: 1rem;
+    background: repeating-linear-gradient( 45deg, #efefef, #efefef 1px, #ffffff 2px, #ffffff 10px );
+
+    @media(min-width: $breakpoint-sm) {
+        width: 240px;
+        border-right: 1px solid #dedede;
+        padding: 0;
+        padding-top: 2.5rem;
+    }
 }
 
 aside#data-pane {
 
-    width: 480px;
+    width: calc(100% - 2rem);
     padding: 1rem;
-    border-left: 1px solid #dedede;
+    border-top: 1px solid #dedede;
+
+    @media(min-width: $breakpoint-sm) {
+        width: 480px;
+        padding: 1rem;
+        border-left: 1px solid #dedede;
+    }
 }
 
 main {
@@ -36,32 +57,33 @@ main {
 	flex-direction: column;
 	align-items: center;
 	justify-content: flex-start;
-    padding-top: 3rem;
     padding: 1rem;
-    width: calc(100% - 680px - 2rem - 2px);
-    // border-right: 1px solid #dedede;
-    height: 100vh;
-    overflow: hidden;
+    width: calc(100% - 2rem);
     
-    nav {
-        position: relative;
-        z-index: 102;
+    @media(min-width: $breakpoint-sm) {
+        height: 100vh;
+        overflow: hidden;
+        padding-top: 3rem;
+        width: calc(100% - 680px - 2rem - 2px);
     }
-
+    
     section {
         position: relative;
         flex-direction: column;
         justify-content: center;
         align-items: center;
 
-        // min-width: 600px;
-
         width: 100%;
 
         .block {
             display: flex;
             flex-direction: column;
-            align-items: flex-start;
+            align-items: center;
+
+            @media(min-width: $breakpoint-sm) {
+                align-items: flex-start;
+            }
+            
             
         
             margin: 1.5rem 0 0 0;
@@ -75,60 +97,26 @@ main {
                 border: 1px solid #dedede;
                 padding: 1.5rem;
             }
-        }
 
-        // &:first-of-type {
-
-        //     margin-bottom: 3rem;
-        // }
+        }  
 
         #spinner {
-            padding: 1.5rem;
+            padding: .5rem;
         }
-
-  
     }
-
-   
-   
 }
 
-// aside#marketplace-pane {
-
-//     width: 14%;
-//     border-right: 1px solid #dedede;
-//     height: 100vh;
-//     display: flex;
-//     flex-direction: column;
-//     background: repeating-linear-gradient( -45deg, #efefef, #efefef 1px, #ffffff 2px, #ffffff 10px );
-
-// }
-
-// aside#network-pane {
-
-
-
-//     width: calc(50% - 120px);
-//     // border-right: 1px solid #ccc;
-//     height: 100vh;
-//     display: flex;
-//     flex-direction: column;
-//     background-color: #ffffff;
-//     background-image: radial-gradient(#dedede 0.7500000000000001px, #ffffff 0.7500000000000001px);
-//     background-size: 12px 12px;
-   
-
-//     > div {
-//         max-height: calc(100% - 4rem);
-//         overflow-y: auto;
-//     }
-  
-    
-// }
 
 .block {
+
     padding: .75rem;
-    max-width: 480px;
+    text-align: center;
+
+    @media(min-width: $breakpoint-sm) {
+        text-align: left;
+        max-width: 480px;
+    }
+
 }
 
 #contractor_select_list {
@@ -140,15 +128,23 @@ main {
     margin: 0;
     padding: 0;
     width: 100%;
-    max-width: calc(480px + 3rem);
+
+    @media(min-width: $breakpoint-sm) {
+        max-width: calc(480px + 3rem);
+    }
     
     li {
 
-        flex: 1;
+        width: 100%;
         border: 1px solid #dedede;
         margin: .75rem;
         padding: .75rem;
         cursor: pointer;
+
+        @media(min-width: $breakpoint-sm) {
+            flex: 1;
+            width: auto;
+        }
 
         &:hover {
             background: black;
@@ -157,11 +153,30 @@ main {
         }
 
         &:first-of-type {
-            margin-left: 0;
+            @media(min-width: $breakpoint-sm) {
+                margin-left: 0;
+            }
         }
 
         &:last-of-type {
-            margin-right: 0;
+
+            @media(min-width: $breakpoint-sm) {
+                margin-right: 0;
+            }
+        }
+
+        label {
+            text-transform: lowercase;
+            font-style: italic;
+        }
+
+        span {
+            padding: 0 .25rem;
+            border-right: 1px solid black;
+
+            &:last-of-type {
+                border: none;   
+            }   
         }
     }
 }

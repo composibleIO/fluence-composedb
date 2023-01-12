@@ -1,6 +1,7 @@
 import { doc } from "prettier";
 import { shortenPeerId } from "../factories/format-helpers.service";
 import { IMainController } from "../controllers/main.controller";
+import { IUIController } from "../controllers/ui.controller";
 
 
 interface UiElement {
@@ -9,7 +10,7 @@ interface UiElement {
 
 export interface IButtonService {
 
-    main: IMainController;
+    ui: IUIController;
     buttons: UiElement[];
     init(): void;
     uiClick(e: Event, method:string): void;
@@ -19,12 +20,12 @@ export interface IButtonService {
 
 export class ButtonService implements IButtonService {
 
-    main: IMainController;
+    ui: IUIController;
     buttons: any;
 
-    constructor(main: IMainController) {
+    constructor(ui: IUIController) {
 
-        this.main =  main;
+        this.ui =  ui;
         this.buttons = {};
     }
 
@@ -55,12 +56,12 @@ export class ButtonService implements IButtonService {
         switch(id) {
 
             case 'eth-address':
-                await this.main.eth.connectWallet(); // eth.signInWithEthereum();
+                await this.ui.main.eth.connectWallet(); // eth.signInWithEthereum();
                 this.updateIdentityPane();
-                this.main.authConnection();
+                this.ui.main.authConnection();
             break;
             case 'edit_display_name_button':
-                this.main.initProfileForm();
+                this.ui.main.initProfileForm();
             break;
         }
     }
@@ -80,37 +81,36 @@ export class ButtonService implements IButtonService {
 
     updateIdentityPane() {
 
-        if (this.main.fluence.localPeerId) {
-            this.buttons["select-local-peer"].innerText = shortenPeerId(this.main.fluence.localPeerId);
+        if (this.ui.main.fluence.localPeerId) {
+            this.buttons["select-local-peer"].innerText = shortenPeerId(this.ui.main.fluence.localPeerId);
             this.buttons["select-local-peer"].parentNode.style.display = "block";
         }
 
-        if (this.main.fluence.relayPeerId != undefined) {
-            this.buttons["select-relay-peer"].innerText = shortenPeerId(this.main.fluence.relayPeerId);
+        if (this.ui.main.fluence.relayPeerId != undefined) {
+            this.buttons["select-relay-peer"].innerText = shortenPeerId(this.ui.main.fluence.relayPeerId);
             this.buttons["select-relay-peer"].parentNode.style.display = "block";
         }
 
-        if (this.main.fluence.connection && this.main.fluence.status) {
+        if (this.ui.main.fluence.connection && this.ui.main.fluence.status) {
 
-            if (this.main.fluence.status.isConnected) {
+            if (this.ui.main.fluence.status.isConnected) {
                 this.buttons["select-local-peer"].classList.add("connected");
                 this.buttons["select-relay-peer"].classList.add("connected");   
             }
         }
 
-        if (this.main.contractor.object != undefined) {
-            this.buttons["select-contractor"].innerText = shortenPeerId(this.main.contractor.object.metadata.peer_id);
+        if (this.ui.main.contractor.object != undefined) {
+            this.buttons["select-contractor"].innerText = shortenPeerId(this.ui.main.contractor.object.metadata.peer_id);
             this.buttons["select-contractor"].parentNode.style.display = "block";
             this.buttons["eth-address"].parentNode.style.display = "flex";
-           
         }
 
-        if (this.main.composedb.isConnected()) {
+        if (this.ui.main.composedb.isConnected()) {
             this.buttons["select-contractor"].classList.add("connected"); 
         }
 
-        if (this.main.eth.walletAddress != undefined) {
-            this.buttons["eth-address"].innerText = shortenPeerId(this.main.eth.walletAddress);  
+        if (this.ui.main.eth.walletAddress != undefined) {
+            this.buttons["eth-address"].innerText = shortenPeerId(this.ui.main.eth.walletAddress);  
         }
 
          this.init();

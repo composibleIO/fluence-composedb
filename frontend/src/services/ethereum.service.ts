@@ -10,8 +10,6 @@ const provider = new ethers.providers.Web3Provider(window.ethereum);
 const jsonRpc = new ethers.providers.JsonRpcProvider(window.ethereum);
 const signer = provider.getSigner();
 
-const contactAddress = "0xa8b51F331635E3772B7711E0bA68C3B9c4CF2EFC";
-
 export interface IEthereumService {
 
     chain: string,
@@ -39,7 +37,7 @@ export class EthereumService implements IEthereumService {
             this.walletAddress = ethers.utils.getAddress(accounts[0]);
             setTimeout( () => {
                 this.main.ethAddressSwitch();
-            },250);
+            },100);
         });
     }
 
@@ -51,7 +49,7 @@ export class EthereumService implements IEthereumService {
     async connectWallet() : Promise<string> {
 
         await provider.send('eth_requestAccounts', [])
-            .catch(() => console.log('user rejected request'));
+            .catch(() => alert('user rejected request'));
 
         this.walletAddress  = ethers.utils.getAddress(await signer.getAddress());
 

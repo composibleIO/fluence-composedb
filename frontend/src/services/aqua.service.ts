@@ -10,8 +10,8 @@ export interface IAquaService {
     hasIntermediary: () => Promise<Intermediary[]>;
     storeIntermediary: (intermediary: Intermediary) => Promise<Intermediary[]>;
     connect: (index: CdbIndex) => Promise<CdbConnection>;
-    query: (connection: CdbConnection) => Promise<any>;
-    update: (name: string) => Promise<any>;
+    query: (query: string, connection: CdbConnection) => Promise<any>;
+    update: (displayName: string, accountId: string) => Promise<any>;
 }
 
 const node = "";
@@ -43,6 +43,8 @@ export class AquaService implements IAquaService {
     }
 
     async connect(index: CdbIndex): Promise<CdbConnection> {    
+
+        console.log(JSON.stringify(this.main.cap.getCap()));
      
         return await cdbConnect(
             this.main.fluence.connection, 
@@ -53,14 +55,15 @@ export class AquaService implements IAquaService {
             this.main.contractor.cid.toString(),
             { ttl: 60000 }
         )
-    }
+    } 
 
-    async query(connection:CdbConnection) {
+    async query(query: string, connection:CdbConnection) {
 
         let response = await cdbQuery(
             this.main.fluence.connection, 
             this.main.contractor.peerId.toString(), 
             this.main.contractor.serviceId.toString(),
+            query,
             connection,
             this.main.contractor.cid.toString()
         );
@@ -70,13 +73,14 @@ export class AquaService implements IAquaService {
         return JSON.parse(response.stderr);
     }
 
-    async update(name: string) {
+    async update(displayName: string, accountId: string) {
 
         return await cdbMutate(
             this.main.fluence.connection, 
             this.main.contractor.peerId.toString(), 
             this.main.contractor.serviceId.toString(),
-            name, 
+            displayName, 
+            accountId,
             JSON.stringify(this.main.cap.getCap()),
             this.main.composedb.connection,
             this.main.contractor.cid.toString(),

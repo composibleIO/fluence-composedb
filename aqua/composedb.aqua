@@ -10,8 +10,8 @@ service ComposeDBSrv("ComposeDBSrv"):
     has_intermediary(user_address: string, cid: string) -> []CdbIntermediary
     store_intermediary(intermediary: CdbIntermediary, cid: string) -> []CdbIntermediary
     deploy_index(index: CdbIndex, cid: string) -> string
-    query(connection: CdbConnection, cid: string) -> CeramicResult
-    mutate(display_name: string, cap: string, connection: CdbConnection, cid: string) -> CeramicResult
+    query(query: string, connection: CdbConnection, cid: string) -> CeramicResult
+    mutate(display_name: string, account_id: string, cap: string, connection: CdbConnection, cid: string) -> CeramicResult
     serve(index: CdbIndex, cid: string) -> CdbConnection
     connect(index: CdbIndex, cap: string, cid: string) -> CdbConnection
 
@@ -34,6 +34,14 @@ func cdbInit(resource_id: ResourceId,  peer_id: PeerId, service_id: ?string, nam
         success, errors <- registerService(resource_id, cid, peer_id, service_id)
    
     <- cid, results, connections, success, errors
+
+func cdbConfirmAvailability(peer_id: PeerId, cid: string, service_id: ?string) :
+
+        resource_id = "5zb7zPgUZTTvvJxT4E16sHo6CvguG9Rs2K91YAwGqiLM"
+
+        on peer_id: 
+            registerService(resource_id, cid, peer_id, service_id)
+
 
 
 
@@ -96,21 +104,21 @@ func cdbConnect(peer_id: PeerId, service_id: string, index: CdbIndex, cap: strin
 
     <- c
 
-func cdbQuery(node: string, service_id: string, connection: CdbConnection, cid: string) -> CeramicResult:
+func cdbQuery(node: string, service_id: string, query: string, connection: CdbConnection, cid: string) -> CeramicResult:
 
     on node:
 
         ComposeDBSrv service_id
-        ref <- ComposeDBSrv.query(connection, cid)
+        ref <- ComposeDBSrv.query(query, connection, cid)
 
     <- ref
 
-func cdbMutate(node: string, service_id: string, display_name: string, cap: string, connection: CdbConnection, cid: string) -> CeramicResult:
+func cdbMutate(node: string, service_id: string, display_name: string, account_id: string, cap: string, connection: CdbConnection, cid: string) -> CeramicResult:
 
     on node:
 
         ComposeDBSrv service_id
-        res <- ComposeDBSrv.mutate(display_name, cap, connection, cid)
+        res <- ComposeDBSrv.mutate(display_name, account_id, cap, connection, cid)
 
     <- res 
 

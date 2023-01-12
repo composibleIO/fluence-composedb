@@ -39,48 +39,69 @@ export class CeramicService implements ICeramicService {
           // console.log(cap);
           // console.log(self._connections);
 
-          // check if capability object was signed by correct user 
-          if (!self._keys.validate(cap)) {
-            return resolve("invalid capability")
-          }
-      
-          const spawn = require('child-process-promise').spawn;
-      
-          const args = self.formatArgs(index, cap);
-      
-          const promise = spawn('composedb', args);
-          const childProcess = promise.childProcess;  
-          console.log('[spawn] childProcess.pid: ', childProcess.pid);  
-      
-          childProcess.stdout.on('data', function (data: any) {
-            console.log('[serve] stdout: ', data.toString());
-          });
-          childProcess.stderr.on('data', function (data: any) {
-             
-            console.log('[serve] stderr: ', data.toString());
-      
-            let port = self.extractPort(data.toString());
+          try {
 
-            if(port != '') {
-      
-              let pid = parseInt(childProcess.pid.toString());
-
-              // store connection in memory 
-              let c: Connection = {
-                composite: index.composite,
-                model: index.model,
-                name: index.name,
-                port,
-                pid,
-                "timestamp": Date.now(),
-                user: cap != null ? cap.did  : "public"
-              };
-
-              self.store(c);
-              console.log(c);
-              resolve(c);
+            // check if capability object was signed by correct user 
+            if (!self._keys.validate(cap)) {
+              return resolve("invalid capability")
             }
-          });
+        
+            const spawn = require('child-process-promise').spawn;
+        
+            const args = self.formatArgs(index, cap);
+        
+            const promise = spawn('composedb', args);
+            const childProcess = promise.childProcess;  
+            console.log('[spawn] childProcess.pid: ', childProcess.pid);  
+        
+            childProcess.stdout.on('data', function (data: any) {
+              console.log('[serve] stdout: ', data.toString());
+            });
+            childProcess.stderr.on('data', function (data: any) {
+              
+              console.log('[serve] stderr: ', data.toString());
+        
+              let port = self.extractPort(data.toString());
+
+              if(port != '') {
+        
+                let pid = parseInt(childProcess.pid.toString());
+
+                // store connection in memory 
+                let c: Connection = {
+                  composite: index.composite,
+                  model: index.model,
+                  name: index.name,
+                  port,
+                  pid,
+                  "timestamp": Date.now(),
+                  user: cap != null ? cap.did  : "public"
+                };
+
+                self.store(c);
+                console.log(c);
+                resolve(c);
+              }
+            });
+
+          }
+
+          // make sure request does not break app ... 
+          // for example when no correct keys can be found  (when user=provider)
+          catch {
+
+            let c: Connection = {
+              composite: index.composite,
+              model: index.model,
+              name: index.name,
+              port: "0",
+              pid: 0,
+              "timestamp": Date.now(),
+              user: "failed"
+            };
+
+            resolve(c);
+          } 
         });
     }
     
@@ -103,7 +124,8 @@ export class CeramicService implements ICeramicService {
 
         args.push('--did-private-key')
       
-        if (cap && cap != null) {
+        // i may need to move this forward .. check internediary keys and optional capability before trying to making a connection 
+        if (cap && cap != null && this._keys.has(cap)) {
           let pk = this._keys.decrypt(cap);
           args.push(pk)
         }  else {

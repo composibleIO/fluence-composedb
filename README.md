@@ -1,7 +1,7 @@
 
 # Fluence+ComposeDB
 
-[Fluence](https://fluence.dev/docs/learn/overview) and its aqua language provide a logistics functionality to web3. Fluence nodes can pair with nodes of other protocols within a closed docker network, so that we can program actions across the fleunce network piecing together functionality from other protocols into dapps that run in a network (rather than in your browser or on a single server) 
+[Fluence](https://fluence.dev/docs/learn/overview) and its aqua language provide a logistics functionality to web3. Fluence nodes can pair with nodes of other protocols within a closed docker network, so that we can program actions across the Fluence network piecing together functionality from other protocols into dapps that run in a network (rather than in your browser or on a single server).
 
 Say you would want to store blockchain data in a decentralised database. How would you program the scraper, the cleaning and formatting of the data without becoming depended on a single server and using fixed endpoints? 
 

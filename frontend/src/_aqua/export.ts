@@ -190,6 +190,7 @@ export type CdbQueryResult = { stderr: string; stdout: string; }
 export function cdbQuery(
     node: string,
     service_id: string,
+    query: string,
     connection: CdbQueryArgConnection,
     cid: string,
     config?: {ttl?: number}
@@ -199,6 +200,7 @@ export function cdbQuery(
     peer: FluencePeer,
     node: string,
     service_id: string,
+    query: string,
     connection: CdbQueryArgConnection,
     cid: string,
     config?: {ttl?: number}
@@ -215,10 +217,13 @@ export function cdbQuery(...args: any) {
                          (seq
                           (seq
                            (seq
-                            (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
-                            (call %init_peer_id% ("getDataSrv" "node") [] node)
+                            (seq
+                             (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
+                             (call %init_peer_id% ("getDataSrv" "node") [] node)
+                            )
+                            (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
                            )
-                           (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
+                           (call %init_peer_id% ("getDataSrv" "query") [] query)
                           )
                           (call %init_peer_id% ("getDataSrv" "connection") [] connection)
                          )
@@ -228,7 +233,7 @@ export function cdbQuery(...args: any) {
                        )
                        (xor
                         (seq
-                         (call node (service_id "query") [connection cid] ref)
+                         (call node (service_id "query") [query connection cid] ref)
                          (call -relay- ("op" "noop") [])
                         )
                         (seq
@@ -259,6 +264,10 @@ export function cdbQuery(...args: any) {
                     "name" : "string"
                 },
                 "service_id" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                },
+                "query" : {
                     "tag" : "scalar",
                     "name" : "string"
                 },
@@ -876,6 +885,7 @@ export function cdbMutate(
     node: string,
     service_id: string,
     display_name: string,
+    account_id: string,
     cap: string,
     connection: CdbMutateArgConnection,
     cid: string,
@@ -887,6 +897,7 @@ export function cdbMutate(
     node: string,
     service_id: string,
     display_name: string,
+    account_id: string,
     cap: string,
     connection: CdbMutateArgConnection,
     cid: string,
@@ -906,12 +917,15 @@ export function cdbMutate(...args: any) {
                            (seq
                             (seq
                              (seq
-                              (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
-                              (call %init_peer_id% ("getDataSrv" "node") [] node)
+                              (seq
+                               (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
+                               (call %init_peer_id% ("getDataSrv" "node") [] node)
+                              )
+                              (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
                              )
-                             (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
+                             (call %init_peer_id% ("getDataSrv" "display_name") [] display_name)
                             )
-                            (call %init_peer_id% ("getDataSrv" "display_name") [] display_name)
+                            (call %init_peer_id% ("getDataSrv" "account_id") [] account_id)
                            )
                            (call %init_peer_id% ("getDataSrv" "cap") [] cap)
                           )
@@ -923,7 +937,7 @@ export function cdbMutate(...args: any) {
                        )
                        (xor
                         (seq
-                         (call node (service_id "mutate") [display_name cap connection cid] res)
+                         (call node (service_id "mutate") [display_name account_id cap connection cid] res)
                          (call -relay- ("op" "noop") [])
                         )
                         (seq
@@ -958,6 +972,10 @@ export function cdbMutate(...args: any) {
                     "name" : "string"
                 },
                 "display_name" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                },
+                "account_id" : {
                     "tag" : "scalar",
                     "name" : "string"
                 },

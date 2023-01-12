@@ -8,6 +8,7 @@ dotenv.config()
 
 export interface IKeyService  {
 
+    has(cap: Capability) : boolean
     decrypt(cap: Capability) : string
     validate(cap: Capability) : boolean
 }
@@ -16,22 +17,35 @@ export class KeyService implements IKeyService {
 
     constructor() {}
 
-    decrypt(cap: Capability) : string {
 
-        const encryptedData = JSON.parse(
-          new TextDecoder().decode(
-            toBuffer(
-              cap.keys.find( (k: SecretKey) => k.recipient == process.env.PROVIDER_ADDRESS).encrypted_key
-            )
-          )
-        );
-  
-        return decrypt({
-          encryptedData,
-          privateKey: process.env.PROVIDER_KEY
-        });
+    has(cap: Capability) : boolean  {
+
+      const key = cap.keys.find( (k: SecretKey) => k.recipient == process.env.PROVIDER_ADDRESS);
+
+      return (key == null || key == undefined) ? false : true
+
     }
 
+    // decrypt secret for intermediary DID 
+    decrypt(cap: Capability) : string {
+
+      const key = cap.keys.find( (k: SecretKey) => k.recipient == process.env.PROVIDER_ADDRESS);
+
+      const encryptedData = JSON.parse(
+        new TextDecoder().decode(
+          toBuffer(
+            cap.keys.find( (k: SecretKey) => k.recipient == process.env.PROVIDER_ADDRESS).encrypted_key
+          )
+        )
+      );
+
+      return decrypt({
+        encryptedData,
+        privateKey: process.env.PROVIDER_KEY
+      });
+    }
+
+    // validate signature with capability
     validate(cap: Capability): boolean {
 
       if (cap === null) {

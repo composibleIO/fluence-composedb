@@ -128,21 +128,21 @@ pub fn store_intermediary(intermediary: TUIntermediary, cid: String) -> Vec<TUIn
 }
 
 #[marine] 
-pub fn mutate(display_name: String, cap: String, connection: Connection, contractor_cid: &String ) -> crate::types::Result {
+pub fn mutate(display_name: String, account_id: String, cap: String, connection: Connection, contractor_cid: &String ) -> crate::types::Result {
 
     let query_url = endpoints::query_url(contractor_cid, connection);
-    let request = "{\"query\":\"mutation{createSimpleProfile(input:{content:{displayName:\\\"$N\\\"}}){document{ displayName}}}\"}";
+    let request = "{\"query\":\"mutation{createTU_Profile(input:{content:{displayName:\\\"$N\\\",accountId:\\\"$A\\\"}}){document{ displayName,accountId}}}\"}";
     let request = request.replace("$N", &display_name);
+    let request = request.replace("$A", &account_id);
     
     http_requests::mutate(request.to_string(), query_url)
 }
 
 #[marine] 
-pub fn query(connection: Connection, contractor_cid: &String) -> types::Result {
+pub fn query(query: String, connection: Connection, contractor_cid: &String) -> types::Result {
 
     let query_url = endpoints::query_url(contractor_cid, connection);
-    let request = "{\"query\":\"query{simpleProfileIndex(first:100){edges{node{displayName,owner{id}}}}}\"}".to_owned();
-    let response = http_requests::query(request, query_url);
+    let response = http_requests::query(query, query_url);
 
     response
 }

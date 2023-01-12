@@ -1,5 +1,5 @@
 import Handlebars from "handlebars";
-import { IMainController } from "../controllers/main.controller";
+import { IUIController } from "../controllers/ui.controller";
 import { shortenPeerId } from "../factories/format-helpers.service";
 import { Contractor } from "../interfaces/interfaces";
 
@@ -7,13 +7,21 @@ Handlebars.registerHelper('ifEquals', function(arg1, arg2, options) {
     return (arg1 == arg2) ? options.fn(this) : options.inverse(this);
 });
 
-Handlebars.registerHelper('shorten', function(did, options) {
-    return "did:key:.." + did.substr(did.length - 16)
+Handlebars.registerHelper('shortenDid', function(did, options) {
+    return "did:key:.." + did.substr(did.length - 12)
+});
+
+Handlebars.registerHelper('shortenPeer', function(did, options) {
+    return ".." + did.substr(did.length - 12)
+})
+
+Handlebars.registerHelper('shortenAddr', function(did, options) {
+    return ".." + did.substr(did.length - 12)
 });
 
 export interface IHtmlService {
 
-    main: IMainController
+    ui: IUIController
     renderProfileList: (list: any[]) => Element
     rowWithForm: (public_key: string) => Element
     rowInWaiting: (public_key: string) => Element
@@ -22,28 +30,27 @@ export interface IHtmlService {
 
 export class HtmlService implements IHtmlService {
 
-    constructor(public main: IMainController) {}
+    constructor(public ui: IUIController) {}
 
     renderProfileList(list: any[]): Element {
 
         let section = document.getElementById('list');
 
-        const source =`
+        const template = Handlebars.compile(`
                 <table id="profilelist">
                     <tbody>
                     {{#list}}
-                        <tr data-owner={{owner.id}}>
+                        <tr data-owner={{accountId}}>
                             <td>{{displayName}}</td>
-                            <td>{{shorten owner.id}}</td>
+                            <td>{{shortenAddr accountId}}</td>
                             <td>
                             </td>
                         </tr>
                     {{/list}}
                     </tbody>
                 </table>
-            `;
-        
-        const template = Handlebars.compile(source);   
+            `);
+
         section.innerHTML =  template({list});
         return section;
     }
@@ -60,7 +67,7 @@ export class HtmlService implements IHtmlService {
                             <input id="displayName" name="publicKey" type="hidden" value="{{public_key}}">    
                         </form>
                     </td>
-                    <td>{{public_key}}</td>  
+                    <td>{{shortenAddr public_key}}</td>  
                     <td> <button type="submit" form="edit_display_name">Save</button></td>      
             `;
         
@@ -89,8 +96,20 @@ export class HtmlService implements IHtmlService {
         for (let c of selection) {
 
             let li = document.createElement('li');
-            li.onclick = () => { this.main.selectContractor(c) };
-            li.innerHTML = `<span>` + shortenPeerId(c.metadata.peer_id) + `</span>`
+            li.onclick = () => { this.ui.main.selectContractor(c) };
+
+            c.details.composedb.indexes = c.details.composedb.indexes.filter( (i) => i.name !== "tuIntermediaryIndex");
+
+            const template = Handlebars.compile(`
+                <label>Eth address:</label>
+                <div>{{shortenAddr c.details.composedb.public_info.eth_address}}</div>
+                <label>Fluence peer:</label>
+                <div>{{shortenPeer c.metadata.peer_id}}</div>
+                <label>Indexes:</label>
+                <div>{{#each c.details.composedb.indexes}}<span>{{name}}</span>{{/each}}</div>
+            `);  
+
+            li.innerHTML = template({c});
             
             ul.appendChild(li);
         }
