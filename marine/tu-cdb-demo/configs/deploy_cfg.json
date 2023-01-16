@@ -10,7 +10,7 @@
       },
       {
         "name": "facade",
-        "path": "./marine/composedb_demo/artifacts/facade.wasm",
+        "path": "./marine/tu-cdb-demo/artifacts/tu_cdb_demo.wasm",
         "logger_enabled": true
       }
     ]

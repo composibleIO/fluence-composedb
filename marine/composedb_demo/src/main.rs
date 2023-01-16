@@ -147,3 +147,5 @@ pub fn query(query: String, connection: Connection, contractor_cid: &String) -> 
     response
 }
 
+
+
