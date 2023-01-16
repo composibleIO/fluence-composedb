@@ -10,6 +10,7 @@ export interface ICapabilityService {
     getIntermediary: () => Intermediary
     setIntermediary: (intermediary: Intermediary) => void
     newIntermediary: () => Promise<Intermediary>
+    spawnIntermediary: (intermediary: Intermediary) => Promise<Intermediary>
     newCap: () => Capability
     signCap: (cap: Capability, signature: string) => void
 }
@@ -37,10 +38,31 @@ export class CapabilityService implements ICapabilityService {
         this._currentIntermediary = intermediary;
     }
 
+    async spawnIntermediary(intermediary: Intermediary) {
+
+        let keys: SecretKey[] = [];
+        let example = intermediary.keys.find( k => k.recipient = this.main.eth.walletAddress);
+
+        let seed = await this.main.eth.decrypt(intermediary.keys.find( k => k.recipient = this.main.eth.walletAddress).encrypted_key, this.main.eth.walletAddress)
+
+        const i =  {
+            aud: this.main.contractor.serverConfig.public_info.eth_address,
+            did: intermediary.did,
+            iss: this.main.eth.walletAddress,
+            keys
+        }
+
+        this._currentIntermediary = intermediary;
+
+        return i;
+
+    }
+
     async newIntermediary() {
 
         const seed = this.main.did.randomSeed();
         const did = await this.main.did.new(seed);
+
         let keys: SecretKey[] = [];
 
         keys.push({

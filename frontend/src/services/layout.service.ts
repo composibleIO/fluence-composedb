@@ -18,6 +18,8 @@ export interface ILayoutService {
     addContractorSelectList: (html: Element) => void;
     showSection: (id: string) => void
     hideSection: (id: string) => void
+    clearSection: (id: string) => void;
+    toggleSpinner: (id: string) => void;
 
 }
 
@@ -63,6 +65,28 @@ export class LayoutService implements ILayoutService {
     hideSection(id: string) {
         this.sections[id].hidden = true;
     }
+
+    clearSection(id: string) {
+
+        switch (id) {
+            case "list" :
+                let t =  this.sections[id].querySelector('.block table');
+                if (t != null)  t.remove() 
+            break;
+            case "select_contractor" :
+                let ul =  this.sections[id].querySelector('.block ul');
+                if(ul !== null) ul.remove();
+            break;
+        }
+
+       
+    }
+
+    toggleSpinner(id: string) {
+
+        let s = this.sections[id].querySelector('.spinner');
+        if (s !== null) s.classList.toggle("in_view");
+    } 
 
     addContractorSelectList(html: Element) {
         this.sections.select_contractor.querySelector('.block').appendChild(html, this.panes.main.querySelector('section:nth-child(2)'));

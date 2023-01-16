@@ -47,6 +47,10 @@ aside#data-pane {
         padding: 1rem;
         border-left: 1px solid #dedede;
     }
+
+    #list {
+        padding-bottom: 3rem;
+    }
 }
 
 main {
@@ -69,6 +73,7 @@ main {
     
     section {
         position: relative;
+        // display: flex;
         flex-direction: column;
         justify-content: center;
         align-items: center;

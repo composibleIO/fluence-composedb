@@ -2,7 +2,7 @@ import { ethers } from 'ethers';
 import { IMainController } from '../controllers/main.controller';
 import { bufferToHex }  from 'ethereumjs-util';
 import { encrypt, recoverPersonalSignature } from '@metamask/eth-sig-util';
-
+import { EthereumWebAuth, getAccountId } from '@didtools/pkh-ethereum'
 
 const domain = window.location.host;
 const origin = window.location.origin;
@@ -18,6 +18,8 @@ export interface IEthereumService {
     sign: (msg: string) => Promise<string>
     getEncryptionPublicKey: (address: string) => Promise<string>,
     encrypt: (string: string, receiverAddress: string) => Promise<string>
+    decrypt: (string: string, receiverAddress: string) => Promise<string>
+    getWebAuth: () => Promise<any>
 }
 
 export class EthereumService implements IEthereumService {
@@ -70,8 +72,6 @@ export class EthereumService implements IEthereumService {
 
     async encrypt(content: string, encryptionPublicKey: string): Promise<string> {
 
-        // console.log(encryptionPublicKey);
-
         const encryptedMessage = bufferToHex(
             Buffer.from(
                 JSON.stringify(
@@ -88,6 +88,7 @@ export class EthereumService implements IEthereumService {
         return encryptedMessage;
     }
 
+
     async decrypt(encrypted_content: string, receiverAddress: string) : Promise<string>  {
         
         return await provider.send("eth_decrypt", [encrypted_content, receiverAddress]);
@@ -100,6 +101,7 @@ export class EthereumService implements IEthereumService {
             provider
                 .send('eth_getEncryptionPublicKey',[address])
                 .then((result: string) => {
+                    alert("please approve so that brave wallet does not crash");
                     resolve(result);
                 })
                 .catch((error: any) => {
@@ -114,4 +116,14 @@ export class EthereumService implements IEthereumService {
                 });
         })
     }
+
+    async getWebAuth() {
+
+        // provider differs from ethers provider used above .... 
+        const ethProvider = window.ethereum;
+        const addresses = await ethProvider.enable();
+        const accountId = await getAccountId(ethProvider, addresses[0]);
+        return await EthereumWebAuth.getAuthMethod(ethProvider, accountId);
+    }
 }
+

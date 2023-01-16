@@ -43,8 +43,6 @@ export class AquaService implements IAquaService {
     }
 
     async connect(index: CdbIndex): Promise<CdbConnection> {    
-
-        console.log(JSON.stringify(this.main.cap.getCap()));
      
         return await cdbConnect(
             this.main.fluence.connection, 
@@ -68,7 +66,7 @@ export class AquaService implements IAquaService {
             this.main.contractor.cid.toString()
         );
 
-        console.log(response);
+        // console.log(response);
     
         return JSON.parse(response.stderr);
     }

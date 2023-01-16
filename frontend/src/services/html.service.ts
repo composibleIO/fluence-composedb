@@ -83,8 +83,8 @@ export class HtmlService implements IHtmlService {
 
         let row = document.createElement("tr");
         row.setAttribute("data-owner", public_key);
-        row.innerHTML = '<td>...</td><td>' + public_key + '</td><td></td>';
-
+        const template = Handlebars.compile('<td>...</td><td>{{shortenAddr public_key}}</td><td></td>');
+        row.innerHTML = template({public_key});
         return row;
     }
 

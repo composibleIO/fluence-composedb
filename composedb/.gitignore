@@ -1,0 +1,5 @@
+src/.env
+dist
+node_modules
+upload.sh
+package-lock.json

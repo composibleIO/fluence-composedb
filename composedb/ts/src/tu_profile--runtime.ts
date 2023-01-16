@@ -1,0 +1,3 @@
+import { RuntimeCompositeDefinition } from "@composedb/types";
+
+export const definition: RuntimeCompositeDefinition = {"models":{"TU_Profile":{"id":"kjzl6hvfrbw6c5ma5crdcdiyxq7yw5zqpt6o0ercwuy1bw3920z8u7ty8ia3p82","accountRelation":{"type":"single"}}},"objects":{"TU_Profile":{"accountId":{"type":"string","required":true},"displayName":{"type":"string","required":true}}},"enums":{},"accountData":{"tuProfile":{"type":"node","name":"TU_Profile"}}}

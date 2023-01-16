@@ -1,0 +1,35 @@
+{
+  "name": "composedb-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "build": "npx tsc",
+    "bundle": "npx esbuild ./build/cli.js  --bundle --outfile=cdb.cjs --format=cjs --platform=node",
+    "package": "pkg cdb.cjs --targets node16-linux-x64 --output cdb"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@composedb/types": "^0.3.1",
+    "@types/node": "^18.11.18",
+    "@types/yargs": "^17.0.19",
+    "pkg": "^5.8.0",
+    "typescript": "^4.9.4"
+  },
+  "dependencies": {
+    "@ceramicnetwork/http-client": "^2.13.0",
+    "@composedb/client": "^0.3.1",
+    "@composedb/devtools-node": "^0.3.1",
+    "graphql": "^16.6.0",
+    "key-did-provider-ed25519": "^2.0.1",
+    "key-did-resolver": "^2.3.0",
+    "multiformats": "^11.0.0",
+    "u8a": "^1.0.0",
+    "uint8arrays": "^4.0.3",
+    "yargs": "^17.6.2"
+  }
+}

@@ -63,6 +63,9 @@ export class ButtonService implements IButtonService {
             case 'edit_display_name_button':
                 this.ui.main.initProfileForm();
             break;
+            case 'select-contractor':
+                this.ui.main.findContractor();
+            break;
         }
     }
 
@@ -100,6 +103,7 @@ export class ButtonService implements IButtonService {
         }
 
         if (this.ui.main.contractor.object != undefined) {
+
             this.buttons["select-contractor"].innerText = shortenPeerId(this.ui.main.contractor.object.metadata.peer_id);
             this.buttons["select-contractor"].parentNode.style.display = "block";
             this.buttons["eth-address"].parentNode.style.display = "flex";

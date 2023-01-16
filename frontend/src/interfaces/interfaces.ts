@@ -67,12 +67,6 @@ export interface CeramicResult {
     stdout: string,
 }
 
-
-// export interface WalletKeyRelation {
-//     walletAddress: string,
-//     didKey: string
-// }
-
 export interface SecretKey {
     encrypted_key: string,
     recipient: string,

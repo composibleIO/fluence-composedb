@@ -34,6 +34,19 @@ services:
     networks:
       - cdb
 
+  compose:
+    image: composedb--nodejs
+    container_name: cdb${N}_compose
+    build:
+      context: .
+      dockerfile: ./composedb.dockerfile
+    restart: unless-stopped
+    volumes:
+      - ./.env${N}:/opt/composedb/.env
+      - composites:/opt/composites
+    networks:
+      - cdb
+
   ipfs:
     image: ceramicnetwork/go-ipfs-daemon:latest
     container_name: cdb${N}_ipfs

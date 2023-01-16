@@ -14,24 +14,9 @@ use crate::types::TUKey;
 pub fn main() {}
 
 
+pub fn has_intermediary(user_address: &String, endpoint: &String) -> Vec<TUIntermediary> {
 
-pub fn has_intermediary(user_address: String, endpoint: String) -> Vec<TUIntermediary>{
-
-    if let Some(intermediary) = find_intermediary(&user_address, &endpoint) {
-
-        vec!(convert(intermediary))
-
-    } else {
-        
-        vec!()
-    }
-}
-
-fn find_intermediary(user_address: &String, endpoint: &String) -> Option<Value> {
-
-    let mut res: Option<Value> = None;
-
-    let provider_address= String::from("0x2829199C88ae7A58E68A8FdBb97c4E47101C0332");
+    let mut available_intermediaries: Vec<TUIntermediary> = vec!();
 
     let intermediaries_as_string = intermediaries(endpoint);
     let intermediaries_as_value: serde_json::Value = serde_json::from_str(&intermediaries_as_string).unwrap();
@@ -39,8 +24,9 @@ fn find_intermediary(user_address: &String, endpoint: &String) -> Option<Value> 
     let mut array: Vec<String> = vec!();
 
     if let Some(intermediaries) = intermediaries_as_value["data"]["tU_IntermediaryIndex"]["edges"].as_array() {
+
         for intermediary in intermediaries {
-            if intermediary["node"]["iss"].to_string().replace("\"","") == user_address.to_owned() && intermediary["node"]["aud"].to_string().replace("\"","") == provider_address  {
+            if intermediary["node"]["iss"].to_string().replace("\"","") == user_address.to_owned() {
 
                 let mut i = intermediary["node"].to_owned();
                 let mut array: Vec<Value> = vec!();
@@ -49,15 +35,14 @@ fn find_intermediary(user_address: &String, endpoint: &String) -> Option<Value> 
                     for key in keys {
                         array.push(key["node"].to_owned())
                     }
-                }
-                
+                } 
                 i["keys"] = serde_json::Value::Array(array);
-
-                res = Some(i);
+                available_intermediaries.push(convert(i));
             }
         }
     }
-    res
+    
+    available_intermediaries
 }
 
 pub fn store_intermediary(intermediary: TUIntermediary, endpoint: String) -> Vec<TUIntermediary> {
@@ -80,7 +65,7 @@ pub fn store_intermediary(intermediary: TUIntermediary, endpoint: String) -> Vec
 
     let res3 = crate::curl::curl_request(curl_args(key_request_string(find_key(&intermediary.keys, &intermediary.iss).unwrap(), &stream_id, &intermediary.did), &endpoint));
   
-    has_intermediary(intermediary.iss, endpoint)
+    has_intermediary(&intermediary.iss, &endpoint)
 }
 
 fn find_key(keys: &Vec<TUKey>, recipient: &String) -> Option<TUKey> {

@@ -118,7 +118,7 @@ pub fn contractor_details(cid: &String) -> types::ContractorDetails {
 #[marine]
 pub fn has_intermediary(user_address: String, cid: String) -> Vec<TUIntermediary>  {
 
-    intermediaries::has_intermediary(user_address, endpoints::format_intermediaries_endpoint(&cid))
+    intermediaries::has_intermediary(&user_address, &endpoints::format_intermediaries_endpoint(&cid))
 }
 
 #[marine]

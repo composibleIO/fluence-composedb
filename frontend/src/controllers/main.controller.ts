@@ -30,6 +30,7 @@ export interface IMainController {
     fluence: IFluenceService;
     graphql: IGraphqlService;
     ui: IUIController;    
+    findContractor: () => void;
     selectContractor : (contractor: Contractor) => void
     ethAddressSwitch: () => void;
     authConnection: () => void;
@@ -56,7 +57,7 @@ export class MainController implements IMainController  {
       this.cap = new CapabilityService(this);
       this.composedb = new ComposeDBService();
       this.contractor = new ContractorService(this);
-      this.did = new DidService();
+      this.did = new DidService(this);
       this.eth = new EthereumService(this);
       this.fluence = new FluenceService(this);
       this.graphql = new GraphqlService();
@@ -71,13 +72,19 @@ export class MainController implements IMainController  {
         this.ui.beforeInit();
         let success = await this.fluence.connectToRandomRelayPeer();
         this.ui.afterInit();
-        let selection = await this.contractor.find();
-        console.log(selection);
-        this.ui.beforeSelectContractor(selection);
+        this.findContractor()
+    }
+
+    async findContractor() {
+      this.ui.beforeFindContractor();
+      let selection = await this.contractor.find();
+      console.log(selection);
+      this.ui.beforeSelectContractor(selection);
     }
 
     selectContractor(contractor: Contractor) {
       this.contractor.select(contractor);
+      this.ui.afterSelectContractor();
       this.renewProfileList();
     }
 
@@ -105,8 +112,31 @@ export class MainController implements IMainController  {
 
     async checkIntermediary() {
 
-      let hasIntermediary = await this.aqua.hasIntermediary();
-      return (hasIntermediary.length > 0) ? this.cap.setIntermediary(hasIntermediary[0]) : await this.createIntermediary();
+      let available_intermediaries = await this.aqua.hasIntermediary();
+
+      let i_for_this_contractor = available_intermediaries.find( i => i.aud === this.contractor.serverConfig.public_info.eth_address);
+
+      if (i_for_this_contractor != undefined) {
+
+        this.cap.setIntermediary(i_for_this_contractor);
+      
+      } else if (available_intermediaries.length > 0) {
+
+        await this.cap.spawnIntermediary(available_intermediaries[0]);
+
+      } else {
+
+        await this.createIntermediary();
+      }
+
+
+    }
+
+    async createIntermediary() {
+
+      let intermediary = await this.cap.newIntermediary();
+      await this.aqua.storeIntermediary(intermediary);
+      return intermediary;
     }
 
     async checkCap() {
@@ -123,30 +153,25 @@ export class MainController implements IMainController  {
       }
       this.ui.afterCheckCapability(cap);
     }
-
-    async createIntermediary() {
-
-      let intermediary = await this.cap.newIntermediary();
-      await this.aqua.storeIntermediary(intermediary);
-      return intermediary;
-    }
-
+    
     async authConnection() {
+
+      await this.did.deriveDidPkh();
       
-      await this.checkIntermediary(); 
-      this.ui.afterCheckIntermediary(this.cap.getIntermediary());
-      await this.checkCap();
+      // await this.checkIntermediary(); 
+      // this.ui.afterCheckIntermediary(this.cap.getIntermediary());
+      // await this.checkCap();
 
-      let index = this.contractor.serverConfig.indexes.find( (i: CdbIndex) => i.name == indexName);
-      index.port = "5502";
+      // let index = this.contractor.serverConfig.indexes.find( (i: CdbIndex) => i.name == indexName);
+      // index.port = "5502";
 
-      const time1 = Date.now();
-      this.composedb.connection = await this.aqua.connect(index);
-      console.log('auth connection: ' + (Date.now() - time1) / 1000 + 'sec');
+      // const time1 = Date.now();
+      // this.composedb.connection = await this.aqua.connect(index);
+      // console.log('auth connection: ' + (Date.now() - time1) / 1000 + 'sec');
 
-      if(this.composedb.isConnected()) {
-        this.ui.afterConnection(this.composedb.connection);
-      }
+      // if(this.composedb.isConnected()) {
+      //   this.ui.afterConnection(this.composedb.connection);
+      // }
     }
 
     initProfileForm() {
@@ -161,9 +186,6 @@ export class MainController implements IMainController  {
           throw("somehow you switched wallets");
         }
         const time3 = Date.now();
-     //   let q = '{"query":"mutation{createTU_Profile(input:{content:{displayName:\"' + formData.displayName + '\", accountId:\"' + formData.publicKey + '\"}}){document{ displayName,accountId}}}\"}'
-      //   let q = '{"query":"mutation{createTU_Profile(input:{content:{displayName:' + formData.displayName + ', accountId: ' + formData.publicKey + '}}){document{ displayName}}}"}';
-      
         let r = await this.aqua.update(formData.displayName,formData.publicKey);
         console.log('update: ' + (Date.now() - time3) / 1000 + 'sec');
         await this.renewProfileList();

@@ -35,6 +35,18 @@ func cdbInit(resource_id: ResourceId,  peer_id: PeerId, service_id: ?string, nam
    
     <- cid, results, connections, success, errors
 
+func cdbReregister(peer_id: PeerId, service_id: ?string, cid: string) -> bool, *Error:
+
+    resource_id = "5zb7zPgUZTTvvJxT4E16sHo6CvguG9Rs2K91YAwGqiLM"
+
+    on peer_id: 
+
+        success, errors <- registerService(resource_id, cid, peer_id, service_id)
+
+    <- success, errors
+
+
+
 func cdbConfirmAvailability(peer_id: PeerId, cid: string, service_id: ?string) :
 
         resource_id = "5zb7zPgUZTTvvJxT4E16sHo6CvguG9Rs2K91YAwGqiLM"

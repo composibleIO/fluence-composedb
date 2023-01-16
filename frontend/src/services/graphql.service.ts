@@ -15,4 +15,9 @@ export class GraphqlService {
         }
         return array;
     }  
+
+
+    writeEncodedComposite() {
+        
+    }
  }

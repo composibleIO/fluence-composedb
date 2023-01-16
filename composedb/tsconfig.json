@@ -1,0 +1,19 @@
+{
+    "compilerOptions": {
+      "rootDir": "ts",
+      "outDir": "dist",
+      "target": "es2020",
+      "lib": ["es2020", "DOM"],
+      "module": "ES2020", // (A)
+      "moduleResolution": "Node", // (B)
+      "strict": true,
+      "sourceMap": true,
+      "skipLibCheck": true,
+      "esModuleInterop": true,
+      "forceConsistentCasingInFileNames": true,
+      "noFallthroughCasesInSwitch": true,
+    //   "resolveJsonModule": true,
+      "allowSyntheticDefaultImports": true, // (C)
+      "declaration": true,
+    }
+  }

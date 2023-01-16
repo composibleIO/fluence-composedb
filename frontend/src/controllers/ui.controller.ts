@@ -17,7 +17,9 @@ export interface IUIController {
 
     beforeInit: () => void;
     afterInit: () => void;
+    beforeFindContractor: () => void;
     beforeSelectContractor: (selection: Contractor[]) => void;
+    afterSelectContractor: () => void;
     afterAddressSwitch: () => void;
     beforeRenewProfileList: () => void;
     afterRenewProfileList: (listData: any[]) => void;
@@ -27,8 +29,6 @@ export interface IUIController {
     afterConnection: (connection: CdbConnection) => void;
     addProfileForm: (cap:Capability) => void;
     afterUpdateProfile: (cap: Capability) => void;
-
-
 }
 
 export class UIController {
@@ -60,17 +60,29 @@ export class UIController {
         this.buttons.updateIdentityPane();
     }
 
+    beforeFindContractor() {
+        this.layout.clearSection('select_contractor'); 
+        this.layout.showSection('select_contractor'); 
+        this.layout.toggleSpinner('select_contractor')
+    }
+
     beforeSelectContractor(selection: Contractor[]) {
 
+        this.layout.clearSection('select_contractor'); 
         this.layout.addContractorSelectList(this.html.selectContractorList(selection));
-        this.layout.showSection('select_contractor'); 
+        this.layout.toggleSpinner('select_contractor');
 
         this.buttons.updateIdentityPane();
   
         this.layout.hideSection("intermediary");
         this.layout.hideSection("capability");
         this.layout.showSection("select_eth_address");
+    }
 
+    afterSelectContractor() {
+
+        this.layout.hideSection('select_contractor'); 
+        this.buttons.updateIdentityPane();
     }
 
     afterAddressSwitch() {
@@ -83,14 +95,12 @@ export class UIController {
     }
 
     beforeRenewProfileList() {
-
-        this.layout.sections.list.innerHTML = "";
+        this.layout.clearSection("list");
+        this.layout.toggleSpinner("list");
     }
 
     afterRenewProfileList(listData: any[]) {
-
         this.html.renderProfileList(listData.reverse())
-
     }
 
     beforeCheckCapability() {
@@ -120,16 +130,11 @@ export class UIController {
     }
 
     addProfileForm(cap:Capability) {
-
         this.forms.addProfileForm(cap);
-
     }
 
     afterUpdateProfile(cap: Capability) {
         this.buttons.addEditButton(cap.aud);
     }
-
-    
-  
 }
 

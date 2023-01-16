@@ -1,0 +1,5 @@
+{
+  "dependencies": {
+    "did-session": "^1.0.0"
+  }
+}
