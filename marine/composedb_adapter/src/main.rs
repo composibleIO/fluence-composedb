@@ -14,56 +14,31 @@
  * limitations under the License.
  */
 
-use marine_rs_sdk::{marine, module_manifest, WasmLoggerBuilder, MountedBinaryResult};
+ #![allow(improper_ctypes)]
 
-
-module_manifest!();
-
-// mounted_binaries are available to import like this:
-#[marine]
-#[link(wasm_import_module = "curl_adapter")]
-extern "C" {
-    pub fn curl_request(args: Vec<String>) -> MountedBinaryResult;
-}
-
-pub fn main() {
-    WasmLoggerBuilder::new().build().ok();
-}
-
-fn create_jsondata_for_curl(cmd: Vec<String>) -> String {
-
-    let data: String = "{\"cli\":\"composedb\",\"cmd\":[$A]}".to_owned();
-    let mut s: String = "".to_owned();
-
-    for mut c in cmd {
-
-        c = c.replace("-",r"-");
-        s.push_str("\"");
-        s.push_str(&c);
-        s.push_str("\"");
-        s.push_str(",");
-    }
-
-    s.pop();
-
-    data.replace("$A",&s)
-}
-
-#[marine]
-pub fn cdb_request(endpoint: String, cmd: Vec<String>) -> MountedBinaryResult {     
-   
-    let data = create_jsondata_for_curl(cmd);
-
-    let args = vec![
-        "-s".to_owned(),
-        "-X".to_owned(),
-        "POST".to_owned(),
-        "-H".to_owned(),
-        "Content-Type: application/json".to_owned(),
-        "--data".to_owned(),
-        data.to_owned(),
-        endpoint
-    ];
-
-    curl_request(args)
-}
+ use marine_rs_sdk::marine;
+ use marine_rs_sdk::module_manifest;
+ use marine_rs_sdk::MountedBinaryResult;
+ use marine_rs_sdk::WasmLoggerBuilder;
+ 
+ module_manifest!();
+ 
+ 
+ fn main() {
+     WasmLoggerBuilder::new().build().unwrap();
+ }
+ 
+ 
+ #[marine]
+ pub fn tu_cdb_request(cmd: Vec<String>) -> MountedBinaryResult {
+     let response = tu_cdb(cmd);
+     response
+ }
+ 
+ // mounted_binaries are available to import like this:
+ #[marine]
+ #[link(wasm_import_module = "host")]
+ extern "C" {
+     pub fn tu_cdb(cmd: Vec<String>) -> MountedBinaryResult;
+ }
+ 
