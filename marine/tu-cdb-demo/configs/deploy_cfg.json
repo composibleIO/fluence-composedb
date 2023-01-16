@@ -1,0 +1,19 @@
+{
+  "tu_cdb_demo": {
+    "modules": [
+  
+      {
+        "name": "composedb_adapter",
+        "path": "./marine/composedb_adapter/artifacts/composedb_adapter.wasm",
+        "logger_enabled": true,
+        "mem_page_count": 1
+      },
+      {
+        "name": "facade",
+        "path": "./marine/composedb_demo/artifacts/facade.wasm",
+        "logger_enabled": true
+      }
+    ]
+  }
+}
+
