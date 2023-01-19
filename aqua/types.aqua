@@ -2,6 +2,13 @@ data CeramicResult:
     stdout: string
     stderr: string
 
+data CdbResult:
+    count: u64
+    content: string
+    error: string
+    success: bool
+    
+
 data CdbConnection:
     composite: string
     model: string
@@ -21,16 +28,16 @@ data CdbPublicInfo:
     eth_address: string
     public_encryption_key: string
 
-data CdbIndex: 
-    composite: string
-    model: string
-    name: string
-    port: string
+-- data CdbIndex: 
+--     composite: string
+--     model: string
+--     name: string
+--     port: string
 
 data CdbConfig:
     directions: CdbDirections
-    indexes: []CdbIndex
-    public_info: CdbPublicInfo
+    indexes: []string
+    public_info: []CdbPublicInfo
 
 data CdbContractorDetails:
     composedb: CdbConfig

@@ -14,7 +14,7 @@ export interface IDidService {
 
     randomSeed: () => string;
     new: (seed: string) => Promise<string>;
-    deriveDidPkh: () => void;
+    deriveDidPkh: (resources: string[]) => Promise<DIDSession>;
 }
 
 export class DidService implements IDidService {
@@ -40,18 +40,10 @@ export class DidService implements IDidService {
         return await did.authenticate()
     }
 
-    async deriveDidPkh() {
+    async deriveDidPkh(resources: string[]) : Promise<DIDSession> {
 
         const authMethod = await this.main.eth.getWebAuth();
-        const session = await DIDSession.authorize(authMethod, { resources: ["ceramic://*?model=kjzl6hvfrbw6c5ma5crdcdiyxq7yw5zqpt6o0ercwuy1bw3920z8u7ty8ia3p82"]});
-
-   //     const session = await DIDSession.authorize(authMethod, { resources: ["kjzl6hvfrbw6c5ma5crdcdiyxq7yw5zqpt6o0ercwuy1bw3920z8u7ty8ia3p82","kjzl6hvfrbw6c9tklfrk2id3t0zxgj8ttnqkaudwmx8j5blt9m3istosxzktrjh"]});
-        console.log(session.did);
-        console.log(session.authorizations);
-        console.log(session.cacao);
-        console.log(session.id);
-        const sessionString = session.serialize()
-        console.log(sessionString);
+        return await DIDSession.authorize(authMethod, { resources });
     }
 
 }

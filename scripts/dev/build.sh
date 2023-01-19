@@ -2,7 +2,7 @@
 
 set -o errexit -o nounset -o pipefail
 
-cd ./marine/composedb_demo/src/
+cd ./marine/tu_cdb_demo/src/
 cargo update --aggressive
 marine build --release
 
@@ -11,8 +11,6 @@ mkdir -p artifacts
 rm artifacts/* || true
 
 
-cp ./target/wasm32-wasi/release/composedb_demo.wasm artifacts/facade.wasm
+cp ./target/wasm32-wasi/release/tu_cdb_demo.wasm artifacts/tu_cdb_demo.wasm
 cp ../composedb_adapter/artifacts/composedb_adapter.wasm artifacts/ 
 cp ../curl_adapter/artifacts/curl_adapter.wasm artifacts/ 
-# cp ../local_storage/artifacts/local_storage.wasm artifacts/ 
-# cp ../local_storage/artifacts/ipfs_adapter.wasm artifacts/ 

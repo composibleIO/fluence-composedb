@@ -17,28 +17,30 @@ import {
 // Services
 
 // Functions
-export type CdbConnectArgIndex = { composite: string; model: string; name: string; port: string; } 
-export type CdbConnectResult = { composite: string; model: string; name: string; pid: number; port: string; timestamp: number; user: string; }
-export function cdbConnect(
-    peer_id: string,
+ 
+export type CdbMutateResult = [string[], boolean, { content: string; count: number; error: string; success: boolean; }]
+export function cdbMutate(
+    node: string,
     service_id: string,
-    index: CdbConnectArgIndex,
-    cap: string,
     cid: string,
+    definition: string,
+    query: string,
+    session: string,
     config?: {ttl?: number}
-): Promise<CdbConnectResult>;
+): Promise<CdbMutateResult>;
 
-export function cdbConnect(
+export function cdbMutate(
     peer: FluencePeer,
-    peer_id: string,
+    node: string,
     service_id: string,
-    index: CdbConnectArgIndex,
-    cap: string,
     cid: string,
+    definition: string,
+    query: string,
+    session: string,
     config?: {ttl?: number}
-): Promise<CdbConnectResult>;
+): Promise<CdbMutateResult>;
 
-export function cdbConnect(...args: any) {
+export function cdbMutate(...args: any) {
 
     let script = `
                     (xor
@@ -51,47 +53,203 @@ export function cdbConnect(...args: any) {
                            (seq
                             (seq
                              (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
-                             (call %init_peer_id% ("getDataSrv" "peer_id") [] peer_id)
+                             (call %init_peer_id% ("getDataSrv" "node") [] node)
                             )
                             (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
                            )
-                           (call %init_peer_id% ("getDataSrv" "index") [] index)
+                           (call %init_peer_id% ("getDataSrv" "cid") [] cid)
                           )
-                          (call %init_peer_id% ("getDataSrv" "cap") [] cap)
+                          (call %init_peer_id% ("getDataSrv" "definition") [] definition)
                          )
-                         (call %init_peer_id% ("getDataSrv" "cid") [] cid)
+                         (call %init_peer_id% ("getDataSrv" "query") [] query)
                         )
-                        (call -relay- ("op" "noop") [])
+                        (call %init_peer_id% ("getDataSrv" "session") [] session)
                        )
-                       (xor
-                        (seq
-                         (call peer_id (service_id "connect") [index cap cid] c)
-                         (call -relay- ("op" "noop") [])
-                        )
-                        (seq
-                         (call -relay- ("op" "noop") [])
-                         (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
+                       (new $values
+                        (new $status
+                         (new $success
+                          (seq
+                           (seq
+                            (seq
+                             (seq
+                              (seq
+                               (par
+                                (seq
+                                 (call -relay- ("op" "noop") [])
+                                 (xor
+                                  (seq
+                                   (seq
+                                    (call node (service_id "mutate") [cid definition query session] $values)
+                                    (ap "ok" $status)
+                                   )
+                                   (call -relay- ("op" "noop") [])
+                                  )
+                                  (seq
+                                   (call -relay- ("op" "noop") [])
+                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
+                                  )
+                                 )
+                                )
+                                (call %init_peer_id% ("peer" "timeout") [20000 "timeout"] $status)
+                               )
+                               (xor
+                                (seq
+                                 (seq
+                                  (new $status_test
+                                   (seq
+                                    (seq
+                                     (seq
+                                      (call %init_peer_id% ("math" "add") [0 1] status_incr)
+                                      (fold $status s
+                                       (seq
+                                        (seq
+                                         (ap s $status_test)
+                                         (canon %init_peer_id% $status_test  #status_iter_canon)
+                                        )
+                                        (xor
+                                         (match #status_iter_canon.length status_incr
+                                          (null)
+                                         )
+                                         (next s)
+                                        )
+                                       )
+                                       (never)
+                                      )
+                                     )
+                                     (canon %init_peer_id% $status_test  #status_result_canon)
+                                    )
+                                    (ap #status_result_canon status_gate)
+                                   )
+                                  )
+                                  (ap status_gate.$.[0]! status_gate-0)
+                                 )
+                                 (match status_gate-0 "timeout"
+                                  (xor
+                                   (seq
+                                    (seq
+                                     (seq
+                                      (ap false $success)
+                                      (new $status_test-0
+                                       (seq
+                                        (seq
+                                         (seq
+                                          (call %init_peer_id% ("math" "add") [0 1] status_incr-0)
+                                          (fold $status s
+                                           (seq
+                                            (seq
+                                             (ap s $status_test-0)
+                                             (canon %init_peer_id% $status_test-0  #status_iter_canon-0)
+                                            )
+                                            (xor
+                                             (match #status_iter_canon-0.length status_incr-0
+                                              (null)
+                                             )
+                                             (next s)
+                                            )
+                                           )
+                                           (never)
+                                          )
+                                         )
+                                         (canon %init_peer_id% $status_test-0  #status_result_canon-0)
+                                        )
+                                        (ap #status_result_canon-0 status_gate-1)
+                                       )
+                                      )
+                                     )
+                                     (ap status_gate-1.$.[0]! status_gate-1-0)
+                                    )
+                                    (ap status_gate-1-0 $error)
+                                   )
+                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
+                                  )
+                                 )
+                                )
+                                (ap true $success)
+                               )
+                              )
+                              (new $success_test
+                               (seq
+                                (seq
+                                 (seq
+                                  (call %init_peer_id% ("math" "add") [0 1] success_incr)
+                                  (fold $success s
+                                   (seq
+                                    (seq
+                                     (ap s $success_test)
+                                     (canon %init_peer_id% $success_test  #success_iter_canon)
+                                    )
+                                    (xor
+                                     (match #success_iter_canon.length success_incr
+                                      (null)
+                                     )
+                                     (next s)
+                                    )
+                                   )
+                                   (never)
+                                  )
+                                 )
+                                 (canon %init_peer_id% $success_test  #success_result_canon)
+                                )
+                                (ap #success_result_canon success_gate)
+                               )
+                              )
+                             )
+                             (ap success_gate.$.[0]! success_gate-0)
+                            )
+                            (new $values_test
+                             (seq
+                              (seq
+                               (seq
+                                (call %init_peer_id% ("math" "add") [0 1] values_incr)
+                                (fold $values s
+                                 (seq
+                                  (seq
+                                   (ap s $values_test)
+                                   (canon %init_peer_id% $values_test  #values_iter_canon)
+                                  )
+                                  (xor
+                                   (match #values_iter_canon.length values_incr
+                                    (null)
+                                   )
+                                   (next s)
+                                  )
+                                 )
+                                 (never)
+                                )
+                               )
+                               (canon %init_peer_id% $values_test  #values_result_canon)
+                              )
+                              (ap #values_result_canon values_gate)
+                             )
+                            )
+                           )
+                           (ap values_gate.$.[0]! values_gate-0)
+                          )
+                         )
                         )
                        )
                       )
                       (xor
-                       (call %init_peer_id% ("callbackSrv" "response") [c])
-                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
+                       (seq
+                        (canon %init_peer_id% $error  #error_canon)
+                        (call %init_peer_id% ("callbackSrv" "response") [#error_canon success_gate-0 values_gate-0])
+                       )
+                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
                       )
                      )
-                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
+                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 4])
                     )
     `
     return callFunction$$(
         args,
         {
-    "functionName" : "cdbConnect",
+    "functionName" : "cdbMutate",
     "arrow" : {
         "tag" : "arrow",
         "domain" : {
             "tag" : "labeledProduct",
             "fields" : {
-                "peer_id" : {
+                "node" : {
                     "tag" : "scalar",
                     "name" : "string"
                 },
@@ -99,33 +257,19 @@ export function cdbConnect(...args: any) {
                     "tag" : "scalar",
                     "name" : "string"
                 },
-                "index" : {
-                    "tag" : "struct",
-                    "name" : "CdbIndex",
-                    "fields" : {
-                        "composite" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "model" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "name" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "port" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        }
-                    }
-                },
-                "cap" : {
+                "cid" : {
                     "tag" : "scalar",
                     "name" : "string"
                 },
-                "cid" : {
+                "definition" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                },
+                "query" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                },
+                "session" : {
                     "tag" : "scalar",
                     "name" : "string"
                 }
@@ -135,36 +279,35 @@ export function cdbConnect(...args: any) {
             "tag" : "unlabeledProduct",
             "items" : [
                 {
+                    "tag" : "array",
+                    "type" : {
+                        "tag" : "scalar",
+                        "name" : "string"
+                    }
+                },
+                {
+                    "tag" : "scalar",
+                    "name" : "bool"
+                },
+                {
                     "tag" : "struct",
-                    "name" : "CdbConnection",
+                    "name" : "CdbResult",
                     "fields" : {
-                        "name" : {
+                        "content" : {
                             "tag" : "scalar",
                             "name" : "string"
                         },
-                        "timestamp" : {
+                        "count" : {
                             "tag" : "scalar",
                             "name" : "u64"
                         },
-                        "model" : {
+                        "error" : {
                             "tag" : "scalar",
                             "name" : "string"
                         },
-                        "user" : {
+                        "success" : {
                             "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "composite" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "port" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "pid" : {
-                            "tag" : "scalar",
-                            "name" : "u64"
+                            "name" : "bool"
                         }
                     }
                 }
@@ -185,14 +328,14 @@ export function cdbConnect(...args: any) {
     )
 }
 
-export type CdbQueryArgConnection = { composite: string; model: string; name: string; pid: number; port: string; timestamp: number; user: string; } 
-export type CdbQueryResult = { stderr: string; stdout: string; }
+ 
+export type CdbQueryResult = [string[], boolean, { content: string; count: number; error: string; success: boolean; }]
 export function cdbQuery(
     node: string,
     service_id: string,
+    contractor_cid: string,
+    definition: string,
     query: string,
-    connection: CdbQueryArgConnection,
-    cid: string,
     config?: {ttl?: number}
 ): Promise<CdbQueryResult>;
 
@@ -200,9 +343,9 @@ export function cdbQuery(
     peer: FluencePeer,
     node: string,
     service_id: string,
+    contractor_cid: string,
+    definition: string,
     query: string,
-    connection: CdbQueryArgConnection,
-    cid: string,
     config?: {ttl?: number}
 ): Promise<CdbQueryResult>;
 
@@ -217,37 +360,190 @@ export function cdbQuery(...args: any) {
                          (seq
                           (seq
                            (seq
-                            (seq
-                             (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
-                             (call %init_peer_id% ("getDataSrv" "node") [] node)
-                            )
-                            (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
+                            (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
+                            (call %init_peer_id% ("getDataSrv" "node") [] node)
                            )
-                           (call %init_peer_id% ("getDataSrv" "query") [] query)
+                           (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
                           )
-                          (call %init_peer_id% ("getDataSrv" "connection") [] connection)
+                          (call %init_peer_id% ("getDataSrv" "contractor_cid") [] contractor_cid)
                          )
-                         (call %init_peer_id% ("getDataSrv" "cid") [] cid)
+                         (call %init_peer_id% ("getDataSrv" "definition") [] definition)
                         )
-                        (call -relay- ("op" "noop") [])
+                        (call %init_peer_id% ("getDataSrv" "query") [] query)
                        )
-                       (xor
-                        (seq
-                         (call node (service_id "query") [query connection cid] ref)
-                         (call -relay- ("op" "noop") [])
-                        )
-                        (seq
-                         (call -relay- ("op" "noop") [])
-                         (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
+                       (new $values
+                        (new $status
+                         (new $success
+                          (seq
+                           (seq
+                            (seq
+                             (seq
+                              (seq
+                               (par
+                                (seq
+                                 (call -relay- ("op" "noop") [])
+                                 (xor
+                                  (seq
+                                   (seq
+                                    (call node (service_id "query") [contractor_cid definition query] $values)
+                                    (ap "ok" $status)
+                                   )
+                                   (call -relay- ("op" "noop") [])
+                                  )
+                                  (seq
+                                   (call -relay- ("op" "noop") [])
+                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
+                                  )
+                                 )
+                                )
+                                (call %init_peer_id% ("peer" "timeout") [20000 "timeout"] $status)
+                               )
+                               (xor
+                                (seq
+                                 (seq
+                                  (new $status_test
+                                   (seq
+                                    (seq
+                                     (seq
+                                      (call %init_peer_id% ("math" "add") [0 1] status_incr)
+                                      (fold $status s
+                                       (seq
+                                        (seq
+                                         (ap s $status_test)
+                                         (canon %init_peer_id% $status_test  #status_iter_canon)
+                                        )
+                                        (xor
+                                         (match #status_iter_canon.length status_incr
+                                          (null)
+                                         )
+                                         (next s)
+                                        )
+                                       )
+                                       (never)
+                                      )
+                                     )
+                                     (canon %init_peer_id% $status_test  #status_result_canon)
+                                    )
+                                    (ap #status_result_canon status_gate)
+                                   )
+                                  )
+                                  (ap status_gate.$.[0]! status_gate-0)
+                                 )
+                                 (match status_gate-0 "timeout"
+                                  (xor
+                                   (seq
+                                    (seq
+                                     (seq
+                                      (ap false $success)
+                                      (new $status_test-0
+                                       (seq
+                                        (seq
+                                         (seq
+                                          (call %init_peer_id% ("math" "add") [0 1] status_incr-0)
+                                          (fold $status s
+                                           (seq
+                                            (seq
+                                             (ap s $status_test-0)
+                                             (canon %init_peer_id% $status_test-0  #status_iter_canon-0)
+                                            )
+                                            (xor
+                                             (match #status_iter_canon-0.length status_incr-0
+                                              (null)
+                                             )
+                                             (next s)
+                                            )
+                                           )
+                                           (never)
+                                          )
+                                         )
+                                         (canon %init_peer_id% $status_test-0  #status_result_canon-0)
+                                        )
+                                        (ap #status_result_canon-0 status_gate-1)
+                                       )
+                                      )
+                                     )
+                                     (ap status_gate-1.$.[0]! status_gate-1-0)
+                                    )
+                                    (ap status_gate-1-0 $error)
+                                   )
+                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
+                                  )
+                                 )
+                                )
+                                (ap true $success)
+                               )
+                              )
+                              (new $success_test
+                               (seq
+                                (seq
+                                 (seq
+                                  (call %init_peer_id% ("math" "add") [0 1] success_incr)
+                                  (fold $success s
+                                   (seq
+                                    (seq
+                                     (ap s $success_test)
+                                     (canon %init_peer_id% $success_test  #success_iter_canon)
+                                    )
+                                    (xor
+                                     (match #success_iter_canon.length success_incr
+                                      (null)
+                                     )
+                                     (next s)
+                                    )
+                                   )
+                                   (never)
+                                  )
+                                 )
+                                 (canon %init_peer_id% $success_test  #success_result_canon)
+                                )
+                                (ap #success_result_canon success_gate)
+                               )
+                              )
+                             )
+                             (ap success_gate.$.[0]! success_gate-0)
+                            )
+                            (new $values_test
+                             (seq
+                              (seq
+                               (seq
+                                (call %init_peer_id% ("math" "add") [0 1] values_incr)
+                                (fold $values s
+                                 (seq
+                                  (seq
+                                   (ap s $values_test)
+                                   (canon %init_peer_id% $values_test  #values_iter_canon)
+                                  )
+                                  (xor
+                                   (match #values_iter_canon.length values_incr
+                                    (null)
+                                   )
+                                   (next s)
+                                  )
+                                 )
+                                 (never)
+                                )
+                               )
+                               (canon %init_peer_id% $values_test  #values_result_canon)
+                              )
+                              (ap #values_result_canon values_gate)
+                             )
+                            )
+                           )
+                           (ap values_gate.$.[0]! values_gate-0)
+                          )
+                         )
                         )
                        )
                       )
                       (xor
-                       (call %init_peer_id% ("callbackSrv" "response") [ref])
-                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
+                       (seq
+                        (canon %init_peer_id% $error  #error_canon)
+                        (call %init_peer_id% ("callbackSrv" "response") [#error_canon success_gate-0 values_gate-0])
+                       )
+                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
                       )
                      )
-                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
+                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 4])
                     )
     `
     return callFunction$$(
@@ -267,43 +563,297 @@ export function cdbQuery(...args: any) {
                     "tag" : "scalar",
                     "name" : "string"
                 },
-                "query" : {
+                "contractor_cid" : {
                     "tag" : "scalar",
                     "name" : "string"
                 },
-                "connection" : {
+                "definition" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                },
+                "query" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                }
+            }
+        },
+        "codomain" : {
+            "tag" : "unlabeledProduct",
+            "items" : [
+                {
+                    "tag" : "array",
+                    "type" : {
+                        "tag" : "scalar",
+                        "name" : "string"
+                    }
+                },
+                {
+                    "tag" : "scalar",
+                    "name" : "bool"
+                },
+                {
                     "tag" : "struct",
-                    "name" : "CdbConnection",
+                    "name" : "CdbResult",
                     "fields" : {
-                        "name" : {
+                        "content" : {
                             "tag" : "scalar",
                             "name" : "string"
                         },
-                        "timestamp" : {
+                        "count" : {
                             "tag" : "scalar",
                             "name" : "u64"
                         },
-                        "model" : {
+                        "error" : {
                             "tag" : "scalar",
                             "name" : "string"
                         },
-                        "user" : {
+                        "success" : {
                             "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "composite" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "port" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "pid" : {
-                            "tag" : "scalar",
-                            "name" : "u64"
+                            "name" : "bool"
                         }
                     }
+                }
+            ]
+        }
+    },
+    "names" : {
+        "relay" : "-relay-",
+        "getDataSrv" : "getDataSrv",
+        "callbackSrv" : "callbackSrv",
+        "responseSrv" : "callbackSrv",
+        "responseFnName" : "response",
+        "errorHandlingSrv" : "errorHandlingSrv",
+        "errorFnName" : "error"
+    }
+},
+        script
+    )
+}
+
+ 
+export type CdbContratorDetailsResult = [string[], boolean, { composedb: { directions: { ceramic_port: string; express_port: string; n: string; namespace: string; }; indexes: string[]; public_info: { eth_address: string; public_encryption_key: string; }[]; }; }]
+export function cdbContratorDetails(
+    peer_id: string,
+    service_id: string,
+    cid: string,
+    config?: {ttl?: number}
+): Promise<CdbContratorDetailsResult>;
+
+export function cdbContratorDetails(
+    peer: FluencePeer,
+    peer_id: string,
+    service_id: string,
+    cid: string,
+    config?: {ttl?: number}
+): Promise<CdbContratorDetailsResult>;
+
+export function cdbContratorDetails(...args: any) {
+
+    let script = `
+                    (xor
+                     (seq
+                      (seq
+                       (seq
+                        (seq
+                         (seq
+                          (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
+                          (call %init_peer_id% ("getDataSrv" "peer_id") [] peer_id)
+                         )
+                         (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
+                        )
+                        (call %init_peer_id% ("getDataSrv" "cid") [] cid)
+                       )
+                       (new $values
+                        (new $status
+                         (new $success
+                          (seq
+                           (seq
+                            (seq
+                             (seq
+                              (seq
+                               (par
+                                (seq
+                                 (call -relay- ("op" "noop") [])
+                                 (xor
+                                  (seq
+                                   (seq
+                                    (call peer_id (service_id "contractor_details") [cid] $values)
+                                    (ap "ok" $status)
+                                   )
+                                   (call -relay- ("op" "noop") [])
+                                  )
+                                  (seq
+                                   (call -relay- ("op" "noop") [])
+                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
+                                  )
+                                 )
+                                )
+                                (call %init_peer_id% ("peer" "timeout") [3000 "timeout"] $status)
+                               )
+                               (xor
+                                (seq
+                                 (seq
+                                  (new $status_test
+                                   (seq
+                                    (seq
+                                     (seq
+                                      (call %init_peer_id% ("math" "add") [0 1] status_incr)
+                                      (fold $status s
+                                       (seq
+                                        (seq
+                                         (ap s $status_test)
+                                         (canon %init_peer_id% $status_test  #status_iter_canon)
+                                        )
+                                        (xor
+                                         (match #status_iter_canon.length status_incr
+                                          (null)
+                                         )
+                                         (next s)
+                                        )
+                                       )
+                                       (never)
+                                      )
+                                     )
+                                     (canon %init_peer_id% $status_test  #status_result_canon)
+                                    )
+                                    (ap #status_result_canon status_gate)
+                                   )
+                                  )
+                                  (ap status_gate.$.[0]! status_gate-0)
+                                 )
+                                 (match status_gate-0 "timeout"
+                                  (xor
+                                   (seq
+                                    (seq
+                                     (seq
+                                      (ap false $success)
+                                      (new $status_test-0
+                                       (seq
+                                        (seq
+                                         (seq
+                                          (call %init_peer_id% ("math" "add") [0 1] status_incr-0)
+                                          (fold $status s
+                                           (seq
+                                            (seq
+                                             (ap s $status_test-0)
+                                             (canon %init_peer_id% $status_test-0  #status_iter_canon-0)
+                                            )
+                                            (xor
+                                             (match #status_iter_canon-0.length status_incr-0
+                                              (null)
+                                             )
+                                             (next s)
+                                            )
+                                           )
+                                           (never)
+                                          )
+                                         )
+                                         (canon %init_peer_id% $status_test-0  #status_result_canon-0)
+                                        )
+                                        (ap #status_result_canon-0 status_gate-1)
+                                       )
+                                      )
+                                     )
+                                     (ap status_gate-1.$.[0]! status_gate-1-0)
+                                    )
+                                    (ap status_gate-1-0 $error)
+                                   )
+                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
+                                  )
+                                 )
+                                )
+                                (ap true $success)
+                               )
+                              )
+                              (new $success_test
+                               (seq
+                                (seq
+                                 (seq
+                                  (call %init_peer_id% ("math" "add") [0 1] success_incr)
+                                  (fold $success s
+                                   (seq
+                                    (seq
+                                     (ap s $success_test)
+                                     (canon %init_peer_id% $success_test  #success_iter_canon)
+                                    )
+                                    (xor
+                                     (match #success_iter_canon.length success_incr
+                                      (null)
+                                     )
+                                     (next s)
+                                    )
+                                   )
+                                   (never)
+                                  )
+                                 )
+                                 (canon %init_peer_id% $success_test  #success_result_canon)
+                                )
+                                (ap #success_result_canon success_gate)
+                               )
+                              )
+                             )
+                             (ap success_gate.$.[0]! success_gate-0)
+                            )
+                            (new $values_test
+                             (seq
+                              (seq
+                               (seq
+                                (call %init_peer_id% ("math" "add") [0 1] values_incr)
+                                (fold $values s
+                                 (seq
+                                  (seq
+                                   (ap s $values_test)
+                                   (canon %init_peer_id% $values_test  #values_iter_canon)
+                                  )
+                                  (xor
+                                   (match #values_iter_canon.length values_incr
+                                    (null)
+                                   )
+                                   (next s)
+                                  )
+                                 )
+                                 (never)
+                                )
+                               )
+                               (canon %init_peer_id% $values_test  #values_result_canon)
+                              )
+                              (ap #values_result_canon values_gate)
+                             )
+                            )
+                           )
+                           (ap values_gate.$.[0]! values_gate-0)
+                          )
+                         )
+                        )
+                       )
+                      )
+                      (xor
+                       (seq
+                        (canon %init_peer_id% $error  #error_canon)
+                        (call %init_peer_id% ("callbackSrv" "response") [#error_canon success_gate-0 values_gate-0])
+                       )
+                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
+                      )
+                     )
+                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 4])
+                    )
+    `
+    return callFunction$$(
+        args,
+        {
+    "functionName" : "cdbContratorDetails",
+    "arrow" : {
+        "tag" : "arrow",
+        "domain" : {
+            "tag" : "labeledProduct",
+            "fields" : {
+                "peer_id" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                },
+                "service_id" : {
+                    "tag" : "scalar",
+                    "name" : "string"
                 },
                 "cid" : {
                     "tag" : "scalar",
@@ -315,16 +865,71 @@ export function cdbQuery(...args: any) {
             "tag" : "unlabeledProduct",
             "items" : [
                 {
+                    "tag" : "array",
+                    "type" : {
+                        "tag" : "scalar",
+                        "name" : "string"
+                    }
+                },
+                {
+                    "tag" : "scalar",
+                    "name" : "bool"
+                },
+                {
                     "tag" : "struct",
-                    "name" : "CeramicResult",
+                    "name" : "CdbContractorDetails",
                     "fields" : {
-                        "stderr" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "stdout" : {
-                            "tag" : "scalar",
-                            "name" : "string"
+                        "composedb" : {
+                            "tag" : "struct",
+                            "name" : "CdbConfig",
+                            "fields" : {
+                                "directions" : {
+                                    "tag" : "struct",
+                                    "name" : "CdbDirections",
+                                    "fields" : {
+                                        "ceramic_port" : {
+                                            "tag" : "scalar",
+                                            "name" : "string"
+                                        },
+                                        "express_port" : {
+                                            "tag" : "scalar",
+                                            "name" : "string"
+                                        },
+                                        "n" : {
+                                            "tag" : "scalar",
+                                            "name" : "string"
+                                        },
+                                        "namespace" : {
+                                            "tag" : "scalar",
+                                            "name" : "string"
+                                        }
+                                    }
+                                },
+                                "indexes" : {
+                                    "tag" : "array",
+                                    "type" : {
+                                        "tag" : "scalar",
+                                        "name" : "string"
+                                    }
+                                },
+                                "public_info" : {
+                                    "tag" : "array",
+                                    "type" : {
+                                        "tag" : "struct",
+                                        "name" : "CdbPublicInfo",
+                                        "fields" : {
+                                            "eth_address" : {
+                                                "tag" : "scalar",
+                                                "name" : "string"
+                                            },
+                                            "public_encryption_key" : {
+                                                "tag" : "scalar",
+                                                "name" : "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -682,906 +1287,6 @@ export function getRecords(...args: any) {
                     "type" : {
                         "tag" : "scalar",
                         "name" : "string"
-                    }
-                }
-            ]
-        }
-    },
-    "names" : {
-        "relay" : "-relay-",
-        "getDataSrv" : "getDataSrv",
-        "callbackSrv" : "callbackSrv",
-        "responseSrv" : "callbackSrv",
-        "responseFnName" : "response",
-        "errorHandlingSrv" : "errorHandlingSrv",
-        "errorFnName" : "error"
-    }
-},
-        script
-    )
-}
-
- 
-
-export function cdbHasIntermediary(
-    peer_id: string,
-    service_id: string,
-    user_address: string,
-    cid: string,
-    config?: {ttl?: number}
-): Promise<{ aud: string; did: string; iss: string; keys: { encrypted_key: string; recipient: string; }[]; }[]>;
-
-export function cdbHasIntermediary(
-    peer: FluencePeer,
-    peer_id: string,
-    service_id: string,
-    user_address: string,
-    cid: string,
-    config?: {ttl?: number}
-): Promise<{ aud: string; did: string; iss: string; keys: { encrypted_key: string; recipient: string; }[]; }[]>;
-
-export function cdbHasIntermediary(...args: any) {
-
-    let script = `
-                    (xor
-                     (seq
-                      (seq
-                       (seq
-                        (seq
-                         (seq
-                          (seq
-                           (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
-                           (call %init_peer_id% ("getDataSrv" "peer_id") [] peer_id)
-                          )
-                          (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
-                         )
-                         (call %init_peer_id% ("getDataSrv" "user_address") [] user_address)
-                        )
-                        (call %init_peer_id% ("getDataSrv" "cid") [] cid)
-                       )
-                       (new $msg
-                        (seq
-                         (seq
-                          (seq
-                           (call -relay- ("op" "noop") [])
-                           (xor
-                            (seq
-                             (call peer_id (service_id "has_intermediary") [user_address cid] $msg)
-                             (call -relay- ("op" "noop") [])
-                            )
-                            (seq
-                             (call -relay- ("op" "noop") [])
-                             (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
-                            )
-                           )
-                          )
-                          (new $msg_test
-                           (seq
-                            (seq
-                             (seq
-                              (call %init_peer_id% ("math" "add") [0 1] msg_incr)
-                              (fold $msg s
-                               (seq
-                                (seq
-                                 (ap s $msg_test)
-                                 (canon %init_peer_id% $msg_test  #msg_iter_canon)
-                                )
-                                (xor
-                                 (match #msg_iter_canon.length msg_incr
-                                  (null)
-                                 )
-                                 (next s)
-                                )
-                               )
-                               (never)
-                              )
-                             )
-                             (canon %init_peer_id% $msg_test  #msg_result_canon)
-                            )
-                            (ap #msg_result_canon msg_gate)
-                           )
-                          )
-                         )
-                         (ap msg_gate.$.[0]! msg_gate-0)
-                        )
-                       )
-                      )
-                      (xor
-                       (call %init_peer_id% ("callbackSrv" "response") [msg_gate-0])
-                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
-                      )
-                     )
-                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
-                    )
-    `
-    return callFunction$$(
-        args,
-        {
-    "functionName" : "cdbHasIntermediary",
-    "arrow" : {
-        "tag" : "arrow",
-        "domain" : {
-            "tag" : "labeledProduct",
-            "fields" : {
-                "peer_id" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "service_id" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "user_address" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "cid" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                }
-            }
-        },
-        "codomain" : {
-            "tag" : "unlabeledProduct",
-            "items" : [
-                {
-                    "tag" : "array",
-                    "type" : {
-                        "tag" : "struct",
-                        "name" : "CdbIntermediary",
-                        "fields" : {
-                            "aud" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "did" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "iss" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "keys" : {
-                                "tag" : "array",
-                                "type" : {
-                                    "tag" : "struct",
-                                    "name" : "CdbKey",
-                                    "fields" : {
-                                        "encrypted_key" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        },
-                                        "recipient" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            ]
-        }
-    },
-    "names" : {
-        "relay" : "-relay-",
-        "getDataSrv" : "getDataSrv",
-        "callbackSrv" : "callbackSrv",
-        "responseSrv" : "callbackSrv",
-        "responseFnName" : "response",
-        "errorHandlingSrv" : "errorHandlingSrv",
-        "errorFnName" : "error"
-    }
-},
-        script
-    )
-}
-
-export type CdbMutateArgConnection = { composite: string; model: string; name: string; pid: number; port: string; timestamp: number; user: string; } 
-export type CdbMutateResult = { stderr: string; stdout: string; }
-export function cdbMutate(
-    node: string,
-    service_id: string,
-    display_name: string,
-    account_id: string,
-    cap: string,
-    connection: CdbMutateArgConnection,
-    cid: string,
-    config?: {ttl?: number}
-): Promise<CdbMutateResult>;
-
-export function cdbMutate(
-    peer: FluencePeer,
-    node: string,
-    service_id: string,
-    display_name: string,
-    account_id: string,
-    cap: string,
-    connection: CdbMutateArgConnection,
-    cid: string,
-    config?: {ttl?: number}
-): Promise<CdbMutateResult>;
-
-export function cdbMutate(...args: any) {
-
-    let script = `
-                    (xor
-                     (seq
-                      (seq
-                       (seq
-                        (seq
-                         (seq
-                          (seq
-                           (seq
-                            (seq
-                             (seq
-                              (seq
-                               (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
-                               (call %init_peer_id% ("getDataSrv" "node") [] node)
-                              )
-                              (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
-                             )
-                             (call %init_peer_id% ("getDataSrv" "display_name") [] display_name)
-                            )
-                            (call %init_peer_id% ("getDataSrv" "account_id") [] account_id)
-                           )
-                           (call %init_peer_id% ("getDataSrv" "cap") [] cap)
-                          )
-                          (call %init_peer_id% ("getDataSrv" "connection") [] connection)
-                         )
-                         (call %init_peer_id% ("getDataSrv" "cid") [] cid)
-                        )
-                        (call -relay- ("op" "noop") [])
-                       )
-                       (xor
-                        (seq
-                         (call node (service_id "mutate") [display_name account_id cap connection cid] res)
-                         (call -relay- ("op" "noop") [])
-                        )
-                        (seq
-                         (call -relay- ("op" "noop") [])
-                         (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
-                        )
-                       )
-                      )
-                      (xor
-                       (call %init_peer_id% ("callbackSrv" "response") [res])
-                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
-                      )
-                     )
-                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
-                    )
-    `
-    return callFunction$$(
-        args,
-        {
-    "functionName" : "cdbMutate",
-    "arrow" : {
-        "tag" : "arrow",
-        "domain" : {
-            "tag" : "labeledProduct",
-            "fields" : {
-                "node" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "service_id" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "display_name" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "account_id" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "cap" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "connection" : {
-                    "tag" : "struct",
-                    "name" : "CdbConnection",
-                    "fields" : {
-                        "name" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "timestamp" : {
-                            "tag" : "scalar",
-                            "name" : "u64"
-                        },
-                        "model" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "user" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "composite" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "port" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "pid" : {
-                            "tag" : "scalar",
-                            "name" : "u64"
-                        }
-                    }
-                },
-                "cid" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                }
-            }
-        },
-        "codomain" : {
-            "tag" : "unlabeledProduct",
-            "items" : [
-                {
-                    "tag" : "struct",
-                    "name" : "CeramicResult",
-                    "fields" : {
-                        "stderr" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "stdout" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        }
-                    }
-                }
-            ]
-        }
-    },
-    "names" : {
-        "relay" : "-relay-",
-        "getDataSrv" : "getDataSrv",
-        "callbackSrv" : "callbackSrv",
-        "responseSrv" : "callbackSrv",
-        "responseFnName" : "response",
-        "errorHandlingSrv" : "errorHandlingSrv",
-        "errorFnName" : "error"
-    }
-},
-        script
-    )
-}
-
- 
-export type CdbContratorDetailsResult = [string[], boolean, { composedb: { directions: { ceramic_port: string; express_port: string; n: string; namespace: string; }; indexes: { composite: string; model: string; name: string; port: string; }[]; public_info: { eth_address: string; public_encryption_key: string; }; }; }]
-export function cdbContratorDetails(
-    peer_id: string,
-    service_id: string,
-    cid: string,
-    config?: {ttl?: number}
-): Promise<CdbContratorDetailsResult>;
-
-export function cdbContratorDetails(
-    peer: FluencePeer,
-    peer_id: string,
-    service_id: string,
-    cid: string,
-    config?: {ttl?: number}
-): Promise<CdbContratorDetailsResult>;
-
-export function cdbContratorDetails(...args: any) {
-
-    let script = `
-                    (xor
-                     (seq
-                      (seq
-                       (seq
-                        (seq
-                         (seq
-                          (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
-                          (call %init_peer_id% ("getDataSrv" "peer_id") [] peer_id)
-                         )
-                         (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
-                        )
-                        (call %init_peer_id% ("getDataSrv" "cid") [] cid)
-                       )
-                       (new $values
-                        (new $status
-                         (new $success
-                          (seq
-                           (seq
-                            (seq
-                             (seq
-                              (seq
-                               (par
-                                (seq
-                                 (call -relay- ("op" "noop") [])
-                                 (xor
-                                  (seq
-                                   (seq
-                                    (call peer_id (service_id "contractor_details") [cid] $values)
-                                    (ap "ok" $status)
-                                   )
-                                   (call -relay- ("op" "noop") [])
-                                  )
-                                  (seq
-                                   (call -relay- ("op" "noop") [])
-                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
-                                  )
-                                 )
-                                )
-                                (call %init_peer_id% ("peer" "timeout") [3000 "timeout"] $status)
-                               )
-                               (xor
-                                (seq
-                                 (seq
-                                  (new $status_test
-                                   (seq
-                                    (seq
-                                     (seq
-                                      (call %init_peer_id% ("math" "add") [0 1] status_incr)
-                                      (fold $status s
-                                       (seq
-                                        (seq
-                                         (ap s $status_test)
-                                         (canon %init_peer_id% $status_test  #status_iter_canon)
-                                        )
-                                        (xor
-                                         (match #status_iter_canon.length status_incr
-                                          (null)
-                                         )
-                                         (next s)
-                                        )
-                                       )
-                                       (never)
-                                      )
-                                     )
-                                     (canon %init_peer_id% $status_test  #status_result_canon)
-                                    )
-                                    (ap #status_result_canon status_gate)
-                                   )
-                                  )
-                                  (ap status_gate.$.[0]! status_gate-0)
-                                 )
-                                 (match status_gate-0 "timeout"
-                                  (xor
-                                   (seq
-                                    (seq
-                                     (seq
-                                      (ap false $success)
-                                      (new $status_test-0
-                                       (seq
-                                        (seq
-                                         (seq
-                                          (call %init_peer_id% ("math" "add") [0 1] status_incr-0)
-                                          (fold $status s
-                                           (seq
-                                            (seq
-                                             (ap s $status_test-0)
-                                             (canon %init_peer_id% $status_test-0  #status_iter_canon-0)
-                                            )
-                                            (xor
-                                             (match #status_iter_canon-0.length status_incr-0
-                                              (null)
-                                             )
-                                             (next s)
-                                            )
-                                           )
-                                           (never)
-                                          )
-                                         )
-                                         (canon %init_peer_id% $status_test-0  #status_result_canon-0)
-                                        )
-                                        (ap #status_result_canon-0 status_gate-1)
-                                       )
-                                      )
-                                     )
-                                     (ap status_gate-1.$.[0]! status_gate-1-0)
-                                    )
-                                    (ap status_gate-1-0 $error)
-                                   )
-                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
-                                  )
-                                 )
-                                )
-                                (ap true $success)
-                               )
-                              )
-                              (new $success_test
-                               (seq
-                                (seq
-                                 (seq
-                                  (call %init_peer_id% ("math" "add") [0 1] success_incr)
-                                  (fold $success s
-                                   (seq
-                                    (seq
-                                     (ap s $success_test)
-                                     (canon %init_peer_id% $success_test  #success_iter_canon)
-                                    )
-                                    (xor
-                                     (match #success_iter_canon.length success_incr
-                                      (null)
-                                     )
-                                     (next s)
-                                    )
-                                   )
-                                   (never)
-                                  )
-                                 )
-                                 (canon %init_peer_id% $success_test  #success_result_canon)
-                                )
-                                (ap #success_result_canon success_gate)
-                               )
-                              )
-                             )
-                             (ap success_gate.$.[0]! success_gate-0)
-                            )
-                            (new $values_test
-                             (seq
-                              (seq
-                               (seq
-                                (call %init_peer_id% ("math" "add") [0 1] values_incr)
-                                (fold $values s
-                                 (seq
-                                  (seq
-                                   (ap s $values_test)
-                                   (canon %init_peer_id% $values_test  #values_iter_canon)
-                                  )
-                                  (xor
-                                   (match #values_iter_canon.length values_incr
-                                    (null)
-                                   )
-                                   (next s)
-                                  )
-                                 )
-                                 (never)
-                                )
-                               )
-                               (canon %init_peer_id% $values_test  #values_result_canon)
-                              )
-                              (ap #values_result_canon values_gate)
-                             )
-                            )
-                           )
-                           (ap values_gate.$.[0]! values_gate-0)
-                          )
-                         )
-                        )
-                       )
-                      )
-                      (xor
-                       (seq
-                        (canon %init_peer_id% $error  #error_canon)
-                        (call %init_peer_id% ("callbackSrv" "response") [#error_canon success_gate-0 values_gate-0])
-                       )
-                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
-                      )
-                     )
-                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 4])
-                    )
-    `
-    return callFunction$$(
-        args,
-        {
-    "functionName" : "cdbContratorDetails",
-    "arrow" : {
-        "tag" : "arrow",
-        "domain" : {
-            "tag" : "labeledProduct",
-            "fields" : {
-                "peer_id" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "service_id" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "cid" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                }
-            }
-        },
-        "codomain" : {
-            "tag" : "unlabeledProduct",
-            "items" : [
-                {
-                    "tag" : "array",
-                    "type" : {
-                        "tag" : "scalar",
-                        "name" : "string"
-                    }
-                },
-                {
-                    "tag" : "scalar",
-                    "name" : "bool"
-                },
-                {
-                    "tag" : "struct",
-                    "name" : "CdbContractorDetails",
-                    "fields" : {
-                        "composedb" : {
-                            "tag" : "struct",
-                            "name" : "CdbConfig",
-                            "fields" : {
-                                "directions" : {
-                                    "tag" : "struct",
-                                    "name" : "CdbDirections",
-                                    "fields" : {
-                                        "ceramic_port" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        },
-                                        "express_port" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        },
-                                        "n" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        },
-                                        "namespace" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        }
-                                    }
-                                },
-                                "indexes" : {
-                                    "tag" : "array",
-                                    "type" : {
-                                        "tag" : "struct",
-                                        "name" : "CdbIndex",
-                                        "fields" : {
-                                            "composite" : {
-                                                "tag" : "scalar",
-                                                "name" : "string"
-                                            },
-                                            "model" : {
-                                                "tag" : "scalar",
-                                                "name" : "string"
-                                            },
-                                            "name" : {
-                                                "tag" : "scalar",
-                                                "name" : "string"
-                                            },
-                                            "port" : {
-                                                "tag" : "scalar",
-                                                "name" : "string"
-                                            }
-                                        }
-                                    }
-                                },
-                                "public_info" : {
-                                    "tag" : "struct",
-                                    "name" : "CdbPublicInfo",
-                                    "fields" : {
-                                        "eth_address" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        },
-                                        "public_encryption_key" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            ]
-        }
-    },
-    "names" : {
-        "relay" : "-relay-",
-        "getDataSrv" : "getDataSrv",
-        "callbackSrv" : "callbackSrv",
-        "responseSrv" : "callbackSrv",
-        "responseFnName" : "response",
-        "errorHandlingSrv" : "errorHandlingSrv",
-        "errorFnName" : "error"
-    }
-},
-        script
-    )
-}
-
-export type CdbStoreIntermediaryArgIntermediary = { aud: string; did: string; iss: string; keys: { encrypted_key: string; recipient: string; }[]; } 
-
-export function cdbStoreIntermediary(
-    peer_id: string,
-    service_id: string,
-    intermediary: CdbStoreIntermediaryArgIntermediary,
-    cid: string,
-    config?: {ttl?: number}
-): Promise<{ aud: string; did: string; iss: string; keys: { encrypted_key: string; recipient: string; }[]; }[]>;
-
-export function cdbStoreIntermediary(
-    peer: FluencePeer,
-    peer_id: string,
-    service_id: string,
-    intermediary: CdbStoreIntermediaryArgIntermediary,
-    cid: string,
-    config?: {ttl?: number}
-): Promise<{ aud: string; did: string; iss: string; keys: { encrypted_key: string; recipient: string; }[]; }[]>;
-
-export function cdbStoreIntermediary(...args: any) {
-
-    let script = `
-                    (xor
-                     (seq
-                      (seq
-                       (seq
-                        (seq
-                         (seq
-                          (seq
-                           (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
-                           (call %init_peer_id% ("getDataSrv" "peer_id") [] peer_id)
-                          )
-                          (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
-                         )
-                         (call %init_peer_id% ("getDataSrv" "intermediary") [] intermediary)
-                        )
-                        (call %init_peer_id% ("getDataSrv" "cid") [] cid)
-                       )
-                       (new $msg
-                        (seq
-                         (seq
-                          (seq
-                           (call -relay- ("op" "noop") [])
-                           (xor
-                            (seq
-                             (call peer_id (service_id "store_intermediary") [intermediary cid] $msg)
-                             (call -relay- ("op" "noop") [])
-                            )
-                            (seq
-                             (call -relay- ("op" "noop") [])
-                             (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
-                            )
-                           )
-                          )
-                          (new $msg_test
-                           (seq
-                            (seq
-                             (seq
-                              (call %init_peer_id% ("math" "add") [0 1] msg_incr)
-                              (fold $msg s
-                               (seq
-                                (seq
-                                 (ap s $msg_test)
-                                 (canon %init_peer_id% $msg_test  #msg_iter_canon)
-                                )
-                                (xor
-                                 (match #msg_iter_canon.length msg_incr
-                                  (null)
-                                 )
-                                 (next s)
-                                )
-                               )
-                               (never)
-                              )
-                             )
-                             (canon %init_peer_id% $msg_test  #msg_result_canon)
-                            )
-                            (ap #msg_result_canon msg_gate)
-                           )
-                          )
-                         )
-                         (ap msg_gate.$.[0]! msg_gate-0)
-                        )
-                       )
-                      )
-                      (xor
-                       (call %init_peer_id% ("callbackSrv" "response") [msg_gate-0])
-                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
-                      )
-                     )
-                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
-                    )
-    `
-    return callFunction$$(
-        args,
-        {
-    "functionName" : "cdbStoreIntermediary",
-    "arrow" : {
-        "tag" : "arrow",
-        "domain" : {
-            "tag" : "labeledProduct",
-            "fields" : {
-                "peer_id" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "service_id" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "intermediary" : {
-                    "tag" : "struct",
-                    "name" : "CdbIntermediary",
-                    "fields" : {
-                        "aud" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "did" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "iss" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "keys" : {
-                            "tag" : "array",
-                            "type" : {
-                                "tag" : "struct",
-                                "name" : "CdbKey",
-                                "fields" : {
-                                    "encrypted_key" : {
-                                        "tag" : "scalar",
-                                        "name" : "string"
-                                    },
-                                    "recipient" : {
-                                        "tag" : "scalar",
-                                        "name" : "string"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "cid" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                }
-            }
-        },
-        "codomain" : {
-            "tag" : "unlabeledProduct",
-            "items" : [
-                {
-                    "tag" : "array",
-                    "type" : {
-                        "tag" : "struct",
-                        "name" : "CdbIntermediary",
-                        "fields" : {
-                            "aud" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "did" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "iss" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "keys" : {
-                                "tag" : "array",
-                                "type" : {
-                                    "tag" : "struct",
-                                    "name" : "CdbKey",
-                                    "fields" : {
-                                        "encrypted_key" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        },
-                                        "recipient" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        }
-                                    }
-                                }
-                            }
-                        }
                     }
                 }
             ]

@@ -1,7 +1,7 @@
 import { doc } from "prettier";
 import { IUIController } from "../controllers/ui.controller";
 import { IMainController } from "../controllers/main.controller";
-import { Capability, CdbConnection } from "../interfaces/interfaces";
+
 
 
 interface UiElements {
@@ -14,7 +14,7 @@ export interface IFormService {
     forms: UiElements;
     init(): void;
     uiSubmit(e: FormDataEvent, method:string): void;
-    addProfileForm: (cap:Capability) => void;
+    addProfileForm: (owner:string) => void;
     checkForNew: (public_key: string) => boolean | HTMLElement;
 
 }
@@ -41,11 +41,9 @@ export class FormService implements IFormService {
         let self = this;
     
         [].slice.call(document.getElementsByTagName("form")).forEach((el: HTMLFormElement) =>  {  
-
             this.forms[el.id] = el;
             this.armForm(el);   
         });
-
     }
 
     armForm(el: HTMLFormElement) {
@@ -115,10 +113,10 @@ export class FormService implements IFormService {
         return tr == null ? false : tr;
     }
 
-    addProfileForm(cap:Capability) {
+    addProfileForm(owner:string) {
 
-        let row = this.ui.html.rowWithForm(cap.iss);
-        const tr = this.checkForNew(cap.iss);
+        let row = this.ui.html.rowWithForm(owner);
+        const tr = this.checkForNew(owner);
         let value: string = null;
 
         if(tr && tr !=true) {

@@ -1,7 +1,6 @@
 import { doc } from "prettier";
 import { IUIController } from "../controllers/ui.controller";
 import { IMainController } from "../controllers/main.controller";
-import { Capability, CdbConnection } from "../interfaces/interfaces";
 
 
 interface UiElements {

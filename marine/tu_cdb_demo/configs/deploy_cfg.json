@@ -1,0 +1,27 @@
+{
+  "tu_cdb_demo": {
+    "modules": [
+  
+      {
+        "name": "curl_adapter",
+        "path": "./marine/curl_adapter/artifacts/curl_adapter.wasm",
+        "mounted_binaries": [["curl","/usr/bin/curl"]],
+        "mem_page_count": 1,
+        "logger_enabled": true
+      },
+      {
+        "name": "composedb_adapter",
+        "path": "./marine/composedb_adapter/artifacts/composedb_adapter.wasm",
+        "mounted_binaries": [["tu_cdb","/usr/bin/tu-cdb"]],
+        "mem_page_count": 1,
+        "logger_enabled": true
+      },
+      {
+        "name": "facade",
+        "path": "./marine/tu_cdb_demo/artifacts/tu_cdb_demo.wasm",
+        "logger_enabled": true
+      }
+    ]
+  }
+}
+

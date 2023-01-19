@@ -16,16 +16,61 @@ import {
 
 // Services
 
+export interface TUComposeDBSrvDef {
+    query: (callParams: CallParams$$<null>) => { stderr: string; stdout: string; } | Promise<{ stderr: string; stdout: string; }>;
+}
+export function registerTUComposeDBSrv(service: TUComposeDBSrvDef): void;
+export function registerTUComposeDBSrv(serviceId: string, service: TUComposeDBSrvDef): void;
+export function registerTUComposeDBSrv(peer: FluencePeer, service: TUComposeDBSrvDef): void;
+export function registerTUComposeDBSrv(peer: FluencePeer, serviceId: string, service: TUComposeDBSrvDef): void;
+       
+
+export function registerTUComposeDBSrv(...args: any) {
+    registerService$$(
+        args,
+        {
+    "defaultServiceId" : "TUComposeDBSrv",
+    "functions" : {
+        "tag" : "labeledProduct",
+        "fields" : {
+            "query" : {
+                "tag" : "arrow",
+                "domain" : {
+                    "tag" : "nil"
+                },
+                "codomain" : {
+                    "tag" : "unlabeledProduct",
+                    "items" : [
+                        {
+                            "tag" : "struct",
+                            "name" : "CeramicResult",
+                            "fields" : {
+                                "stderr" : {
+                                    "tag" : "scalar",
+                                    "name" : "string"
+                                },
+                                "stdout" : {
+                                    "tag" : "scalar",
+                                    "name" : "string"
+                                }
+                            }
+                        }
+                    ]
+                }
+            }
+        }
+    }
+}
+    );
+}
+      
+
+
 export interface ComposeDBSrvDef {
-    connect: (index: { composite: string; model: string; name: string; port: string; }, cap: string, cid: string, callParams: CallParams$$<'index' | 'cap' | 'cid'>) => { composite: string; model: string; name: string; pid: number; port: string; timestamp: number; user: string; } | Promise<{ composite: string; model: string; name: string; pid: number; port: string; timestamp: number; user: string; }>;
-    contractor_details: (cid: string, callParams: CallParams$$<'cid'>) => { composedb: { directions: { ceramic_port: string; express_port: string; n: string; namespace: string; }; indexes: { composite: string; model: string; name: string; port: string; }[]; public_info: { eth_address: string; public_encryption_key: string; }; }; } | Promise<{ composedb: { directions: { ceramic_port: string; express_port: string; n: string; namespace: string; }; indexes: { composite: string; model: string; name: string; port: string; }[]; public_info: { eth_address: string; public_encryption_key: string; }; }; }>;
-    deploy_index: (index: { composite: string; model: string; name: string; port: string; }, cid: string, callParams: CallParams$$<'index' | 'cid'>) => string | Promise<string>;
-    has_intermediary: (user_address: string, cid: string, callParams: CallParams$$<'user_address' | 'cid'>) => { aud: string; did: string; iss: string; keys: { encrypted_key: string; recipient: string; }[]; }[] | Promise<{ aud: string; did: string; iss: string; keys: { encrypted_key: string; recipient: string; }[]; }[]>;
-    init: (namespace: string, n: string, indexes: { composite: string; model: string; name: string; port: string; }[], callParams: CallParams$$<'namespace' | 'n' | 'indexes'>) => string | Promise<string>;
-    mutate: (display_name: string, account_id: string, cap: string, connection: { composite: string; model: string; name: string; pid: number; port: string; timestamp: number; user: string; }, cid: string, callParams: CallParams$$<'display_name' | 'account_id' | 'cap' | 'connection' | 'cid'>) => { stderr: string; stdout: string; } | Promise<{ stderr: string; stdout: string; }>;
-    query: (query: string, connection: { composite: string; model: string; name: string; pid: number; port: string; timestamp: number; user: string; }, cid: string, callParams: CallParams$$<'query' | 'connection' | 'cid'>) => { stderr: string; stdout: string; } | Promise<{ stderr: string; stdout: string; }>;
-    serve: (index: { composite: string; model: string; name: string; port: string; }, cid: string, callParams: CallParams$$<'index' | 'cid'>) => { composite: string; model: string; name: string; pid: number; port: string; timestamp: number; user: string; } | Promise<{ composite: string; model: string; name: string; pid: number; port: string; timestamp: number; user: string; }>;
-    store_intermediary: (intermediary: { aud: string; did: string; iss: string; keys: { encrypted_key: string; recipient: string; }[]; }, cid: string, callParams: CallParams$$<'intermediary' | 'cid'>) => { aud: string; did: string; iss: string; keys: { encrypted_key: string; recipient: string; }[]; }[] | Promise<{ aud: string; did: string; iss: string; keys: { encrypted_key: string; recipient: string; }[]; }[]>;
+    contractor_details: (cid: string, callParams: CallParams$$<'cid'>) => { composedb: { directions: { ceramic_port: string; express_port: string; n: string; namespace: string; }; indexes: string[]; public_info: { eth_address: string; public_encryption_key: string; }[]; }; } | Promise<{ composedb: { directions: { ceramic_port: string; express_port: string; n: string; namespace: string; }; indexes: string[]; public_info: { eth_address: string; public_encryption_key: string; }[]; }; }>;
+    init: (namespace: string, n: string, indexes: string, callParams: CallParams$$<'namespace' | 'n' | 'indexes'>) => string | Promise<string>;
+    mutate: (cid: string, definition: string, query: string, session: string, callParams: CallParams$$<'cid' | 'definition' | 'query' | 'session'>) => { content: string; count: number; error: string; success: boolean; } | Promise<{ content: string; count: number; error: string; success: boolean; }>;
+    query: (cid: string, definition: string, query: string, callParams: CallParams$$<'cid' | 'definition' | 'query'>) => { content: string; count: number; error: string; success: boolean; } | Promise<{ content: string; count: number; error: string; success: boolean; }>;
 }
 export function registerComposeDBSrv(service: ComposeDBSrvDef): void;
 export function registerComposeDBSrv(serviceId: string, service: ComposeDBSrvDef): void;
@@ -41,83 +86,6 @@ export function registerComposeDBSrv(...args: any) {
     "functions" : {
         "tag" : "labeledProduct",
         "fields" : {
-            "connect" : {
-                "tag" : "arrow",
-                "domain" : {
-                    "tag" : "labeledProduct",
-                    "fields" : {
-                        "index" : {
-                            "tag" : "struct",
-                            "name" : "CdbIndex",
-                            "fields" : {
-                                "composite" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "model" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "name" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "port" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                }
-                            }
-                        },
-                        "cap" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "cid" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        }
-                    }
-                },
-                "codomain" : {
-                    "tag" : "unlabeledProduct",
-                    "items" : [
-                        {
-                            "tag" : "struct",
-                            "name" : "CdbConnection",
-                            "fields" : {
-                                "name" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "timestamp" : {
-                                    "tag" : "scalar",
-                                    "name" : "u64"
-                                },
-                                "model" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "user" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "composite" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "port" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "pid" : {
-                                    "tag" : "scalar",
-                                    "name" : "u64"
-                                }
-                            }
-                        }
-                    ]
-                }
-            },
             "contractor_details" : {
                 "tag" : "arrow",
                 "domain" : {
@@ -165,141 +133,24 @@ export function registerComposeDBSrv(...args: any) {
                                         "indexes" : {
                                             "tag" : "array",
                                             "type" : {
-                                                "tag" : "struct",
-                                                "name" : "CdbIndex",
-                                                "fields" : {
-                                                    "composite" : {
-                                                        "tag" : "scalar",
-                                                        "name" : "string"
-                                                    },
-                                                    "model" : {
-                                                        "tag" : "scalar",
-                                                        "name" : "string"
-                                                    },
-                                                    "name" : {
-                                                        "tag" : "scalar",
-                                                        "name" : "string"
-                                                    },
-                                                    "port" : {
-                                                        "tag" : "scalar",
-                                                        "name" : "string"
-                                                    }
-                                                }
+                                                "tag" : "scalar",
+                                                "name" : "string"
                                             }
                                         },
                                         "public_info" : {
-                                            "tag" : "struct",
-                                            "name" : "CdbPublicInfo",
-                                            "fields" : {
-                                                "eth_address" : {
-                                                    "tag" : "scalar",
-                                                    "name" : "string"
-                                                },
-                                                "public_encryption_key" : {
-                                                    "tag" : "scalar",
-                                                    "name" : "string"
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    ]
-                }
-            },
-            "deploy_index" : {
-                "tag" : "arrow",
-                "domain" : {
-                    "tag" : "labeledProduct",
-                    "fields" : {
-                        "index" : {
-                            "tag" : "struct",
-                            "name" : "CdbIndex",
-                            "fields" : {
-                                "composite" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "model" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "name" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "port" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                }
-                            }
-                        },
-                        "cid" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        }
-                    }
-                },
-                "codomain" : {
-                    "tag" : "unlabeledProduct",
-                    "items" : [
-                        {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        }
-                    ]
-                }
-            },
-            "has_intermediary" : {
-                "tag" : "arrow",
-                "domain" : {
-                    "tag" : "labeledProduct",
-                    "fields" : {
-                        "user_address" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "cid" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        }
-                    }
-                },
-                "codomain" : {
-                    "tag" : "unlabeledProduct",
-                    "items" : [
-                        {
-                            "tag" : "array",
-                            "type" : {
-                                "tag" : "struct",
-                                "name" : "CdbIntermediary",
-                                "fields" : {
-                                    "aud" : {
-                                        "tag" : "scalar",
-                                        "name" : "string"
-                                    },
-                                    "did" : {
-                                        "tag" : "scalar",
-                                        "name" : "string"
-                                    },
-                                    "iss" : {
-                                        "tag" : "scalar",
-                                        "name" : "string"
-                                    },
-                                    "keys" : {
-                                        "tag" : "array",
-                                        "type" : {
-                                            "tag" : "struct",
-                                            "name" : "CdbKey",
-                                            "fields" : {
-                                                "encrypted_key" : {
-                                                    "tag" : "scalar",
-                                                    "name" : "string"
-                                                },
-                                                "recipient" : {
-                                                    "tag" : "scalar",
-                                                    "name" : "string"
+                                            "tag" : "array",
+                                            "type" : {
+                                                "tag" : "struct",
+                                                "name" : "CdbPublicInfo",
+                                                "fields" : {
+                                                    "eth_address" : {
+                                                        "tag" : "scalar",
+                                                        "name" : "string"
+                                                    },
+                                                    "public_encryption_key" : {
+                                                        "tag" : "scalar",
+                                                        "name" : "string"
+                                                    }
                                                 }
                                             }
                                         }
@@ -324,29 +175,8 @@ export function registerComposeDBSrv(...args: any) {
                             "name" : "string"
                         },
                         "indexes" : {
-                            "tag" : "array",
-                            "type" : {
-                                "tag" : "struct",
-                                "name" : "CdbIndex",
-                                "fields" : {
-                                    "composite" : {
-                                        "tag" : "scalar",
-                                        "name" : "string"
-                                    },
-                                    "model" : {
-                                        "tag" : "scalar",
-                                        "name" : "string"
-                                    },
-                                    "name" : {
-                                        "tag" : "scalar",
-                                        "name" : "string"
-                                    },
-                                    "port" : {
-                                        "tag" : "scalar",
-                                        "name" : "string"
-                                    }
-                                }
-                            }
+                            "tag" : "scalar",
+                            "name" : "string"
                         }
                     }
                 },
@@ -365,53 +195,19 @@ export function registerComposeDBSrv(...args: any) {
                 "domain" : {
                     "tag" : "labeledProduct",
                     "fields" : {
-                        "display_name" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "account_id" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "cap" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "connection" : {
-                            "tag" : "struct",
-                            "name" : "CdbConnection",
-                            "fields" : {
-                                "name" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "timestamp" : {
-                                    "tag" : "scalar",
-                                    "name" : "u64"
-                                },
-                                "model" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "user" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "composite" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "port" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "pid" : {
-                                    "tag" : "scalar",
-                                    "name" : "u64"
-                                }
-                            }
-                        },
                         "cid" : {
+                            "tag" : "scalar",
+                            "name" : "string"
+                        },
+                        "definition" : {
+                            "tag" : "scalar",
+                            "name" : "string"
+                        },
+                        "query" : {
+                            "tag" : "scalar",
+                            "name" : "string"
+                        },
+                        "session" : {
                             "tag" : "scalar",
                             "name" : "string"
                         }
@@ -422,15 +218,23 @@ export function registerComposeDBSrv(...args: any) {
                     "items" : [
                         {
                             "tag" : "struct",
-                            "name" : "CeramicResult",
+                            "name" : "CdbResult",
                             "fields" : {
-                                "stderr" : {
+                                "content" : {
                                     "tag" : "scalar",
                                     "name" : "string"
                                 },
-                                "stdout" : {
+                                "count" : {
+                                    "tag" : "scalar",
+                                    "name" : "u64"
+                                },
+                                "error" : {
                                     "tag" : "scalar",
                                     "name" : "string"
+                                },
+                                "success" : {
+                                    "tag" : "scalar",
+                                    "name" : "bool"
                                 }
                             }
                         }
@@ -442,47 +246,17 @@ export function registerComposeDBSrv(...args: any) {
                 "domain" : {
                     "tag" : "labeledProduct",
                     "fields" : {
+                        "cid" : {
+                            "tag" : "scalar",
+                            "name" : "string"
+                        },
+                        "definition" : {
+                            "tag" : "scalar",
+                            "name" : "string"
+                        },
                         "query" : {
                             "tag" : "scalar",
                             "name" : "string"
-                        },
-                        "connection" : {
-                            "tag" : "struct",
-                            "name" : "CdbConnection",
-                            "fields" : {
-                                "name" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "timestamp" : {
-                                    "tag" : "scalar",
-                                    "name" : "u64"
-                                },
-                                "model" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "user" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "composite" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "port" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "pid" : {
-                                    "tag" : "scalar",
-                                    "name" : "u64"
-                                }
-                            }
-                        },
-                        "cid" : {
-                            "tag" : "scalar",
-                            "name" : "string"
                         }
                     }
                 },
@@ -491,178 +265,23 @@ export function registerComposeDBSrv(...args: any) {
                     "items" : [
                         {
                             "tag" : "struct",
-                            "name" : "CeramicResult",
+                            "name" : "CdbResult",
                             "fields" : {
-                                "stderr" : {
+                                "content" : {
                                     "tag" : "scalar",
                                     "name" : "string"
                                 },
-                                "stdout" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                }
-                            }
-                        }
-                    ]
-                }
-            },
-            "serve" : {
-                "tag" : "arrow",
-                "domain" : {
-                    "tag" : "labeledProduct",
-                    "fields" : {
-                        "index" : {
-                            "tag" : "struct",
-                            "name" : "CdbIndex",
-                            "fields" : {
-                                "composite" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "model" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "name" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "port" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                }
-                            }
-                        },
-                        "cid" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        }
-                    }
-                },
-                "codomain" : {
-                    "tag" : "unlabeledProduct",
-                    "items" : [
-                        {
-                            "tag" : "struct",
-                            "name" : "CdbConnection",
-                            "fields" : {
-                                "name" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "timestamp" : {
+                                "count" : {
                                     "tag" : "scalar",
                                     "name" : "u64"
                                 },
-                                "model" : {
+                                "error" : {
                                     "tag" : "scalar",
                                     "name" : "string"
                                 },
-                                "user" : {
+                                "success" : {
                                     "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "composite" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "port" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "pid" : {
-                                    "tag" : "scalar",
-                                    "name" : "u64"
-                                }
-                            }
-                        }
-                    ]
-                }
-            },
-            "store_intermediary" : {
-                "tag" : "arrow",
-                "domain" : {
-                    "tag" : "labeledProduct",
-                    "fields" : {
-                        "intermediary" : {
-                            "tag" : "struct",
-                            "name" : "CdbIntermediary",
-                            "fields" : {
-                                "aud" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "did" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "iss" : {
-                                    "tag" : "scalar",
-                                    "name" : "string"
-                                },
-                                "keys" : {
-                                    "tag" : "array",
-                                    "type" : {
-                                        "tag" : "struct",
-                                        "name" : "CdbKey",
-                                        "fields" : {
-                                            "encrypted_key" : {
-                                                "tag" : "scalar",
-                                                "name" : "string"
-                                            },
-                                            "recipient" : {
-                                                "tag" : "scalar",
-                                                "name" : "string"
-                                            }
-                                        }
-                                    }
-                                }
-                            }
-                        },
-                        "cid" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        }
-                    }
-                },
-                "codomain" : {
-                    "tag" : "unlabeledProduct",
-                    "items" : [
-                        {
-                            "tag" : "array",
-                            "type" : {
-                                "tag" : "struct",
-                                "name" : "CdbIntermediary",
-                                "fields" : {
-                                    "aud" : {
-                                        "tag" : "scalar",
-                                        "name" : "string"
-                                    },
-                                    "did" : {
-                                        "tag" : "scalar",
-                                        "name" : "string"
-                                    },
-                                    "iss" : {
-                                        "tag" : "scalar",
-                                        "name" : "string"
-                                    },
-                                    "keys" : {
-                                        "tag" : "array",
-                                        "type" : {
-                                            "tag" : "struct",
-                                            "name" : "CdbKey",
-                                            "fields" : {
-                                                "encrypted_key" : {
-                                                    "tag" : "scalar",
-                                                    "name" : "string"
-                                                },
-                                                "recipient" : {
-                                                    "tag" : "scalar",
-                                                    "name" : "string"
-                                                }
-                                            }
-                                        }
-                                    }
+                                    "name" : "bool"
                                 }
                             }
                         }
@@ -676,196 +295,30 @@ export function registerComposeDBSrv(...args: any) {
 }
       
 // Functions
-export type CdbConnectArgIndex = { composite: string; model: string; name: string; port: string; } 
-export type CdbConnectResult = { composite: string; model: string; name: string; pid: number; port: string; timestamp: number; user: string; }
-export function cdbConnect(
-    peer_id: string,
-    service_id: string,
-    index: CdbConnectArgIndex,
-    cap: string,
-    cid: string,
-    config?: {ttl?: number}
-): Promise<CdbConnectResult>;
-
-export function cdbConnect(
-    peer: FluencePeer,
-    peer_id: string,
-    service_id: string,
-    index: CdbConnectArgIndex,
-    cap: string,
-    cid: string,
-    config?: {ttl?: number}
-): Promise<CdbConnectResult>;
-
-export function cdbConnect(...args: any) {
-
-    let script = `
-                    (xor
-                     (seq
-                      (seq
-                       (seq
-                        (seq
-                         (seq
-                          (seq
-                           (seq
-                            (seq
-                             (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
-                             (call %init_peer_id% ("getDataSrv" "peer_id") [] peer_id)
-                            )
-                            (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
-                           )
-                           (call %init_peer_id% ("getDataSrv" "index") [] index)
-                          )
-                          (call %init_peer_id% ("getDataSrv" "cap") [] cap)
-                         )
-                         (call %init_peer_id% ("getDataSrv" "cid") [] cid)
-                        )
-                        (call -relay- ("op" "noop") [])
-                       )
-                       (xor
-                        (seq
-                         (call peer_id (service_id "connect") [index cap cid] c)
-                         (call -relay- ("op" "noop") [])
-                        )
-                        (seq
-                         (call -relay- ("op" "noop") [])
-                         (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
-                        )
-                       )
-                      )
-                      (xor
-                       (call %init_peer_id% ("callbackSrv" "response") [c])
-                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
-                      )
-                     )
-                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
-                    )
-    `
-    return callFunction$$(
-        args,
-        {
-    "functionName" : "cdbConnect",
-    "arrow" : {
-        "tag" : "arrow",
-        "domain" : {
-            "tag" : "labeledProduct",
-            "fields" : {
-                "peer_id" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "service_id" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "index" : {
-                    "tag" : "struct",
-                    "name" : "CdbIndex",
-                    "fields" : {
-                        "composite" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "model" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "name" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "port" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        }
-                    }
-                },
-                "cap" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "cid" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                }
-            }
-        },
-        "codomain" : {
-            "tag" : "unlabeledProduct",
-            "items" : [
-                {
-                    "tag" : "struct",
-                    "name" : "CdbConnection",
-                    "fields" : {
-                        "name" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "timestamp" : {
-                            "tag" : "scalar",
-                            "name" : "u64"
-                        },
-                        "model" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "user" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "composite" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "port" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "pid" : {
-                            "tag" : "scalar",
-                            "name" : "u64"
-                        }
-                    }
-                }
-            ]
-        }
-    },
-    "names" : {
-        "relay" : "-relay-",
-        "getDataSrv" : "getDataSrv",
-        "callbackSrv" : "callbackSrv",
-        "responseSrv" : "callbackSrv",
-        "responseFnName" : "response",
-        "errorHandlingSrv" : "errorHandlingSrv",
-        "errorFnName" : "error"
-    }
-},
-        script
-    )
-}
-
-export type CdbQueryArgConnection = { composite: string; model: string; name: string; pid: number; port: string; timestamp: number; user: string; } 
-export type CdbQueryResult = { stderr: string; stdout: string; }
-export function cdbQuery(
+ 
+export type CdbMutateResult = [string[], boolean, { content: string; count: number; error: string; success: boolean; }]
+export function cdbMutate(
     node: string,
     service_id: string,
-    query: string,
-    connection: CdbQueryArgConnection,
     cid: string,
+    definition: string,
+    query: string,
+    session: string,
     config?: {ttl?: number}
-): Promise<CdbQueryResult>;
+): Promise<CdbMutateResult>;
 
-export function cdbQuery(
+export function cdbMutate(
     peer: FluencePeer,
     node: string,
     service_id: string,
-    query: string,
-    connection: CdbQueryArgConnection,
     cid: string,
+    definition: string,
+    query: string,
+    session: string,
     config?: {ttl?: number}
-): Promise<CdbQueryResult>;
+): Promise<CdbMutateResult>;
 
-export function cdbQuery(...args: any) {
+export function cdbMutate(...args: any) {
 
     let script = `
                     (xor
@@ -882,379 +335,187 @@ export function cdbQuery(...args: any) {
                             )
                             (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
                            )
-                           (call %init_peer_id% ("getDataSrv" "query") [] query)
+                           (call %init_peer_id% ("getDataSrv" "cid") [] cid)
                           )
-                          (call %init_peer_id% ("getDataSrv" "connection") [] connection)
+                          (call %init_peer_id% ("getDataSrv" "definition") [] definition)
                          )
-                         (call %init_peer_id% ("getDataSrv" "cid") [] cid)
+                         (call %init_peer_id% ("getDataSrv" "query") [] query)
                         )
-                        (call -relay- ("op" "noop") [])
+                        (call %init_peer_id% ("getDataSrv" "session") [] session)
                        )
-                       (xor
-                        (seq
-                         (call node (service_id "query") [query connection cid] ref)
-                         (call -relay- ("op" "noop") [])
-                        )
-                        (seq
-                         (call -relay- ("op" "noop") [])
-                         (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
-                        )
-                       )
-                      )
-                      (xor
-                       (call %init_peer_id% ("callbackSrv" "response") [ref])
-                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
-                      )
-                     )
-                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
-                    )
-    `
-    return callFunction$$(
-        args,
-        {
-    "functionName" : "cdbQuery",
-    "arrow" : {
-        "tag" : "arrow",
-        "domain" : {
-            "tag" : "labeledProduct",
-            "fields" : {
-                "node" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "service_id" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "query" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "connection" : {
-                    "tag" : "struct",
-                    "name" : "CdbConnection",
-                    "fields" : {
-                        "name" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "timestamp" : {
-                            "tag" : "scalar",
-                            "name" : "u64"
-                        },
-                        "model" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "user" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "composite" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "port" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "pid" : {
-                            "tag" : "scalar",
-                            "name" : "u64"
-                        }
-                    }
-                },
-                "cid" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                }
-            }
-        },
-        "codomain" : {
-            "tag" : "unlabeledProduct",
-            "items" : [
-                {
-                    "tag" : "struct",
-                    "name" : "CeramicResult",
-                    "fields" : {
-                        "stderr" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "stdout" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        }
-                    }
-                }
-            ]
-        }
-    },
-    "names" : {
-        "relay" : "-relay-",
-        "getDataSrv" : "getDataSrv",
-        "callbackSrv" : "callbackSrv",
-        "responseSrv" : "callbackSrv",
-        "responseFnName" : "response",
-        "errorHandlingSrv" : "errorHandlingSrv",
-        "errorFnName" : "error"
-    }
-},
-        script
-    )
-}
-
- 
-
-export function cdbHasIntermediary(
-    peer_id: string,
-    service_id: string,
-    user_address: string,
-    cid: string,
-    config?: {ttl?: number}
-): Promise<{ aud: string; did: string; iss: string; keys: { encrypted_key: string; recipient: string; }[]; }[]>;
-
-export function cdbHasIntermediary(
-    peer: FluencePeer,
-    peer_id: string,
-    service_id: string,
-    user_address: string,
-    cid: string,
-    config?: {ttl?: number}
-): Promise<{ aud: string; did: string; iss: string; keys: { encrypted_key: string; recipient: string; }[]; }[]>;
-
-export function cdbHasIntermediary(...args: any) {
-
-    let script = `
-                    (xor
-                     (seq
-                      (seq
-                       (seq
-                        (seq
-                         (seq
-                          (seq
-                           (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
-                           (call %init_peer_id% ("getDataSrv" "peer_id") [] peer_id)
-                          )
-                          (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
-                         )
-                         (call %init_peer_id% ("getDataSrv" "user_address") [] user_address)
-                        )
-                        (call %init_peer_id% ("getDataSrv" "cid") [] cid)
-                       )
-                       (new $msg
-                        (seq
-                         (seq
-                          (seq
-                           (call -relay- ("op" "noop") [])
-                           (xor
-                            (seq
-                             (call peer_id (service_id "has_intermediary") [user_address cid] $msg)
-                             (call -relay- ("op" "noop") [])
-                            )
-                            (seq
-                             (call -relay- ("op" "noop") [])
-                             (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
-                            )
-                           )
-                          )
-                          (new $msg_test
-                           (seq
-                            (seq
-                             (seq
-                              (call %init_peer_id% ("math" "add") [0 1] msg_incr)
-                              (fold $msg s
-                               (seq
-                                (seq
-                                 (ap s $msg_test)
-                                 (canon %init_peer_id% $msg_test  #msg_iter_canon)
-                                )
-                                (xor
-                                 (match #msg_iter_canon.length msg_incr
-                                  (null)
-                                 )
-                                 (next s)
-                                )
-                               )
-                               (never)
-                              )
-                             )
-                             (canon %init_peer_id% $msg_test  #msg_result_canon)
-                            )
-                            (ap #msg_result_canon msg_gate)
-                           )
-                          )
-                         )
-                         (ap msg_gate.$.[0]! msg_gate-0)
-                        )
-                       )
-                      )
-                      (xor
-                       (call %init_peer_id% ("callbackSrv" "response") [msg_gate-0])
-                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
-                      )
-                     )
-                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
-                    )
-    `
-    return callFunction$$(
-        args,
-        {
-    "functionName" : "cdbHasIntermediary",
-    "arrow" : {
-        "tag" : "arrow",
-        "domain" : {
-            "tag" : "labeledProduct",
-            "fields" : {
-                "peer_id" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "service_id" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "user_address" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "cid" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                }
-            }
-        },
-        "codomain" : {
-            "tag" : "unlabeledProduct",
-            "items" : [
-                {
-                    "tag" : "array",
-                    "type" : {
-                        "tag" : "struct",
-                        "name" : "CdbIntermediary",
-                        "fields" : {
-                            "aud" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "did" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "iss" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "keys" : {
-                                "tag" : "array",
-                                "type" : {
-                                    "tag" : "struct",
-                                    "name" : "CdbKey",
-                                    "fields" : {
-                                        "encrypted_key" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        },
-                                        "recipient" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            ]
-        }
-    },
-    "names" : {
-        "relay" : "-relay-",
-        "getDataSrv" : "getDataSrv",
-        "callbackSrv" : "callbackSrv",
-        "responseSrv" : "callbackSrv",
-        "responseFnName" : "response",
-        "errorHandlingSrv" : "errorHandlingSrv",
-        "errorFnName" : "error"
-    }
-},
-        script
-    )
-}
-
-export type CdbMutateArgConnection = { composite: string; model: string; name: string; pid: number; port: string; timestamp: number; user: string; } 
-export type CdbMutateResult = { stderr: string; stdout: string; }
-export function cdbMutate(
-    node: string,
-    service_id: string,
-    display_name: string,
-    account_id: string,
-    cap: string,
-    connection: CdbMutateArgConnection,
-    cid: string,
-    config?: {ttl?: number}
-): Promise<CdbMutateResult>;
-
-export function cdbMutate(
-    peer: FluencePeer,
-    node: string,
-    service_id: string,
-    display_name: string,
-    account_id: string,
-    cap: string,
-    connection: CdbMutateArgConnection,
-    cid: string,
-    config?: {ttl?: number}
-): Promise<CdbMutateResult>;
-
-export function cdbMutate(...args: any) {
-
-    let script = `
-                    (xor
-                     (seq
-                      (seq
-                       (seq
-                        (seq
-                         (seq
+                       (new $values
+                        (new $status
+                         (new $success
                           (seq
                            (seq
                             (seq
                              (seq
                               (seq
-                               (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
-                               (call %init_peer_id% ("getDataSrv" "node") [] node)
+                               (par
+                                (seq
+                                 (call -relay- ("op" "noop") [])
+                                 (xor
+                                  (seq
+                                   (seq
+                                    (call node (service_id "mutate") [cid definition query session] $values)
+                                    (ap "ok" $status)
+                                   )
+                                   (call -relay- ("op" "noop") [])
+                                  )
+                                  (seq
+                                   (call -relay- ("op" "noop") [])
+                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
+                                  )
+                                 )
+                                )
+                                (call %init_peer_id% ("peer" "timeout") [20000 "timeout"] $status)
+                               )
+                               (xor
+                                (seq
+                                 (seq
+                                  (new $status_test
+                                   (seq
+                                    (seq
+                                     (seq
+                                      (call %init_peer_id% ("math" "add") [0 1] status_incr)
+                                      (fold $status s
+                                       (seq
+                                        (seq
+                                         (ap s $status_test)
+                                         (canon %init_peer_id% $status_test  #status_iter_canon)
+                                        )
+                                        (xor
+                                         (match #status_iter_canon.length status_incr
+                                          (null)
+                                         )
+                                         (next s)
+                                        )
+                                       )
+                                       (never)
+                                      )
+                                     )
+                                     (canon %init_peer_id% $status_test  #status_result_canon)
+                                    )
+                                    (ap #status_result_canon status_gate)
+                                   )
+                                  )
+                                  (ap status_gate.$.[0]! status_gate-0)
+                                 )
+                                 (match status_gate-0 "timeout"
+                                  (xor
+                                   (seq
+                                    (seq
+                                     (seq
+                                      (ap false $success)
+                                      (new $status_test-0
+                                       (seq
+                                        (seq
+                                         (seq
+                                          (call %init_peer_id% ("math" "add") [0 1] status_incr-0)
+                                          (fold $status s
+                                           (seq
+                                            (seq
+                                             (ap s $status_test-0)
+                                             (canon %init_peer_id% $status_test-0  #status_iter_canon-0)
+                                            )
+                                            (xor
+                                             (match #status_iter_canon-0.length status_incr-0
+                                              (null)
+                                             )
+                                             (next s)
+                                            )
+                                           )
+                                           (never)
+                                          )
+                                         )
+                                         (canon %init_peer_id% $status_test-0  #status_result_canon-0)
+                                        )
+                                        (ap #status_result_canon-0 status_gate-1)
+                                       )
+                                      )
+                                     )
+                                     (ap status_gate-1.$.[0]! status_gate-1-0)
+                                    )
+                                    (ap status_gate-1-0 $error)
+                                   )
+                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
+                                  )
+                                 )
+                                )
+                                (ap true $success)
+                               )
                               )
-                              (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
+                              (new $success_test
+                               (seq
+                                (seq
+                                 (seq
+                                  (call %init_peer_id% ("math" "add") [0 1] success_incr)
+                                  (fold $success s
+                                   (seq
+                                    (seq
+                                     (ap s $success_test)
+                                     (canon %init_peer_id% $success_test  #success_iter_canon)
+                                    )
+                                    (xor
+                                     (match #success_iter_canon.length success_incr
+                                      (null)
+                                     )
+                                     (next s)
+                                    )
+                                   )
+                                   (never)
+                                  )
+                                 )
+                                 (canon %init_peer_id% $success_test  #success_result_canon)
+                                )
+                                (ap #success_result_canon success_gate)
+                               )
+                              )
                              )
-                             (call %init_peer_id% ("getDataSrv" "display_name") [] display_name)
+                             (ap success_gate.$.[0]! success_gate-0)
                             )
-                            (call %init_peer_id% ("getDataSrv" "account_id") [] account_id)
+                            (new $values_test
+                             (seq
+                              (seq
+                               (seq
+                                (call %init_peer_id% ("math" "add") [0 1] values_incr)
+                                (fold $values s
+                                 (seq
+                                  (seq
+                                   (ap s $values_test)
+                                   (canon %init_peer_id% $values_test  #values_iter_canon)
+                                  )
+                                  (xor
+                                   (match #values_iter_canon.length values_incr
+                                    (null)
+                                   )
+                                   (next s)
+                                  )
+                                 )
+                                 (never)
+                                )
+                               )
+                               (canon %init_peer_id% $values_test  #values_result_canon)
+                              )
+                              (ap #values_result_canon values_gate)
+                             )
+                            )
                            )
-                           (call %init_peer_id% ("getDataSrv" "cap") [] cap)
+                           (ap values_gate.$.[0]! values_gate-0)
                           )
-                          (call %init_peer_id% ("getDataSrv" "connection") [] connection)
                          )
-                         (call %init_peer_id% ("getDataSrv" "cid") [] cid)
-                        )
-                        (call -relay- ("op" "noop") [])
-                       )
-                       (xor
-                        (seq
-                         (call node (service_id "mutate") [display_name account_id cap connection cid] res)
-                         (call -relay- ("op" "noop") [])
-                        )
-                        (seq
-                         (call -relay- ("op" "noop") [])
-                         (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
                         )
                        )
                       )
                       (xor
-                       (call %init_peer_id% ("callbackSrv" "response") [res])
-                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
+                       (seq
+                        (canon %init_peer_id% $error  #error_canon)
+                        (call %init_peer_id% ("callbackSrv" "response") [#error_canon success_gate-0 values_gate-0])
+                       )
+                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
                       )
                      )
-                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
+                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 4])
                     )
     `
     return callFunction$$(
@@ -1274,53 +535,19 @@ export function cdbMutate(...args: any) {
                     "tag" : "scalar",
                     "name" : "string"
                 },
-                "display_name" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "account_id" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "cap" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "connection" : {
-                    "tag" : "struct",
-                    "name" : "CdbConnection",
-                    "fields" : {
-                        "name" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "timestamp" : {
-                            "tag" : "scalar",
-                            "name" : "u64"
-                        },
-                        "model" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "user" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "composite" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "port" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "pid" : {
-                            "tag" : "scalar",
-                            "name" : "u64"
-                        }
-                    }
-                },
                 "cid" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                },
+                "definition" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                },
+                "query" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                },
+                "session" : {
                     "tag" : "scalar",
                     "name" : "string"
                 }
@@ -1330,16 +557,35 @@ export function cdbMutate(...args: any) {
             "tag" : "unlabeledProduct",
             "items" : [
                 {
+                    "tag" : "array",
+                    "type" : {
+                        "tag" : "scalar",
+                        "name" : "string"
+                    }
+                },
+                {
+                    "tag" : "scalar",
+                    "name" : "bool"
+                },
+                {
                     "tag" : "struct",
-                    "name" : "CeramicResult",
+                    "name" : "CdbResult",
                     "fields" : {
-                        "stderr" : {
+                        "content" : {
                             "tag" : "scalar",
                             "name" : "string"
                         },
-                        "stdout" : {
+                        "count" : {
+                            "tag" : "scalar",
+                            "name" : "u64"
+                        },
+                        "error" : {
                             "tag" : "scalar",
                             "name" : "string"
+                        },
+                        "success" : {
+                            "tag" : "scalar",
+                            "name" : "bool"
                         }
                     }
                 }
@@ -1361,14 +607,636 @@ export function cdbMutate(...args: any) {
 }
 
  
-export type CdbInitResult = [string, string[], { composite: string; model: string; name: string; pid: number; port: string; timestamp: number; user: string; }[], boolean, string[]]
+export type CdbContratorDetailsResult = [string[], boolean, { composedb: { directions: { ceramic_port: string; express_port: string; n: string; namespace: string; }; indexes: string[]; public_info: { eth_address: string; public_encryption_key: string; }[]; }; }]
+export function cdbContratorDetails(
+    peer_id: string,
+    service_id: string,
+    cid: string,
+    config?: {ttl?: number}
+): Promise<CdbContratorDetailsResult>;
+
+export function cdbContratorDetails(
+    peer: FluencePeer,
+    peer_id: string,
+    service_id: string,
+    cid: string,
+    config?: {ttl?: number}
+): Promise<CdbContratorDetailsResult>;
+
+export function cdbContratorDetails(...args: any) {
+
+    let script = `
+                    (xor
+                     (seq
+                      (seq
+                       (seq
+                        (seq
+                         (seq
+                          (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
+                          (call %init_peer_id% ("getDataSrv" "peer_id") [] peer_id)
+                         )
+                         (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
+                        )
+                        (call %init_peer_id% ("getDataSrv" "cid") [] cid)
+                       )
+                       (new $values
+                        (new $status
+                         (new $success
+                          (seq
+                           (seq
+                            (seq
+                             (seq
+                              (seq
+                               (par
+                                (seq
+                                 (call -relay- ("op" "noop") [])
+                                 (xor
+                                  (seq
+                                   (seq
+                                    (call peer_id (service_id "contractor_details") [cid] $values)
+                                    (ap "ok" $status)
+                                   )
+                                   (call -relay- ("op" "noop") [])
+                                  )
+                                  (seq
+                                   (call -relay- ("op" "noop") [])
+                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
+                                  )
+                                 )
+                                )
+                                (call %init_peer_id% ("peer" "timeout") [3000 "timeout"] $status)
+                               )
+                               (xor
+                                (seq
+                                 (seq
+                                  (new $status_test
+                                   (seq
+                                    (seq
+                                     (seq
+                                      (call %init_peer_id% ("math" "add") [0 1] status_incr)
+                                      (fold $status s
+                                       (seq
+                                        (seq
+                                         (ap s $status_test)
+                                         (canon %init_peer_id% $status_test  #status_iter_canon)
+                                        )
+                                        (xor
+                                         (match #status_iter_canon.length status_incr
+                                          (null)
+                                         )
+                                         (next s)
+                                        )
+                                       )
+                                       (never)
+                                      )
+                                     )
+                                     (canon %init_peer_id% $status_test  #status_result_canon)
+                                    )
+                                    (ap #status_result_canon status_gate)
+                                   )
+                                  )
+                                  (ap status_gate.$.[0]! status_gate-0)
+                                 )
+                                 (match status_gate-0 "timeout"
+                                  (xor
+                                   (seq
+                                    (seq
+                                     (seq
+                                      (ap false $success)
+                                      (new $status_test-0
+                                       (seq
+                                        (seq
+                                         (seq
+                                          (call %init_peer_id% ("math" "add") [0 1] status_incr-0)
+                                          (fold $status s
+                                           (seq
+                                            (seq
+                                             (ap s $status_test-0)
+                                             (canon %init_peer_id% $status_test-0  #status_iter_canon-0)
+                                            )
+                                            (xor
+                                             (match #status_iter_canon-0.length status_incr-0
+                                              (null)
+                                             )
+                                             (next s)
+                                            )
+                                           )
+                                           (never)
+                                          )
+                                         )
+                                         (canon %init_peer_id% $status_test-0  #status_result_canon-0)
+                                        )
+                                        (ap #status_result_canon-0 status_gate-1)
+                                       )
+                                      )
+                                     )
+                                     (ap status_gate-1.$.[0]! status_gate-1-0)
+                                    )
+                                    (ap status_gate-1-0 $error)
+                                   )
+                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
+                                  )
+                                 )
+                                )
+                                (ap true $success)
+                               )
+                              )
+                              (new $success_test
+                               (seq
+                                (seq
+                                 (seq
+                                  (call %init_peer_id% ("math" "add") [0 1] success_incr)
+                                  (fold $success s
+                                   (seq
+                                    (seq
+                                     (ap s $success_test)
+                                     (canon %init_peer_id% $success_test  #success_iter_canon)
+                                    )
+                                    (xor
+                                     (match #success_iter_canon.length success_incr
+                                      (null)
+                                     )
+                                     (next s)
+                                    )
+                                   )
+                                   (never)
+                                  )
+                                 )
+                                 (canon %init_peer_id% $success_test  #success_result_canon)
+                                )
+                                (ap #success_result_canon success_gate)
+                               )
+                              )
+                             )
+                             (ap success_gate.$.[0]! success_gate-0)
+                            )
+                            (new $values_test
+                             (seq
+                              (seq
+                               (seq
+                                (call %init_peer_id% ("math" "add") [0 1] values_incr)
+                                (fold $values s
+                                 (seq
+                                  (seq
+                                   (ap s $values_test)
+                                   (canon %init_peer_id% $values_test  #values_iter_canon)
+                                  )
+                                  (xor
+                                   (match #values_iter_canon.length values_incr
+                                    (null)
+                                   )
+                                   (next s)
+                                  )
+                                 )
+                                 (never)
+                                )
+                               )
+                               (canon %init_peer_id% $values_test  #values_result_canon)
+                              )
+                              (ap #values_result_canon values_gate)
+                             )
+                            )
+                           )
+                           (ap values_gate.$.[0]! values_gate-0)
+                          )
+                         )
+                        )
+                       )
+                      )
+                      (xor
+                       (seq
+                        (canon %init_peer_id% $error  #error_canon)
+                        (call %init_peer_id% ("callbackSrv" "response") [#error_canon success_gate-0 values_gate-0])
+                       )
+                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
+                      )
+                     )
+                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 4])
+                    )
+    `
+    return callFunction$$(
+        args,
+        {
+    "functionName" : "cdbContratorDetails",
+    "arrow" : {
+        "tag" : "arrow",
+        "domain" : {
+            "tag" : "labeledProduct",
+            "fields" : {
+                "peer_id" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                },
+                "service_id" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                },
+                "cid" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                }
+            }
+        },
+        "codomain" : {
+            "tag" : "unlabeledProduct",
+            "items" : [
+                {
+                    "tag" : "array",
+                    "type" : {
+                        "tag" : "scalar",
+                        "name" : "string"
+                    }
+                },
+                {
+                    "tag" : "scalar",
+                    "name" : "bool"
+                },
+                {
+                    "tag" : "struct",
+                    "name" : "CdbContractorDetails",
+                    "fields" : {
+                        "composedb" : {
+                            "tag" : "struct",
+                            "name" : "CdbConfig",
+                            "fields" : {
+                                "directions" : {
+                                    "tag" : "struct",
+                                    "name" : "CdbDirections",
+                                    "fields" : {
+                                        "ceramic_port" : {
+                                            "tag" : "scalar",
+                                            "name" : "string"
+                                        },
+                                        "express_port" : {
+                                            "tag" : "scalar",
+                                            "name" : "string"
+                                        },
+                                        "n" : {
+                                            "tag" : "scalar",
+                                            "name" : "string"
+                                        },
+                                        "namespace" : {
+                                            "tag" : "scalar",
+                                            "name" : "string"
+                                        }
+                                    }
+                                },
+                                "indexes" : {
+                                    "tag" : "array",
+                                    "type" : {
+                                        "tag" : "scalar",
+                                        "name" : "string"
+                                    }
+                                },
+                                "public_info" : {
+                                    "tag" : "array",
+                                    "type" : {
+                                        "tag" : "struct",
+                                        "name" : "CdbPublicInfo",
+                                        "fields" : {
+                                            "eth_address" : {
+                                                "tag" : "scalar",
+                                                "name" : "string"
+                                            },
+                                            "public_encryption_key" : {
+                                                "tag" : "scalar",
+                                                "name" : "string"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "names" : {
+        "relay" : "-relay-",
+        "getDataSrv" : "getDataSrv",
+        "callbackSrv" : "callbackSrv",
+        "responseSrv" : "callbackSrv",
+        "responseFnName" : "response",
+        "errorHandlingSrv" : "errorHandlingSrv",
+        "errorFnName" : "error"
+    }
+},
+        script
+    )
+}
+
+ 
+export type CdbQueryResult = [string[], boolean, { content: string; count: number; error: string; success: boolean; }]
+export function cdbQuery(
+    node: string,
+    service_id: string,
+    contractor_cid: string,
+    definition: string,
+    query: string,
+    config?: {ttl?: number}
+): Promise<CdbQueryResult>;
+
+export function cdbQuery(
+    peer: FluencePeer,
+    node: string,
+    service_id: string,
+    contractor_cid: string,
+    definition: string,
+    query: string,
+    config?: {ttl?: number}
+): Promise<CdbQueryResult>;
+
+export function cdbQuery(...args: any) {
+
+    let script = `
+                    (xor
+                     (seq
+                      (seq
+                       (seq
+                        (seq
+                         (seq
+                          (seq
+                           (seq
+                            (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
+                            (call %init_peer_id% ("getDataSrv" "node") [] node)
+                           )
+                           (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
+                          )
+                          (call %init_peer_id% ("getDataSrv" "contractor_cid") [] contractor_cid)
+                         )
+                         (call %init_peer_id% ("getDataSrv" "definition") [] definition)
+                        )
+                        (call %init_peer_id% ("getDataSrv" "query") [] query)
+                       )
+                       (new $values
+                        (new $status
+                         (new $success
+                          (seq
+                           (seq
+                            (seq
+                             (seq
+                              (seq
+                               (par
+                                (seq
+                                 (call -relay- ("op" "noop") [])
+                                 (xor
+                                  (seq
+                                   (seq
+                                    (call node (service_id "query") [contractor_cid definition query] $values)
+                                    (ap "ok" $status)
+                                   )
+                                   (call -relay- ("op" "noop") [])
+                                  )
+                                  (seq
+                                   (call -relay- ("op" "noop") [])
+                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
+                                  )
+                                 )
+                                )
+                                (call %init_peer_id% ("peer" "timeout") [20000 "timeout"] $status)
+                               )
+                               (xor
+                                (seq
+                                 (seq
+                                  (new $status_test
+                                   (seq
+                                    (seq
+                                     (seq
+                                      (call %init_peer_id% ("math" "add") [0 1] status_incr)
+                                      (fold $status s
+                                       (seq
+                                        (seq
+                                         (ap s $status_test)
+                                         (canon %init_peer_id% $status_test  #status_iter_canon)
+                                        )
+                                        (xor
+                                         (match #status_iter_canon.length status_incr
+                                          (null)
+                                         )
+                                         (next s)
+                                        )
+                                       )
+                                       (never)
+                                      )
+                                     )
+                                     (canon %init_peer_id% $status_test  #status_result_canon)
+                                    )
+                                    (ap #status_result_canon status_gate)
+                                   )
+                                  )
+                                  (ap status_gate.$.[0]! status_gate-0)
+                                 )
+                                 (match status_gate-0 "timeout"
+                                  (xor
+                                   (seq
+                                    (seq
+                                     (seq
+                                      (ap false $success)
+                                      (new $status_test-0
+                                       (seq
+                                        (seq
+                                         (seq
+                                          (call %init_peer_id% ("math" "add") [0 1] status_incr-0)
+                                          (fold $status s
+                                           (seq
+                                            (seq
+                                             (ap s $status_test-0)
+                                             (canon %init_peer_id% $status_test-0  #status_iter_canon-0)
+                                            )
+                                            (xor
+                                             (match #status_iter_canon-0.length status_incr-0
+                                              (null)
+                                             )
+                                             (next s)
+                                            )
+                                           )
+                                           (never)
+                                          )
+                                         )
+                                         (canon %init_peer_id% $status_test-0  #status_result_canon-0)
+                                        )
+                                        (ap #status_result_canon-0 status_gate-1)
+                                       )
+                                      )
+                                     )
+                                     (ap status_gate-1.$.[0]! status_gate-1-0)
+                                    )
+                                    (ap status_gate-1-0 $error)
+                                   )
+                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
+                                  )
+                                 )
+                                )
+                                (ap true $success)
+                               )
+                              )
+                              (new $success_test
+                               (seq
+                                (seq
+                                 (seq
+                                  (call %init_peer_id% ("math" "add") [0 1] success_incr)
+                                  (fold $success s
+                                   (seq
+                                    (seq
+                                     (ap s $success_test)
+                                     (canon %init_peer_id% $success_test  #success_iter_canon)
+                                    )
+                                    (xor
+                                     (match #success_iter_canon.length success_incr
+                                      (null)
+                                     )
+                                     (next s)
+                                    )
+                                   )
+                                   (never)
+                                  )
+                                 )
+                                 (canon %init_peer_id% $success_test  #success_result_canon)
+                                )
+                                (ap #success_result_canon success_gate)
+                               )
+                              )
+                             )
+                             (ap success_gate.$.[0]! success_gate-0)
+                            )
+                            (new $values_test
+                             (seq
+                              (seq
+                               (seq
+                                (call %init_peer_id% ("math" "add") [0 1] values_incr)
+                                (fold $values s
+                                 (seq
+                                  (seq
+                                   (ap s $values_test)
+                                   (canon %init_peer_id% $values_test  #values_iter_canon)
+                                  )
+                                  (xor
+                                   (match #values_iter_canon.length values_incr
+                                    (null)
+                                   )
+                                   (next s)
+                                  )
+                                 )
+                                 (never)
+                                )
+                               )
+                               (canon %init_peer_id% $values_test  #values_result_canon)
+                              )
+                              (ap #values_result_canon values_gate)
+                             )
+                            )
+                           )
+                           (ap values_gate.$.[0]! values_gate-0)
+                          )
+                         )
+                        )
+                       )
+                      )
+                      (xor
+                       (seq
+                        (canon %init_peer_id% $error  #error_canon)
+                        (call %init_peer_id% ("callbackSrv" "response") [#error_canon success_gate-0 values_gate-0])
+                       )
+                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
+                      )
+                     )
+                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 4])
+                    )
+    `
+    return callFunction$$(
+        args,
+        {
+    "functionName" : "cdbQuery",
+    "arrow" : {
+        "tag" : "arrow",
+        "domain" : {
+            "tag" : "labeledProduct",
+            "fields" : {
+                "node" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                },
+                "service_id" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                },
+                "contractor_cid" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                },
+                "definition" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                },
+                "query" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                }
+            }
+        },
+        "codomain" : {
+            "tag" : "unlabeledProduct",
+            "items" : [
+                {
+                    "tag" : "array",
+                    "type" : {
+                        "tag" : "scalar",
+                        "name" : "string"
+                    }
+                },
+                {
+                    "tag" : "scalar",
+                    "name" : "bool"
+                },
+                {
+                    "tag" : "struct",
+                    "name" : "CdbResult",
+                    "fields" : {
+                        "content" : {
+                            "tag" : "scalar",
+                            "name" : "string"
+                        },
+                        "count" : {
+                            "tag" : "scalar",
+                            "name" : "u64"
+                        },
+                        "error" : {
+                            "tag" : "scalar",
+                            "name" : "string"
+                        },
+                        "success" : {
+                            "tag" : "scalar",
+                            "name" : "bool"
+                        }
+                    }
+                }
+            ]
+        }
+    },
+    "names" : {
+        "relay" : "-relay-",
+        "getDataSrv" : "getDataSrv",
+        "callbackSrv" : "callbackSrv",
+        "responseSrv" : "callbackSrv",
+        "responseFnName" : "response",
+        "errorHandlingSrv" : "errorHandlingSrv",
+        "errorFnName" : "error"
+    }
+},
+        script
+    )
+}
+
+ 
+export type CdbInitResult = [string, boolean, string[]]
 export function cdbInit(
     resource_id: string,
     peer_id: string,
     service_id: string | null,
     namespace: string,
     n: string,
-    indexes: { composite: string; model: string; name: string; port: string; }[],
+    indexes: string,
     config?: {ttl?: number}
 ): Promise<CdbInitResult>;
 
@@ -1379,7 +1247,7 @@ export function cdbInit(
     service_id: string | null,
     namespace: string,
     n: string,
-    indexes: { composite: string; model: string; name: string; port: string; }[],
+    indexes: string,
     config?: {ttl?: number}
 ): Promise<CdbInitResult>;
 
@@ -1395,516 +1263,310 @@ export function cdbInit(...args: any) {
                           (seq
                            (seq
                             (seq
-                             (seq
-                              (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
-                              (call %init_peer_id% ("getDataSrv" "resource_id") [] resource_id)
-                             )
-                             (call %init_peer_id% ("getDataSrv" "peer_id") [] peer_id)
+                             (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
+                             (call %init_peer_id% ("getDataSrv" "resource_id") [] resource_id)
                             )
-                            (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
+                            (call %init_peer_id% ("getDataSrv" "peer_id") [] peer_id)
                            )
-                           (call %init_peer_id% ("getDataSrv" "namespace") [] namespace)
+                           (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
                           )
-                          (call %init_peer_id% ("getDataSrv" "n") [] n)
+                          (call %init_peer_id% ("getDataSrv" "namespace") [] namespace)
                          )
-                         (call %init_peer_id% ("getDataSrv" "indexes") [] indexes)
+                         (call %init_peer_id% ("getDataSrv" "n") [] n)
                         )
-                        (call -relay- ("op" "noop") [])
+                        (call %init_peer_id% ("getDataSrv" "indexes") [] indexes)
                        )
-                       (xor
-                        (seq
+                       (new $connections
+                        (new $results
                          (seq
-                          (call peer_id (service_id.$.[0]! "init") [namespace n indexes] cid)
-                          (fold indexes i-0
+                          (call -relay- ("op" "noop") [])
+                          (xor
                            (seq
-                            (seq
-                             (call peer_id (service_id.$.[0]! "deploy_index") [i-0 cid] $results)
-                             (call peer_id (service_id.$.[0]! "serve") [i-0 cid] $connections)
-                            )
-                            (next i-0)
-                           )
-                          )
-                         )
-                         (new $successful
-                          (new $error_get
-                           (new $success
-                            (new $relay_id
-                             (seq
-                              (seq
-                               (seq
+                            (call peer_id (service_id.$.[0]! "init") [namespace n indexes] cid)
+                            (new $successful
+                             (new $error_get
+                              (new $success
+                               (new $relay_id
                                 (seq
-                                 (xor
-                                  (match peer_id %init_peer_id%
-                                   (ap -relay- $relay_id)
-                                  )
-                                  (call peer_id ("op" "noop") [])
-                                 )
-                                 (xor
+                                 (seq
                                   (seq
-                                   (new $error-0
-                                    (new $result
+                                   (seq
+                                    (xor
+                                     (match peer_id %init_peer_id%
+                                      (ap -relay- $relay_id)
+                                     )
+                                     (call peer_id ("op" "noop") [])
+                                    )
+                                    (xor
                                      (seq
-                                      (seq
-                                       (seq
+                                      (new $error-0
+                                       (new $result
                                         (seq
                                          (seq
                                           (seq
                                            (seq
                                             (seq
-                                             (call -relay- ("peer" "timestamp_sec") [] t-0)
-                                             (canon -relay- $relay_id  #relay_id_canon)
-                                            )
-                                            (call -relay- ("registry" "get_record_metadata_bytes") [resource_id %init_peer_id% t-0 cid peer_id #relay_id_canon service_id []] bytes)
-                                           )
-                                           (xor
-                                            (call %init_peer_id% ("sig" "sign") [bytes] sig_result)
-                                            (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
-                                           )
-                                          )
-                                          (xor
-                                           (match sig_result.$.success! true
-                                            (xor
                                              (seq
-                                              (canon -relay- $relay_id  #relay_id_canon-0)
-                                              (call -relay- ("registry" "create_record_metadata") [resource_id %init_peer_id% t-0 cid peer_id #relay_id_canon-0 service_id [] sig_result.$.signature.[0]!] $result)
-                                             )
-                                             (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
-                                            )
-                                           )
-                                           (ap sig_result.$.error.[0]! $error-0)
-                                          )
-                                         )
-                                         (canon -relay- $result  #-result-fix-0)
-                                        )
-                                        (ap #-result-fix-0 -result-flat-0)
-                                       )
-                                       (canon -relay- $error-0  #-error-fix-1)
-                                      )
-                                      (ap #-error-fix-1 -error-flat-1)
-                                     )
-                                    )
-                                   )
-                                   (xor
-                                    (match -result-flat-0 []
-                                     (seq
-                                      (ap false $success)
-                                      (ap -error-flat-1.$.[0]! $error)
-                                     )
-                                    )
-                                    (seq
-                                     (seq
-                                      (call -relay- ("peer" "timestamp_sec") [] t)
-                                      (new $signature
-                                       (seq
-                                        (seq
-                                         (xor
-                                          (mismatch -result-flat-0.$.[0].peer_id! %init_peer_id%
-                                           (xor
-                                            (xor
-                                             (seq
-                                              (call -result-flat-0.$.[0].peer_id! ("registry" "get_record_bytes") [-result-flat-0.$.[0]! t] bytes-0)
-                                              (call -result-flat-0.$.[0].peer_id! ("sig" "sign") [bytes-0] $signature)
-                                             )
-                                             (seq
-                                              (call -relay- ("op" "noop") [])
-                                              (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
-                                             )
-                                            )
-                                            (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 4])
-                                           )
-                                          )
-                                          (xor
-                                           (seq
-                                            (call -relay- ("registry" "get_record_bytes") [-result-flat-0.$.[0]! t] bytess)
-                                            (xor
-                                             (call %init_peer_id% ("sig" "sign") [bytess] $signature)
-                                             (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 5])
-                                            )
-                                           )
-                                           (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 6])
-                                          )
-                                         )
-                                         (new $signature_test
-                                          (seq
-                                           (seq
-                                            (seq
-                                             (call -relay- ("math" "add") [0 1] signature_incr)
-                                             (fold $signature s
                                               (seq
                                                (seq
-                                                (ap s $signature_test)
-                                                (canon -relay- $signature_test  #signature_iter_canon)
+                                                (call -relay- ("peer" "timestamp_sec") [] t-0)
+                                                (canon -relay- $relay_id  #relay_id_canon)
                                                )
+                                               (call -relay- ("registry" "get_record_metadata_bytes") [resource_id %init_peer_id% t-0 cid peer_id #relay_id_canon service_id []] bytes)
+                                              )
+                                              (xor
+                                               (call %init_peer_id% ("sig" "sign") [bytes] sig_result)
+                                               (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
+                                              )
+                                             )
+                                             (xor
+                                              (match sig_result.$.success! true
                                                (xor
-                                                (match #signature_iter_canon.length signature_incr
-                                                 (null)
-                                                )
-                                                (next s)
-                                               )
-                                              )
-                                              (never)
-                                             )
-                                            )
-                                            (canon -relay- $signature_test  #signature_result_canon)
-                                           )
-                                           (ap #signature_result_canon signature_gate)
-                                          )
-                                         )
-                                        )
-                                        (ap signature_gate.$.[0]! signature_gate-0)
-                                       )
-                                      )
-                                     )
-                                     (xor
-                                      (match signature_gate-0.$.success! false
-                                       (seq
-                                        (ap signature_gate-0.$.error.[0]! $error)
-                                        (ap false $success)
-                                       )
-                                      )
-                                      (seq
-                                       (new $resources
-                                        (new $successful-0
-                                         (new $result-0
-                                          (seq
-                                           (seq
-                                            (seq
-                                             (seq
-                                              (seq
-                                               (seq
-                                                (call -relay- ("op" "string_to_b58") [resource_id] k)
-                                                (call -relay- ("kad" "neighborhood") [k [] []] nodes-1)
-                                               )
-                                               (par
-                                                (fold nodes-1 n-2-0
-                                                 (par
-                                                  (seq
-                                                   (xor
-                                                    (xor
-                                                     (seq
-                                                      (call n-2-0 ("registry" "get_key_metadata") [resource_id] get_result)
-                                                      (xor
-                                                       (match get_result.$.success! true
-                                                        (seq
-                                                         (ap get_result.$.key! $resources)
-                                                         (ap true $successful-0)
-                                                        )
-                                                       )
-                                                       (seq
-                                                        (call n-2-0 ("op" "concat_strings") [get_result.$.error! " on "] e)
-                                                        (call n-2-0 ("op" "concat_strings") [e n-2-0] $error-1)
-                                                       )
-                                                      )
-                                                     )
-                                                     (call n-2-0 ("op" "noop") [])
-                                                    )
-                                                    (seq
-                                                     (call -relay- ("op" "noop") [])
-                                                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 7])
-                                                    )
-                                                   )
-                                                   (call -relay- ("op" "noop") [])
-                                                  )
-                                                  (next n-2-0)
-                                                 )
-                                                 (never)
-                                                )
-                                                (null)
-                                               )
-                                              )
-                                              (new $status
-                                               (new $result-1
                                                 (seq
-                                                 (seq
-                                                  (seq
-                                                   (seq
-                                                    (seq
-                                                     (par
-                                                      (seq
-                                                       (seq
-                                                        (seq
-                                                         (seq
-                                                          (call -relay- ("math" "sub") [1 1] sub-0)
-                                                          (call -relay- ("math" "sub") [1 1] sub)
-                                                         )
-                                                         (new $successful-0_test
-                                                          (seq
-                                                           (seq
-                                                            (seq
-                                                             (call -relay- ("math" "add") [sub 1] successful-0_incr)
-                                                             (fold $successful-0 s
-                                                              (seq
-                                                               (seq
-                                                                (ap s $successful-0_test)
-                                                                (canon -relay- $successful-0_test  #successful-0_iter_canon)
-                                                               )
-                                                               (xor
-                                                                (match #successful-0_iter_canon.length successful-0_incr
-                                                                 (null)
-                                                                )
-                                                                (next s)
-                                                               )
-                                                              )
-                                                              (never)
-                                                             )
-                                                            )
-                                                            (canon -relay- $successful-0_test  #successful-0_result_canon)
-                                                           )
-                                                           (ap #successful-0_result_canon successful-0_gate)
-                                                          )
-                                                         )
-                                                        )
-                                                        (ap successful-0_gate.$.[sub-0]! successful-0_gate-0)
-                                                       )
-                                                       (ap "ok" $status)
-                                                      )
-                                                      (call -relay- ("peer" "timeout") [6000 "timeout"] $status)
-                                                     )
-                                                     (new $status_test
-                                                      (seq
-                                                       (seq
-                                                        (seq
-                                                         (call -relay- ("math" "add") [0 1] status_incr)
-                                                         (fold $status s
-                                                          (seq
-                                                           (seq
-                                                            (ap s $status_test)
-                                                            (canon -relay- $status_test  #status_iter_canon)
-                                                           )
-                                                           (xor
-                                                            (match #status_iter_canon.length status_incr
-                                                             (null)
-                                                            )
-                                                            (next s)
-                                                           )
-                                                          )
-                                                          (never)
-                                                         )
-                                                        )
-                                                        (canon -relay- $status_test  #status_result_canon)
-                                                       )
-                                                       (ap #status_result_canon status_gate)
-                                                      )
-                                                     )
-                                                    )
-                                                    (ap status_gate.$.[0]! status_gate-0)
-                                                   )
-                                                   (xor
-                                                    (match status_gate-0 "ok"
-                                                     (ap true $result-1)
-                                                    )
-                                                    (ap false $result-1)
-                                                   )
-                                                  )
-                                                  (new $result-1_test
-                                                   (seq
-                                                    (seq
-                                                     (seq
-                                                      (call -relay- ("math" "add") [0 1] result-1_incr)
-                                                      (fold $result-1 s
-                                                       (seq
-                                                        (seq
-                                                         (ap s $result-1_test)
-                                                         (canon -relay- $result-1_test  #result-1_iter_canon)
-                                                        )
-                                                        (xor
-                                                         (match #result-1_iter_canon.length result-1_incr
-                                                          (null)
-                                                         )
-                                                         (next s)
-                                                        )
-                                                       )
-                                                       (never)
-                                                      )
-                                                     )
-                                                     (canon -relay- $result-1_test  #result-1_result_canon)
-                                                    )
-                                                    (ap #result-1_result_canon result-1_gate)
-                                                   )
-                                                  )
-                                                 )
-                                                 (ap result-1_gate.$.[0]! result-1_gate-0)
+                                                 (canon -relay- $relay_id  #relay_id_canon-0)
+                                                 (call -relay- ("registry" "create_record_metadata") [resource_id %init_peer_id% t-0 cid peer_id #relay_id_canon-0 service_id [] sig_result.$.signature.[0]!] $result)
                                                 )
+                                                (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
                                                )
                                               )
-                                             )
-                                             (xor
-                                              (match result-1_gate-0 false
-                                               (ap "resource not found: timeout exceeded" $error-1)
-                                              )
-                                              (seq
-                                               (seq
-                                                (canon -relay- $resources  #resources_canon)
-                                                (call -relay- ("registry" "merge_keys") [#resources_canon] merge_result)
-                                               )
-                                               (xor
-                                                (match merge_result.$.success! true
-                                                 (ap merge_result.$.key! $result-0)
-                                                )
-                                                (ap merge_result.$.error! $error-1)
-                                               )
-                                              )
+                                              (ap sig_result.$.error.[0]! $error-0)
                                              )
                                             )
-                                            (canon -relay- $result-0  #-result-fix-0-0)
+                                            (canon -relay- $result  #-result-fix-0)
                                            )
-                                           (ap #-result-fix-0-0 -result-flat-0-0)
+                                           (ap #-result-fix-0 -result-flat-0)
                                           )
+                                          (canon -relay- $error-0  #-error-fix-1)
                                          )
+                                         (ap #-error-fix-1 -error-flat-1)
                                         )
                                        )
-                                       (xor
-                                        (match -result-flat-0-0 []
-                                         (xor
-                                          (seq
-                                           (seq
-                                            (canon -relay- $error-1  #error-1_canon)
-                                            (fold #error-1_canon e-0-0
-                                             (seq
-                                              (ap e-0-0 $error)
-                                              (next e-0-0)
-                                             )
-                                            )
-                                           )
-                                           (ap false $success)
-                                          )
-                                          (seq
-                                           (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 8])
-                                           (call -relay- ("op" "noop") [])
-                                          )
-                                         )
-                                        )
+                                      )
+                                      (xor
+                                       (match -result-flat-0 []
                                         (seq
-                                         (seq
+                                         (ap false $success)
+                                         (ap -error-flat-1.$.[0]! $error)
+                                        )
+                                       )
+                                       (seq
+                                        (seq
+                                         (call -relay- ("peer" "timestamp_sec") [] t)
+                                         (new $signature
                                           (seq
                                            (seq
-                                            (seq
-                                             (xor
-                                              (mismatch peer_id %init_peer_id%
+                                            (xor
+                                             (mismatch -result-flat-0.$.[0].peer_id! %init_peer_id%
+                                              (xor
                                                (xor
-                                                (xor
-                                                 (seq
-                                                  (seq
-                                                   (seq
-                                                    (call peer_id ("peer" "timestamp_sec") [] t-1)
-                                                    (call peer_id ("trust-graph" "get_weight") [-result-flat-0-0.$.[0].owner_peer_id! t-1] weight)
-                                                   )
-                                                   (call peer_id ("registry" "republish_key") [-result-flat-0-0.$.[0]! weight t-1] result-2)
-                                                  )
-                                                  (xor
-                                                   (match result-2.$.success! false
-                                                    (ap result-2.$.error! $error)
-                                                   )
-                                                   (seq
-                                                    (seq
-                                                     (seq
-                                                      (call peer_id ("peer" "timestamp_sec") [] t-2)
-                                                      (call peer_id ("trust-graph" "get_weight") [-result-flat-0.$.[0].issued_by! t-2] weight-0)
-                                                     )
-                                                     (call peer_id ("registry" "put_record") [-result-flat-0.$.[0]! t signature_gate-0.$.signature.[0]! weight-0 t-2] result-3)
-                                                    )
-                                                    (xor
-                                                     (match result-3.$.success! false
-                                                      (seq
-                                                       (ap result-3.$.error! $error)
-                                                       (ap false $success)
-                                                      )
-                                                     )
-                                                     (call peer_id ("op" "noop") [])
-                                                    )
-                                                   )
-                                                  )
-                                                 )
-                                                 (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 9])
-                                                )
-                                                (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 10])
-                                               )
-                                              )
-                                              (call -relay- ("op" "noop") [])
-                                             )
-                                             (call -relay- ("op" "string_to_b58") [resource_id] k-0)
-                                            )
-                                            (call -relay- ("kad" "neighborhood") [k-0 [] []] nodes)
-                                           )
-                                           (par
-                                            (fold nodes n-1-0
-                                             (par
-                                              (seq
-                                               (xor
-                                                (xor
-                                                 (seq
-                                                  (seq
-                                                   (seq
-                                                    (call n-1-0 ("peer" "timestamp_sec") [] t-3)
-                                                    (call n-1-0 ("trust-graph" "get_weight") [-result-flat-0-0.$.[0].owner_peer_id! t-3] weight-1)
-                                                   )
-                                                   (call n-1-0 ("registry" "republish_key") [-result-flat-0-0.$.[0]! weight-1 t-3] result-4)
-                                                  )
-                                                  (xor
-                                                   (match result-4.$.success! false
-                                                    (ap result-4.$.error! $error)
-                                                   )
-                                                   (seq
-                                                    (seq
-                                                     (seq
-                                                      (call n-1-0 ("peer" "timestamp_sec") [] t-4)
-                                                      (call n-1-0 ("trust-graph" "get_weight") [-result-flat-0.$.[0].issued_by! t-4] weight-2)
-                                                     )
-                                                     (call n-1-0 ("registry" "put_record") [-result-flat-0.$.[0]! t signature_gate-0.$.signature.[0]! weight-2 t-4] result-5)
-                                                    )
-                                                    (xor
-                                                     (match result-5.$.success! true
-                                                      (ap true $successful)
-                                                     )
-                                                     (ap result-5.$.error! $error)
-                                                    )
-                                                   )
-                                                  )
-                                                 )
-                                                 (call n-1-0 ("op" "noop") [])
+                                                (seq
+                                                 (call -result-flat-0.$.[0].peer_id! ("registry" "get_record_bytes") [-result-flat-0.$.[0]! t] bytes-0)
+                                                 (call -result-flat-0.$.[0].peer_id! ("sig" "sign") [bytes-0] $signature)
                                                 )
                                                 (seq
                                                  (call -relay- ("op" "noop") [])
-                                                 (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 11])
+                                                 (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
                                                 )
                                                )
-                                               (call -relay- ("op" "noop") [])
+                                               (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 4])
                                               )
-                                              (next n-1-0)
                                              )
-                                             (never)
+                                             (xor
+                                              (seq
+                                               (call -relay- ("registry" "get_record_bytes") [-result-flat-0.$.[0]! t] bytess)
+                                               (xor
+                                                (call %init_peer_id% ("sig" "sign") [bytess] $signature)
+                                                (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 5])
+                                               )
+                                              )
+                                              (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 6])
+                                             )
                                             )
-                                            (null)
+                                            (new $signature_test
+                                             (seq
+                                              (seq
+                                               (seq
+                                                (call -relay- ("math" "add") [0 1] signature_incr)
+                                                (fold $signature s
+                                                 (seq
+                                                  (seq
+                                                   (ap s $signature_test)
+                                                   (canon -relay- $signature_test  #signature_iter_canon)
+                                                  )
+                                                  (xor
+                                                   (match #signature_iter_canon.length signature_incr
+                                                    (null)
+                                                   )
+                                                   (next s)
+                                                  )
+                                                 )
+                                                 (never)
+                                                )
+                                               )
+                                               (canon -relay- $signature_test  #signature_result_canon)
+                                              )
+                                              (ap #signature_result_canon signature_gate)
+                                             )
+                                            )
                                            )
+                                           (ap signature_gate.$.[0]! signature_gate-0)
                                           )
-                                          (new $status-0
-                                           (new $result-6
-                                            (seq
+                                         )
+                                        )
+                                        (xor
+                                         (match signature_gate-0.$.success! false
+                                          (seq
+                                           (ap signature_gate-0.$.error.[0]! $error)
+                                           (ap false $success)
+                                          )
+                                         )
+                                         (seq
+                                          (new $resources
+                                           (new $successful-0
+                                            (new $result-0
                                              (seq
                                               (seq
                                                (seq
                                                 (seq
-                                                 (par
+                                                 (seq
                                                   (seq
+                                                   (call -relay- ("op" "string_to_b58") [resource_id] k)
+                                                   (call -relay- ("kad" "neighborhood") [k [] []] nodes-1)
+                                                  )
+                                                  (par
+                                                   (fold nodes-1 n-2-0
+                                                    (par
+                                                     (seq
+                                                      (xor
+                                                       (xor
+                                                        (seq
+                                                         (call n-2-0 ("registry" "get_key_metadata") [resource_id] get_result)
+                                                         (xor
+                                                          (match get_result.$.success! true
+                                                           (seq
+                                                            (ap get_result.$.key! $resources)
+                                                            (ap true $successful-0)
+                                                           )
+                                                          )
+                                                          (seq
+                                                           (call n-2-0 ("op" "concat_strings") [get_result.$.error! " on "] e)
+                                                           (call n-2-0 ("op" "concat_strings") [e n-2-0] $error-1)
+                                                          )
+                                                         )
+                                                        )
+                                                        (call n-2-0 ("op" "noop") [])
+                                                       )
+                                                       (seq
+                                                        (call -relay- ("op" "noop") [])
+                                                        (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 7])
+                                                       )
+                                                      )
+                                                      (call -relay- ("op" "noop") [])
+                                                     )
+                                                     (next n-2-0)
+                                                    )
+                                                    (never)
+                                                   )
+                                                   (null)
+                                                  )
+                                                 )
+                                                 (new $status
+                                                  (new $result-1
                                                    (seq
                                                     (seq
                                                      (seq
-                                                      (call -relay- ("math" "sub") [1 1] sub-2)
-                                                      (call -relay- ("math" "sub") [1 1] sub-1)
+                                                      (seq
+                                                       (seq
+                                                        (par
+                                                         (seq
+                                                          (seq
+                                                           (seq
+                                                            (seq
+                                                             (call -relay- ("math" "sub") [1 1] sub-0)
+                                                             (call -relay- ("math" "sub") [1 1] sub)
+                                                            )
+                                                            (new $successful-0_test
+                                                             (seq
+                                                              (seq
+                                                               (seq
+                                                                (call -relay- ("math" "add") [sub 1] successful-0_incr)
+                                                                (fold $successful-0 s
+                                                                 (seq
+                                                                  (seq
+                                                                   (ap s $successful-0_test)
+                                                                   (canon -relay- $successful-0_test  #successful-0_iter_canon)
+                                                                  )
+                                                                  (xor
+                                                                   (match #successful-0_iter_canon.length successful-0_incr
+                                                                    (null)
+                                                                   )
+                                                                   (next s)
+                                                                  )
+                                                                 )
+                                                                 (never)
+                                                                )
+                                                               )
+                                                               (canon -relay- $successful-0_test  #successful-0_result_canon)
+                                                              )
+                                                              (ap #successful-0_result_canon successful-0_gate)
+                                                             )
+                                                            )
+                                                           )
+                                                           (ap successful-0_gate.$.[sub-0]! successful-0_gate-0)
+                                                          )
+                                                          (ap "ok" $status)
+                                                         )
+                                                         (call -relay- ("peer" "timeout") [6000 "timeout"] $status)
+                                                        )
+                                                        (new $status_test
+                                                         (seq
+                                                          (seq
+                                                           (seq
+                                                            (call -relay- ("math" "add") [0 1] status_incr)
+                                                            (fold $status s
+                                                             (seq
+                                                              (seq
+                                                               (ap s $status_test)
+                                                               (canon -relay- $status_test  #status_iter_canon)
+                                                              )
+                                                              (xor
+                                                               (match #status_iter_canon.length status_incr
+                                                                (null)
+                                                               )
+                                                               (next s)
+                                                              )
+                                                             )
+                                                             (never)
+                                                            )
+                                                           )
+                                                           (canon -relay- $status_test  #status_result_canon)
+                                                          )
+                                                          (ap #status_result_canon status_gate)
+                                                         )
+                                                        )
+                                                       )
+                                                       (ap status_gate.$.[0]! status_gate-0)
+                                                      )
+                                                      (xor
+                                                       (match status_gate-0 "ok"
+                                                        (ap true $result-1)
+                                                       )
+                                                       (ap false $result-1)
+                                                      )
                                                      )
-                                                     (new $successful_test
+                                                     (new $result-1_test
                                                       (seq
                                                        (seq
                                                         (seq
-                                                         (call -relay- ("math" "add") [sub-1 1] successful_incr)
-                                                         (fold $successful s
+                                                         (call -relay- ("math" "add") [0 1] result-1_incr)
+                                                         (fold $result-1 s
                                                           (seq
                                                            (seq
-                                                            (ap s $successful_test)
-                                                            (canon -relay- $successful_test  #successful_iter_canon)
+                                                            (ap s $result-1_test)
+                                                            (canon -relay- $result-1_test  #result-1_iter_canon)
                                                            )
                                                            (xor
-                                                            (match #successful_iter_canon.length successful_incr
+                                                            (match #result-1_iter_canon.length result-1_incr
                                                              (null)
                                                             )
                                                             (next s)
@@ -1913,31 +1575,263 @@ export function cdbInit(...args: any) {
                                                           (never)
                                                          )
                                                         )
-                                                        (canon -relay- $successful_test  #successful_result_canon)
+                                                        (canon -relay- $result-1_test  #result-1_result_canon)
                                                        )
-                                                       (ap #successful_result_canon successful_gate)
+                                                       (ap #result-1_result_canon result-1_gate)
                                                       )
                                                      )
                                                     )
-                                                    (ap successful_gate.$.[sub-2]! successful_gate-0)
+                                                    (ap result-1_gate.$.[0]! result-1_gate-0)
                                                    )
-                                                   (ap "ok" $status-0)
                                                   )
-                                                  (call -relay- ("peer" "timeout") [6000 "timeout"] $status-0)
                                                  )
-                                                 (new $status-0_test
+                                                )
+                                                (xor
+                                                 (match result-1_gate-0 false
+                                                  (ap "resource not found: timeout exceeded" $error-1)
+                                                 )
+                                                 (seq
+                                                  (seq
+                                                   (canon -relay- $resources  #resources_canon)
+                                                   (call -relay- ("registry" "merge_keys") [#resources_canon] merge_result)
+                                                  )
+                                                  (xor
+                                                   (match merge_result.$.success! true
+                                                    (ap merge_result.$.key! $result-0)
+                                                   )
+                                                   (ap merge_result.$.error! $error-1)
+                                                  )
+                                                 )
+                                                )
+                                               )
+                                               (canon -relay- $result-0  #-result-fix-0-0)
+                                              )
+                                              (ap #-result-fix-0-0 -result-flat-0-0)
+                                             )
+                                            )
+                                           )
+                                          )
+                                          (xor
+                                           (match -result-flat-0-0 []
+                                            (xor
+                                             (seq
+                                              (seq
+                                               (canon -relay- $error-1  #error-1_canon)
+                                               (fold #error-1_canon e-0-0
+                                                (seq
+                                                 (ap e-0-0 $error)
+                                                 (next e-0-0)
+                                                )
+                                               )
+                                              )
+                                              (ap false $success)
+                                             )
+                                             (seq
+                                              (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 8])
+                                              (call -relay- ("op" "noop") [])
+                                             )
+                                            )
+                                           )
+                                           (seq
+                                            (seq
+                                             (seq
+                                              (seq
+                                               (seq
+                                                (xor
+                                                 (mismatch peer_id %init_peer_id%
+                                                  (xor
+                                                   (xor
+                                                    (seq
+                                                     (seq
+                                                      (seq
+                                                       (call peer_id ("peer" "timestamp_sec") [] t-1)
+                                                       (call peer_id ("trust-graph" "get_weight") [-result-flat-0-0.$.[0].owner_peer_id! t-1] weight)
+                                                      )
+                                                      (call peer_id ("registry" "republish_key") [-result-flat-0-0.$.[0]! weight t-1] result-2)
+                                                     )
+                                                     (xor
+                                                      (match result-2.$.success! false
+                                                       (ap result-2.$.error! $error)
+                                                      )
+                                                      (seq
+                                                       (seq
+                                                        (seq
+                                                         (call peer_id ("peer" "timestamp_sec") [] t-2)
+                                                         (call peer_id ("trust-graph" "get_weight") [-result-flat-0.$.[0].issued_by! t-2] weight-0)
+                                                        )
+                                                        (call peer_id ("registry" "put_record") [-result-flat-0.$.[0]! t signature_gate-0.$.signature.[0]! weight-0 t-2] result-3)
+                                                       )
+                                                       (xor
+                                                        (match result-3.$.success! false
+                                                         (seq
+                                                          (ap result-3.$.error! $error)
+                                                          (ap false $success)
+                                                         )
+                                                        )
+                                                        (call peer_id ("op" "noop") [])
+                                                       )
+                                                      )
+                                                     )
+                                                    )
+                                                    (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 9])
+                                                   )
+                                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 10])
+                                                  )
+                                                 )
+                                                 (call -relay- ("op" "noop") [])
+                                                )
+                                                (call -relay- ("op" "string_to_b58") [resource_id] k-0)
+                                               )
+                                               (call -relay- ("kad" "neighborhood") [k-0 [] []] nodes)
+                                              )
+                                              (par
+                                               (fold nodes n-1-0
+                                                (par
+                                                 (seq
+                                                  (xor
+                                                   (xor
+                                                    (seq
+                                                     (seq
+                                                      (seq
+                                                       (call n-1-0 ("peer" "timestamp_sec") [] t-3)
+                                                       (call n-1-0 ("trust-graph" "get_weight") [-result-flat-0-0.$.[0].owner_peer_id! t-3] weight-1)
+                                                      )
+                                                      (call n-1-0 ("registry" "republish_key") [-result-flat-0-0.$.[0]! weight-1 t-3] result-4)
+                                                     )
+                                                     (xor
+                                                      (match result-4.$.success! false
+                                                       (ap result-4.$.error! $error)
+                                                      )
+                                                      (seq
+                                                       (seq
+                                                        (seq
+                                                         (call n-1-0 ("peer" "timestamp_sec") [] t-4)
+                                                         (call n-1-0 ("trust-graph" "get_weight") [-result-flat-0.$.[0].issued_by! t-4] weight-2)
+                                                        )
+                                                        (call n-1-0 ("registry" "put_record") [-result-flat-0.$.[0]! t signature_gate-0.$.signature.[0]! weight-2 t-4] result-5)
+                                                       )
+                                                       (xor
+                                                        (match result-5.$.success! true
+                                                         (ap true $successful)
+                                                        )
+                                                        (ap result-5.$.error! $error)
+                                                       )
+                                                      )
+                                                     )
+                                                    )
+                                                    (call n-1-0 ("op" "noop") [])
+                                                   )
+                                                   (seq
+                                                    (call -relay- ("op" "noop") [])
+                                                    (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 11])
+                                                   )
+                                                  )
+                                                  (call -relay- ("op" "noop") [])
+                                                 )
+                                                 (next n-1-0)
+                                                )
+                                                (never)
+                                               )
+                                               (null)
+                                              )
+                                             )
+                                             (new $status-0
+                                              (new $result-6
+                                               (seq
+                                                (seq
+                                                 (seq
+                                                  (seq
+                                                   (seq
+                                                    (par
+                                                     (seq
+                                                      (seq
+                                                       (seq
+                                                        (seq
+                                                         (call -relay- ("math" "sub") [1 1] sub-2)
+                                                         (call -relay- ("math" "sub") [1 1] sub-1)
+                                                        )
+                                                        (new $successful_test
+                                                         (seq
+                                                          (seq
+                                                           (seq
+                                                            (call -relay- ("math" "add") [sub-1 1] successful_incr)
+                                                            (fold $successful s
+                                                             (seq
+                                                              (seq
+                                                               (ap s $successful_test)
+                                                               (canon -relay- $successful_test  #successful_iter_canon)
+                                                              )
+                                                              (xor
+                                                               (match #successful_iter_canon.length successful_incr
+                                                                (null)
+                                                               )
+                                                               (next s)
+                                                              )
+                                                             )
+                                                             (never)
+                                                            )
+                                                           )
+                                                           (canon -relay- $successful_test  #successful_result_canon)
+                                                          )
+                                                          (ap #successful_result_canon successful_gate)
+                                                         )
+                                                        )
+                                                       )
+                                                       (ap successful_gate.$.[sub-2]! successful_gate-0)
+                                                      )
+                                                      (ap "ok" $status-0)
+                                                     )
+                                                     (call -relay- ("peer" "timeout") [6000 "timeout"] $status-0)
+                                                    )
+                                                    (new $status-0_test
+                                                     (seq
+                                                      (seq
+                                                       (seq
+                                                        (call -relay- ("math" "add") [0 1] status-0_incr)
+                                                        (fold $status-0 s
+                                                         (seq
+                                                          (seq
+                                                           (ap s $status-0_test)
+                                                           (canon -relay- $status-0_test  #status-0_iter_canon)
+                                                          )
+                                                          (xor
+                                                           (match #status-0_iter_canon.length status-0_incr
+                                                            (null)
+                                                           )
+                                                           (next s)
+                                                          )
+                                                         )
+                                                         (never)
+                                                        )
+                                                       )
+                                                       (canon -relay- $status-0_test  #status-0_result_canon)
+                                                      )
+                                                      (ap #status-0_result_canon status-0_gate)
+                                                     )
+                                                    )
+                                                   )
+                                                   (ap status-0_gate.$.[0]! status-0_gate-0)
+                                                  )
+                                                  (xor
+                                                   (match status-0_gate-0 "ok"
+                                                    (ap true $result-6)
+                                                   )
+                                                   (ap false $result-6)
+                                                  )
+                                                 )
+                                                 (new $result-6_test
                                                   (seq
                                                    (seq
                                                     (seq
-                                                     (call -relay- ("math" "add") [0 1] status-0_incr)
-                                                     (fold $status-0 s
+                                                     (call -relay- ("math" "add") [0 1] result-6_incr)
+                                                     (fold $result-6 s
                                                       (seq
                                                        (seq
-                                                        (ap s $status-0_test)
-                                                        (canon -relay- $status-0_test  #status-0_iter_canon)
+                                                        (ap s $result-6_test)
+                                                        (canon -relay- $result-6_test  #result-6_iter_canon)
                                                        )
                                                        (xor
-                                                        (match #status-0_iter_canon.length status-0_incr
+                                                        (match #result-6_iter_canon.length result-6_incr
                                                          (null)
                                                         )
                                                         (next s)
@@ -1946,130 +1840,91 @@ export function cdbInit(...args: any) {
                                                       (never)
                                                      )
                                                     )
-                                                    (canon -relay- $status-0_test  #status-0_result_canon)
+                                                    (canon -relay- $result-6_test  #result-6_result_canon)
                                                    )
-                                                   (ap #status-0_result_canon status-0_gate)
+                                                   (ap #result-6_result_canon result-6_gate)
                                                   )
                                                  )
                                                 )
-                                                (ap status-0_gate.$.[0]! status-0_gate-0)
-                                               )
-                                               (xor
-                                                (match status-0_gate-0 "ok"
-                                                 (ap true $result-6)
-                                                )
-                                                (ap false $result-6)
-                                               )
-                                              )
-                                              (new $result-6_test
-                                               (seq
-                                                (seq
-                                                 (seq
-                                                  (call -relay- ("math" "add") [0 1] result-6_incr)
-                                                  (fold $result-6 s
-                                                   (seq
-                                                    (seq
-                                                     (ap s $result-6_test)
-                                                     (canon -relay- $result-6_test  #result-6_iter_canon)
-                                                    )
-                                                    (xor
-                                                     (match #result-6_iter_canon.length result-6_incr
-                                                      (null)
-                                                     )
-                                                     (next s)
-                                                    )
-                                                   )
-                                                   (never)
-                                                  )
-                                                 )
-                                                 (canon -relay- $result-6_test  #result-6_result_canon)
-                                                )
-                                                (ap #result-6_result_canon result-6_gate)
+                                                (ap result-6_gate.$.[0]! result-6_gate-0)
                                                )
                                               )
                                              )
-                                             (ap result-6_gate.$.[0]! result-6_gate-0)
                                             )
+                                            (ap result-6_gate-0 $success)
                                            )
                                           )
                                          )
-                                         (ap result-6_gate-0 $success)
                                         )
                                        )
                                       )
                                      )
+                                     (seq
+                                      (seq
+                                       (call -relay- ("op" "noop") [])
+                                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 12])
+                                      )
+                                      (call -relay- ("op" "noop") [])
+                                     )
+                                    )
+                                   )
+                                   (new $success_test
+                                    (seq
+                                     (seq
+                                      (seq
+                                       (call peer_id ("math" "add") [0 1] success_incr)
+                                       (fold $success s
+                                        (seq
+                                         (seq
+                                          (ap s $success_test)
+                                          (canon peer_id $success_test  #success_iter_canon)
+                                         )
+                                         (xor
+                                          (match #success_iter_canon.length success_incr
+                                           (null)
+                                          )
+                                          (next s)
+                                         )
+                                        )
+                                        (never)
+                                       )
+                                      )
+                                      (canon peer_id $success_test  #success_result_canon)
+                                     )
+                                     (ap #success_result_canon success_gate)
                                     )
                                    )
                                   )
+                                  (ap success_gate.$.[0]! success_gate-0)
+                                 )
+                                 (xor
                                   (seq
-                                   (seq
-                                    (call -relay- ("op" "noop") [])
-                                    (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 12])
+                                   (match success_gate-0 false
+                                    (ap "service hasn't registered: timeout exceeded" $error)
                                    )
+                                   (call -relay- ("op" "noop") [])
+                                  )
+                                  (seq
+                                   (call peer_id ("op" "noop") [])
                                    (call -relay- ("op" "noop") [])
                                   )
                                  )
                                 )
-                                (new $success_test
-                                 (seq
-                                  (seq
-                                   (seq
-                                    (call peer_id ("math" "add") [0 1] success_incr)
-                                    (fold $success s
-                                     (seq
-                                      (seq
-                                       (ap s $success_test)
-                                       (canon peer_id $success_test  #success_iter_canon)
-                                      )
-                                      (xor
-                                       (match #success_iter_canon.length success_incr
-                                        (null)
-                                       )
-                                       (next s)
-                                      )
-                                     )
-                                     (never)
-                                    )
-                                   )
-                                   (canon peer_id $success_test  #success_result_canon)
-                                  )
-                                  (ap #success_result_canon success_gate)
-                                 )
-                                )
-                               )
-                               (ap success_gate.$.[0]! success_gate-0)
-                              )
-                              (xor
-                               (seq
-                                (match success_gate-0 false
-                                 (ap "service hasn't registered: timeout exceeded" $error)
-                                )
-                                (call -relay- ("op" "noop") [])
-                               )
-                               (seq
-                                (call peer_id ("op" "noop") [])
-                                (call -relay- ("op" "noop") [])
                                )
                               )
                              )
                             )
                            )
+                           (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 13])
                           )
                          )
                         )
-                        (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 13])
                        )
                       )
                       (xor
                        (seq
-                        (par
-                         (par
-                          (canon %init_peer_id% $results  #results_canon)
-                          (canon %init_peer_id% $connections  #connections_canon)
-                         )
-                         (canon %init_peer_id% $error  #error_canon)
-                        )
-                        (call %init_peer_id% ("callbackSrv" "response") [cid #results_canon #connections_canon success_gate-0 #error_canon])
+                        (canon %init_peer_id% $error  #error_canon)
+                        (call %init_peer_id% ("callbackSrv" "response") [cid success_gate-0 #error_canon])
                        )
                        (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 14])
                       )
@@ -2110,29 +1965,8 @@ export function cdbInit(...args: any) {
                     "name" : "string"
                 },
                 "indexes" : {
-                    "tag" : "array",
-                    "type" : {
-                        "tag" : "struct",
-                        "name" : "CdbIndex",
-                        "fields" : {
-                            "composite" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "model" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "name" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "port" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            }
-                        }
-                    }
+                    "tag" : "scalar",
+                    "name" : "string"
                 }
             }
         },
@@ -2142,50 +1976,6 @@ export function cdbInit(...args: any) {
                 {
                     "tag" : "scalar",
                     "name" : "string"
-                },
-                {
-                    "tag" : "array",
-                    "type" : {
-                        "tag" : "scalar",
-                        "name" : "string"
-                    }
-                },
-                {
-                    "tag" : "array",
-                    "type" : {
-                        "tag" : "struct",
-                        "name" : "CdbConnection",
-                        "fields" : {
-                            "name" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "timestamp" : {
-                                "tag" : "scalar",
-                                "name" : "u64"
-                            },
-                            "model" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "user" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "composite" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "port" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "pid" : {
-                                "tag" : "scalar",
-                                "name" : "u64"
-                            }
-                        }
-                    }
                 },
                 {
                     "tag" : "scalar",
@@ -2933,360 +2723,23 @@ export function cdbConfirmAvailability(...args: any) {
 }
 
  
-export type CdbContratorDetailsResult = [string[], boolean, { composedb: { directions: { ceramic_port: string; express_port: string; n: string; namespace: string; }; indexes: { composite: string; model: string; name: string; port: string; }[]; public_info: { eth_address: string; public_encryption_key: string; }; }; }]
-export function cdbContratorDetails(
+export type CdbReregisterResult = [boolean, string[]]
+export function cdbReregister(
     peer_id: string,
-    service_id: string,
+    service_id: string | null,
     cid: string,
     config?: {ttl?: number}
-): Promise<CdbContratorDetailsResult>;
+): Promise<CdbReregisterResult>;
 
-export function cdbContratorDetails(
+export function cdbReregister(
     peer: FluencePeer,
     peer_id: string,
-    service_id: string,
+    service_id: string | null,
     cid: string,
     config?: {ttl?: number}
-): Promise<CdbContratorDetailsResult>;
+): Promise<CdbReregisterResult>;
 
-export function cdbContratorDetails(...args: any) {
-
-    let script = `
-                    (xor
-                     (seq
-                      (seq
-                       (seq
-                        (seq
-                         (seq
-                          (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
-                          (call %init_peer_id% ("getDataSrv" "peer_id") [] peer_id)
-                         )
-                         (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
-                        )
-                        (call %init_peer_id% ("getDataSrv" "cid") [] cid)
-                       )
-                       (new $values
-                        (new $status
-                         (new $success
-                          (seq
-                           (seq
-                            (seq
-                             (seq
-                              (seq
-                               (par
-                                (seq
-                                 (call -relay- ("op" "noop") [])
-                                 (xor
-                                  (seq
-                                   (seq
-                                    (call peer_id (service_id "contractor_details") [cid] $values)
-                                    (ap "ok" $status)
-                                   )
-                                   (call -relay- ("op" "noop") [])
-                                  )
-                                  (seq
-                                   (call -relay- ("op" "noop") [])
-                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
-                                  )
-                                 )
-                                )
-                                (call %init_peer_id% ("peer" "timeout") [3000 "timeout"] $status)
-                               )
-                               (xor
-                                (seq
-                                 (seq
-                                  (new $status_test
-                                   (seq
-                                    (seq
-                                     (seq
-                                      (call %init_peer_id% ("math" "add") [0 1] status_incr)
-                                      (fold $status s
-                                       (seq
-                                        (seq
-                                         (ap s $status_test)
-                                         (canon %init_peer_id% $status_test  #status_iter_canon)
-                                        )
-                                        (xor
-                                         (match #status_iter_canon.length status_incr
-                                          (null)
-                                         )
-                                         (next s)
-                                        )
-                                       )
-                                       (never)
-                                      )
-                                     )
-                                     (canon %init_peer_id% $status_test  #status_result_canon)
-                                    )
-                                    (ap #status_result_canon status_gate)
-                                   )
-                                  )
-                                  (ap status_gate.$.[0]! status_gate-0)
-                                 )
-                                 (match status_gate-0 "timeout"
-                                  (xor
-                                   (seq
-                                    (seq
-                                     (seq
-                                      (ap false $success)
-                                      (new $status_test-0
-                                       (seq
-                                        (seq
-                                         (seq
-                                          (call %init_peer_id% ("math" "add") [0 1] status_incr-0)
-                                          (fold $status s
-                                           (seq
-                                            (seq
-                                             (ap s $status_test-0)
-                                             (canon %init_peer_id% $status_test-0  #status_iter_canon-0)
-                                            )
-                                            (xor
-                                             (match #status_iter_canon-0.length status_incr-0
-                                              (null)
-                                             )
-                                             (next s)
-                                            )
-                                           )
-                                           (never)
-                                          )
-                                         )
-                                         (canon %init_peer_id% $status_test-0  #status_result_canon-0)
-                                        )
-                                        (ap #status_result_canon-0 status_gate-1)
-                                       )
-                                      )
-                                     )
-                                     (ap status_gate-1.$.[0]! status_gate-1-0)
-                                    )
-                                    (ap status_gate-1-0 $error)
-                                   )
-                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
-                                  )
-                                 )
-                                )
-                                (ap true $success)
-                               )
-                              )
-                              (new $success_test
-                               (seq
-                                (seq
-                                 (seq
-                                  (call %init_peer_id% ("math" "add") [0 1] success_incr)
-                                  (fold $success s
-                                   (seq
-                                    (seq
-                                     (ap s $success_test)
-                                     (canon %init_peer_id% $success_test  #success_iter_canon)
-                                    )
-                                    (xor
-                                     (match #success_iter_canon.length success_incr
-                                      (null)
-                                     )
-                                     (next s)
-                                    )
-                                   )
-                                   (never)
-                                  )
-                                 )
-                                 (canon %init_peer_id% $success_test  #success_result_canon)
-                                )
-                                (ap #success_result_canon success_gate)
-                               )
-                              )
-                             )
-                             (ap success_gate.$.[0]! success_gate-0)
-                            )
-                            (new $values_test
-                             (seq
-                              (seq
-                               (seq
-                                (call %init_peer_id% ("math" "add") [0 1] values_incr)
-                                (fold $values s
-                                 (seq
-                                  (seq
-                                   (ap s $values_test)
-                                   (canon %init_peer_id% $values_test  #values_iter_canon)
-                                  )
-                                  (xor
-                                   (match #values_iter_canon.length values_incr
-                                    (null)
-                                   )
-                                   (next s)
-                                  )
-                                 )
-                                 (never)
-                                )
-                               )
-                               (canon %init_peer_id% $values_test  #values_result_canon)
-                              )
-                              (ap #values_result_canon values_gate)
-                             )
-                            )
-                           )
-                           (ap values_gate.$.[0]! values_gate-0)
-                          )
-                         )
-                        )
-                       )
-                      )
-                      (xor
-                       (seq
-                        (canon %init_peer_id% $error  #error_canon)
-                        (call %init_peer_id% ("callbackSrv" "response") [#error_canon success_gate-0 values_gate-0])
-                       )
-                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
-                      )
-                     )
-                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 4])
-                    )
-    `
-    return callFunction$$(
-        args,
-        {
-    "functionName" : "cdbContratorDetails",
-    "arrow" : {
-        "tag" : "arrow",
-        "domain" : {
-            "tag" : "labeledProduct",
-            "fields" : {
-                "peer_id" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "service_id" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "cid" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                }
-            }
-        },
-        "codomain" : {
-            "tag" : "unlabeledProduct",
-            "items" : [
-                {
-                    "tag" : "array",
-                    "type" : {
-                        "tag" : "scalar",
-                        "name" : "string"
-                    }
-                },
-                {
-                    "tag" : "scalar",
-                    "name" : "bool"
-                },
-                {
-                    "tag" : "struct",
-                    "name" : "CdbContractorDetails",
-                    "fields" : {
-                        "composedb" : {
-                            "tag" : "struct",
-                            "name" : "CdbConfig",
-                            "fields" : {
-                                "directions" : {
-                                    "tag" : "struct",
-                                    "name" : "CdbDirections",
-                                    "fields" : {
-                                        "ceramic_port" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        },
-                                        "express_port" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        },
-                                        "n" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        },
-                                        "namespace" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        }
-                                    }
-                                },
-                                "indexes" : {
-                                    "tag" : "array",
-                                    "type" : {
-                                        "tag" : "struct",
-                                        "name" : "CdbIndex",
-                                        "fields" : {
-                                            "composite" : {
-                                                "tag" : "scalar",
-                                                "name" : "string"
-                                            },
-                                            "model" : {
-                                                "tag" : "scalar",
-                                                "name" : "string"
-                                            },
-                                            "name" : {
-                                                "tag" : "scalar",
-                                                "name" : "string"
-                                            },
-                                            "port" : {
-                                                "tag" : "scalar",
-                                                "name" : "string"
-                                            }
-                                        }
-                                    }
-                                },
-                                "public_info" : {
-                                    "tag" : "struct",
-                                    "name" : "CdbPublicInfo",
-                                    "fields" : {
-                                        "eth_address" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        },
-                                        "public_encryption_key" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        }
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            ]
-        }
-    },
-    "names" : {
-        "relay" : "-relay-",
-        "getDataSrv" : "getDataSrv",
-        "callbackSrv" : "callbackSrv",
-        "responseSrv" : "callbackSrv",
-        "responseFnName" : "response",
-        "errorHandlingSrv" : "errorHandlingSrv",
-        "errorFnName" : "error"
-    }
-},
-        script
-    )
-}
-
-export type CdbStoreIntermediaryArgIntermediary = { aud: string; did: string; iss: string; keys: { encrypted_key: string; recipient: string; }[]; } 
-
-export function cdbStoreIntermediary(
-    peer_id: string,
-    service_id: string,
-    intermediary: CdbStoreIntermediaryArgIntermediary,
-    cid: string,
-    config?: {ttl?: number}
-): Promise<{ aud: string; did: string; iss: string; keys: { encrypted_key: string; recipient: string; }[]; }[]>;
-
-export function cdbStoreIntermediary(
-    peer: FluencePeer,
-    peer_id: string,
-    service_id: string,
-    intermediary: CdbStoreIntermediaryArgIntermediary,
-    cid: string,
-    config?: {ttl?: number}
-): Promise<{ aud: string; did: string; iss: string; keys: { encrypted_key: string; recipient: string; }[]; }[]>;
-
-export function cdbStoreIntermediary(...args: any) {
+export function cdbReregister(...args: any) {
 
     let script = `
                     (xor
@@ -3301,69 +2754,660 @@ export function cdbStoreIntermediary(...args: any) {
                           )
                           (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
                          )
-                         (call %init_peer_id% ("getDataSrv" "intermediary") [] intermediary)
+                         (call %init_peer_id% ("getDataSrv" "cid") [] cid)
                         )
-                        (call %init_peer_id% ("getDataSrv" "cid") [] cid)
+                        (call -relay- ("op" "noop") [])
                        )
-                       (new $msg
-                        (seq
-                         (seq
-                          (seq
-                           (call -relay- ("op" "noop") [])
-                           (xor
-                            (seq
-                             (call peer_id (service_id "store_intermediary") [intermediary cid] $msg)
-                             (call -relay- ("op" "noop") [])
-                            )
-                            (seq
-                             (call -relay- ("op" "noop") [])
-                             (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
-                            )
-                           )
-                          )
-                          (new $msg_test
-                           (seq
+                       (xor
+                        (new $successful
+                         (new $error_get
+                          (new $success
+                           (new $relay_id
                             (seq
                              (seq
-                              (call %init_peer_id% ("math" "add") [0 1] msg_incr)
-                              (fold $msg s
+                              (seq
                                (seq
-                                (seq
-                                 (ap s $msg_test)
-                                 (canon %init_peer_id% $msg_test  #msg_iter_canon)
+                                (xor
+                                 (match peer_id %init_peer_id%
+                                  (ap -relay- $relay_id)
+                                 )
+                                 (call peer_id ("op" "noop") [])
                                 )
                                 (xor
-                                 (match #msg_iter_canon.length msg_incr
-                                  (null)
+                                 (seq
+                                  (new $error-0
+                                   (new $result
+                                    (seq
+                                     (seq
+                                      (seq
+                                       (seq
+                                        (seq
+                                         (seq
+                                          (seq
+                                           (seq
+                                            (call -relay- ("peer" "timestamp_sec") [] t-0)
+                                            (canon -relay- $relay_id  #relay_id_canon)
+                                           )
+                                           (call -relay- ("registry" "get_record_metadata_bytes") ["5zb7zPgUZTTvvJxT4E16sHo6CvguG9Rs2K91YAwGqiLM" %init_peer_id% t-0 cid peer_id #relay_id_canon service_id []] bytes)
+                                          )
+                                          (xor
+                                           (call %init_peer_id% ("sig" "sign") [bytes] sig_result)
+                                           (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 1])
+                                          )
+                                         )
+                                         (xor
+                                          (match sig_result.$.success! true
+                                           (xor
+                                            (seq
+                                             (canon -relay- $relay_id  #relay_id_canon-0)
+                                             (call -relay- ("registry" "create_record_metadata") ["5zb7zPgUZTTvvJxT4E16sHo6CvguG9Rs2K91YAwGqiLM" %init_peer_id% t-0 cid peer_id #relay_id_canon-0 service_id [] sig_result.$.signature.[0]!] $result)
+                                            )
+                                            (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
+                                           )
+                                          )
+                                          (ap sig_result.$.error.[0]! $error-0)
+                                         )
+                                        )
+                                        (canon -relay- $result  #-result-fix-0)
+                                       )
+                                       (ap #-result-fix-0 -result-flat-0)
+                                      )
+                                      (canon -relay- $error-0  #-error-fix-1)
+                                     )
+                                     (ap #-error-fix-1 -error-flat-1)
+                                    )
+                                   )
+                                  )
+                                  (xor
+                                   (match -result-flat-0 []
+                                    (seq
+                                     (ap false $success)
+                                     (ap -error-flat-1.$.[0]! $error)
+                                    )
+                                   )
+                                   (seq
+                                    (seq
+                                     (call -relay- ("peer" "timestamp_sec") [] t)
+                                     (new $signature
+                                      (seq
+                                       (seq
+                                        (xor
+                                         (mismatch -result-flat-0.$.[0].peer_id! %init_peer_id%
+                                          (xor
+                                           (xor
+                                            (seq
+                                             (call -result-flat-0.$.[0].peer_id! ("registry" "get_record_bytes") [-result-flat-0.$.[0]! t] bytes-0)
+                                             (call -result-flat-0.$.[0].peer_id! ("sig" "sign") [bytes-0] $signature)
+                                            )
+                                            (seq
+                                             (call -relay- ("op" "noop") [])
+                                             (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
+                                            )
+                                           )
+                                           (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 4])
+                                          )
+                                         )
+                                         (xor
+                                          (seq
+                                           (call -relay- ("registry" "get_record_bytes") [-result-flat-0.$.[0]! t] bytess)
+                                           (xor
+                                            (call %init_peer_id% ("sig" "sign") [bytess] $signature)
+                                            (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 5])
+                                           )
+                                          )
+                                          (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 6])
+                                         )
+                                        )
+                                        (new $signature_test
+                                         (seq
+                                          (seq
+                                           (seq
+                                            (call -relay- ("math" "add") [0 1] signature_incr)
+                                            (fold $signature s
+                                             (seq
+                                              (seq
+                                               (ap s $signature_test)
+                                               (canon -relay- $signature_test  #signature_iter_canon)
+                                              )
+                                              (xor
+                                               (match #signature_iter_canon.length signature_incr
+                                                (null)
+                                               )
+                                               (next s)
+                                              )
+                                             )
+                                             (never)
+                                            )
+                                           )
+                                           (canon -relay- $signature_test  #signature_result_canon)
+                                          )
+                                          (ap #signature_result_canon signature_gate)
+                                         )
+                                        )
+                                       )
+                                       (ap signature_gate.$.[0]! signature_gate-0)
+                                      )
+                                     )
+                                    )
+                                    (xor
+                                     (match signature_gate-0.$.success! false
+                                      (seq
+                                       (ap signature_gate-0.$.error.[0]! $error)
+                                       (ap false $success)
+                                      )
+                                     )
+                                     (seq
+                                      (new $resources
+                                       (new $successful-0
+                                        (new $result-0
+                                         (seq
+                                          (seq
+                                           (seq
+                                            (seq
+                                             (seq
+                                              (seq
+                                               (call -relay- ("op" "string_to_b58") ["5zb7zPgUZTTvvJxT4E16sHo6CvguG9Rs2K91YAwGqiLM"] k)
+                                               (call -relay- ("kad" "neighborhood") [k [] []] nodes-1)
+                                              )
+                                              (par
+                                               (fold nodes-1 n-0-0
+                                                (par
+                                                 (seq
+                                                  (xor
+                                                   (xor
+                                                    (seq
+                                                     (call n-0-0 ("registry" "get_key_metadata") ["5zb7zPgUZTTvvJxT4E16sHo6CvguG9Rs2K91YAwGqiLM"] get_result)
+                                                     (xor
+                                                      (match get_result.$.success! true
+                                                       (seq
+                                                        (ap get_result.$.key! $resources)
+                                                        (ap true $successful-0)
+                                                       )
+                                                      )
+                                                      (seq
+                                                       (call n-0-0 ("op" "concat_strings") [get_result.$.error! " on "] e)
+                                                       (call n-0-0 ("op" "concat_strings") [e n-0-0] $error-1)
+                                                      )
+                                                     )
+                                                    )
+                                                    (call n-0-0 ("op" "noop") [])
+                                                   )
+                                                   (seq
+                                                    (call -relay- ("op" "noop") [])
+                                                    (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 7])
+                                                   )
+                                                  )
+                                                  (call -relay- ("op" "noop") [])
+                                                 )
+                                                 (next n-0-0)
+                                                )
+                                                (never)
+                                               )
+                                               (null)
+                                              )
+                                             )
+                                             (new $status
+                                              (new $result-1
+                                               (seq
+                                                (seq
+                                                 (seq
+                                                  (seq
+                                                   (seq
+                                                    (par
+                                                     (seq
+                                                      (seq
+                                                       (seq
+                                                        (seq
+                                                         (call -relay- ("math" "sub") [1 1] sub-0)
+                                                         (call -relay- ("math" "sub") [1 1] sub)
+                                                        )
+                                                        (new $successful-0_test
+                                                         (seq
+                                                          (seq
+                                                           (seq
+                                                            (call -relay- ("math" "add") [sub 1] successful-0_incr)
+                                                            (fold $successful-0 s
+                                                             (seq
+                                                              (seq
+                                                               (ap s $successful-0_test)
+                                                               (canon -relay- $successful-0_test  #successful-0_iter_canon)
+                                                              )
+                                                              (xor
+                                                               (match #successful-0_iter_canon.length successful-0_incr
+                                                                (null)
+                                                               )
+                                                               (next s)
+                                                              )
+                                                             )
+                                                             (never)
+                                                            )
+                                                           )
+                                                           (canon -relay- $successful-0_test  #successful-0_result_canon)
+                                                          )
+                                                          (ap #successful-0_result_canon successful-0_gate)
+                                                         )
+                                                        )
+                                                       )
+                                                       (ap successful-0_gate.$.[sub-0]! successful-0_gate-0)
+                                                      )
+                                                      (ap "ok" $status)
+                                                     )
+                                                     (call -relay- ("peer" "timeout") [6000 "timeout"] $status)
+                                                    )
+                                                    (new $status_test
+                                                     (seq
+                                                      (seq
+                                                       (seq
+                                                        (call -relay- ("math" "add") [0 1] status_incr)
+                                                        (fold $status s
+                                                         (seq
+                                                          (seq
+                                                           (ap s $status_test)
+                                                           (canon -relay- $status_test  #status_iter_canon)
+                                                          )
+                                                          (xor
+                                                           (match #status_iter_canon.length status_incr
+                                                            (null)
+                                                           )
+                                                           (next s)
+                                                          )
+                                                         )
+                                                         (never)
+                                                        )
+                                                       )
+                                                       (canon -relay- $status_test  #status_result_canon)
+                                                      )
+                                                      (ap #status_result_canon status_gate)
+                                                     )
+                                                    )
+                                                   )
+                                                   (ap status_gate.$.[0]! status_gate-0)
+                                                  )
+                                                  (xor
+                                                   (match status_gate-0 "ok"
+                                                    (ap true $result-1)
+                                                   )
+                                                   (ap false $result-1)
+                                                  )
+                                                 )
+                                                 (new $result-1_test
+                                                  (seq
+                                                   (seq
+                                                    (seq
+                                                     (call -relay- ("math" "add") [0 1] result-1_incr)
+                                                     (fold $result-1 s
+                                                      (seq
+                                                       (seq
+                                                        (ap s $result-1_test)
+                                                        (canon -relay- $result-1_test  #result-1_iter_canon)
+                                                       )
+                                                       (xor
+                                                        (match #result-1_iter_canon.length result-1_incr
+                                                         (null)
+                                                        )
+                                                        (next s)
+                                                       )
+                                                      )
+                                                      (never)
+                                                     )
+                                                    )
+                                                    (canon -relay- $result-1_test  #result-1_result_canon)
+                                                   )
+                                                   (ap #result-1_result_canon result-1_gate)
+                                                  )
+                                                 )
+                                                )
+                                                (ap result-1_gate.$.[0]! result-1_gate-0)
+                                               )
+                                              )
+                                             )
+                                            )
+                                            (xor
+                                             (match result-1_gate-0 false
+                                              (ap "resource not found: timeout exceeded" $error-1)
+                                             )
+                                             (seq
+                                              (seq
+                                               (canon -relay- $resources  #resources_canon)
+                                               (call -relay- ("registry" "merge_keys") [#resources_canon] merge_result)
+                                              )
+                                              (xor
+                                               (match merge_result.$.success! true
+                                                (ap merge_result.$.key! $result-0)
+                                               )
+                                               (ap merge_result.$.error! $error-1)
+                                              )
+                                             )
+                                            )
+                                           )
+                                           (canon -relay- $result-0  #-result-fix-0-0)
+                                          )
+                                          (ap #-result-fix-0-0 -result-flat-0-0)
+                                         )
+                                        )
+                                       )
+                                      )
+                                      (xor
+                                       (match -result-flat-0-0 []
+                                        (xor
+                                         (seq
+                                          (seq
+                                           (canon -relay- $error-1  #error-1_canon)
+                                           (fold #error-1_canon e-0-0
+                                            (seq
+                                             (ap e-0-0 $error)
+                                             (next e-0-0)
+                                            )
+                                           )
+                                          )
+                                          (ap false $success)
+                                         )
+                                         (seq
+                                          (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 8])
+                                          (call -relay- ("op" "noop") [])
+                                         )
+                                        )
+                                       )
+                                       (seq
+                                        (seq
+                                         (seq
+                                          (seq
+                                           (seq
+                                            (xor
+                                             (mismatch peer_id %init_peer_id%
+                                              (xor
+                                               (xor
+                                                (seq
+                                                 (seq
+                                                  (seq
+                                                   (call peer_id ("peer" "timestamp_sec") [] t-1)
+                                                   (call peer_id ("trust-graph" "get_weight") [-result-flat-0-0.$.[0].owner_peer_id! t-1] weight)
+                                                  )
+                                                  (call peer_id ("registry" "republish_key") [-result-flat-0-0.$.[0]! weight t-1] result-2)
+                                                 )
+                                                 (xor
+                                                  (match result-2.$.success! false
+                                                   (ap result-2.$.error! $error)
+                                                  )
+                                                  (seq
+                                                   (seq
+                                                    (seq
+                                                     (call peer_id ("peer" "timestamp_sec") [] t-2)
+                                                     (call peer_id ("trust-graph" "get_weight") [-result-flat-0.$.[0].issued_by! t-2] weight-0)
+                                                    )
+                                                    (call peer_id ("registry" "put_record") [-result-flat-0.$.[0]! t signature_gate-0.$.signature.[0]! weight-0 t-2] result-3)
+                                                   )
+                                                   (xor
+                                                    (match result-3.$.success! false
+                                                     (seq
+                                                      (ap result-3.$.error! $error)
+                                                      (ap false $success)
+                                                     )
+                                                    )
+                                                    (call peer_id ("op" "noop") [])
+                                                   )
+                                                  )
+                                                 )
+                                                )
+                                                (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 9])
+                                               )
+                                               (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 10])
+                                              )
+                                             )
+                                             (call -relay- ("op" "noop") [])
+                                            )
+                                            (call -relay- ("op" "string_to_b58") ["5zb7zPgUZTTvvJxT4E16sHo6CvguG9Rs2K91YAwGqiLM"] k-0)
+                                           )
+                                           (call -relay- ("kad" "neighborhood") [k-0 [] []] nodes)
+                                          )
+                                          (par
+                                           (fold nodes n-1
+                                            (par
+                                             (seq
+                                              (xor
+                                               (xor
+                                                (seq
+                                                 (seq
+                                                  (seq
+                                                   (call n-1 ("peer" "timestamp_sec") [] t-3)
+                                                   (call n-1 ("trust-graph" "get_weight") [-result-flat-0-0.$.[0].owner_peer_id! t-3] weight-1)
+                                                  )
+                                                  (call n-1 ("registry" "republish_key") [-result-flat-0-0.$.[0]! weight-1 t-3] result-4)
+                                                 )
+                                                 (xor
+                                                  (match result-4.$.success! false
+                                                   (ap result-4.$.error! $error)
+                                                  )
+                                                  (seq
+                                                   (seq
+                                                    (seq
+                                                     (call n-1 ("peer" "timestamp_sec") [] t-4)
+                                                     (call n-1 ("trust-graph" "get_weight") [-result-flat-0.$.[0].issued_by! t-4] weight-2)
+                                                    )
+                                                    (call n-1 ("registry" "put_record") [-result-flat-0.$.[0]! t signature_gate-0.$.signature.[0]! weight-2 t-4] result-5)
+                                                   )
+                                                   (xor
+                                                    (match result-5.$.success! true
+                                                     (ap true $successful)
+                                                    )
+                                                    (ap result-5.$.error! $error)
+                                                   )
+                                                  )
+                                                 )
+                                                )
+                                                (call n-1 ("op" "noop") [])
+                                               )
+                                               (seq
+                                                (call -relay- ("op" "noop") [])
+                                                (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 11])
+                                               )
+                                              )
+                                              (call -relay- ("op" "noop") [])
+                                             )
+                                             (next n-1)
+                                            )
+                                            (never)
+                                           )
+                                           (null)
+                                          )
+                                         )
+                                         (new $status-0
+                                          (new $result-6
+                                           (seq
+                                            (seq
+                                             (seq
+                                              (seq
+                                               (seq
+                                                (par
+                                                 (seq
+                                                  (seq
+                                                   (seq
+                                                    (seq
+                                                     (call -relay- ("math" "sub") [1 1] sub-2)
+                                                     (call -relay- ("math" "sub") [1 1] sub-1)
+                                                    )
+                                                    (new $successful_test
+                                                     (seq
+                                                      (seq
+                                                       (seq
+                                                        (call -relay- ("math" "add") [sub-1 1] successful_incr)
+                                                        (fold $successful s
+                                                         (seq
+                                                          (seq
+                                                           (ap s $successful_test)
+                                                           (canon -relay- $successful_test  #successful_iter_canon)
+                                                          )
+                                                          (xor
+                                                           (match #successful_iter_canon.length successful_incr
+                                                            (null)
+                                                           )
+                                                           (next s)
+                                                          )
+                                                         )
+                                                         (never)
+                                                        )
+                                                       )
+                                                       (canon -relay- $successful_test  #successful_result_canon)
+                                                      )
+                                                      (ap #successful_result_canon successful_gate)
+                                                     )
+                                                    )
+                                                   )
+                                                   (ap successful_gate.$.[sub-2]! successful_gate-0)
+                                                  )
+                                                  (ap "ok" $status-0)
+                                                 )
+                                                 (call -relay- ("peer" "timeout") [6000 "timeout"] $status-0)
+                                                )
+                                                (new $status-0_test
+                                                 (seq
+                                                  (seq
+                                                   (seq
+                                                    (call -relay- ("math" "add") [0 1] status-0_incr)
+                                                    (fold $status-0 s
+                                                     (seq
+                                                      (seq
+                                                       (ap s $status-0_test)
+                                                       (canon -relay- $status-0_test  #status-0_iter_canon)
+                                                      )
+                                                      (xor
+                                                       (match #status-0_iter_canon.length status-0_incr
+                                                        (null)
+                                                       )
+                                                       (next s)
+                                                      )
+                                                     )
+                                                     (never)
+                                                    )
+                                                   )
+                                                   (canon -relay- $status-0_test  #status-0_result_canon)
+                                                  )
+                                                  (ap #status-0_result_canon status-0_gate)
+                                                 )
+                                                )
+                                               )
+                                               (ap status-0_gate.$.[0]! status-0_gate-0)
+                                              )
+                                              (xor
+                                               (match status-0_gate-0 "ok"
+                                                (ap true $result-6)
+                                               )
+                                               (ap false $result-6)
+                                              )
+                                             )
+                                             (new $result-6_test
+                                              (seq
+                                               (seq
+                                                (seq
+                                                 (call -relay- ("math" "add") [0 1] result-6_incr)
+                                                 (fold $result-6 s
+                                                  (seq
+                                                   (seq
+                                                    (ap s $result-6_test)
+                                                    (canon -relay- $result-6_test  #result-6_iter_canon)
+                                                   )
+                                                   (xor
+                                                    (match #result-6_iter_canon.length result-6_incr
+                                                     (null)
+                                                    )
+                                                    (next s)
+                                                   )
+                                                  )
+                                                  (never)
+                                                 )
+                                                )
+                                                (canon -relay- $result-6_test  #result-6_result_canon)
+                                               )
+                                               (ap #result-6_result_canon result-6_gate)
+                                              )
+                                             )
+                                            )
+                                            (ap result-6_gate.$.[0]! result-6_gate-0)
+                                           )
+                                          )
+                                         )
+                                        )
+                                        (ap result-6_gate-0 $success)
+                                       )
+                                      )
+                                     )
+                                    )
+                                   )
+                                  )
                                  )
-                                 (next s)
+                                 (seq
+                                  (seq
+                                   (call -relay- ("op" "noop") [])
+                                   (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 12])
+                                  )
+                                  (call -relay- ("op" "noop") [])
+                                 )
                                 )
                                )
-                               (never)
+                               (new $success_test
+                                (seq
+                                 (seq
+                                  (seq
+                                   (call peer_id ("math" "add") [0 1] success_incr)
+                                   (fold $success s
+                                    (seq
+                                     (seq
+                                      (ap s $success_test)
+                                      (canon peer_id $success_test  #success_iter_canon)
+                                     )
+                                     (xor
+                                      (match #success_iter_canon.length success_incr
+                                       (null)
+                                      )
+                                      (next s)
+                                     )
+                                    )
+                                    (never)
+                                   )
+                                  )
+                                  (canon peer_id $success_test  #success_result_canon)
+                                 )
+                                 (ap #success_result_canon success_gate)
+                                )
+                               )
+                              )
+                              (ap success_gate.$.[0]! success_gate-0)
+                             )
+                             (xor
+                              (seq
+                               (match success_gate-0 false
+                                (ap "service hasn't registered: timeout exceeded" $error)
+                               )
+                               (call -relay- ("op" "noop") [])
+                              )
+                              (seq
+                               (call peer_id ("op" "noop") [])
+                               (call -relay- ("op" "noop") [])
                               )
                              )
-                             (canon %init_peer_id% $msg_test  #msg_result_canon)
                             )
-                            (ap #msg_result_canon msg_gate)
                            )
                           )
                          )
-                         (ap msg_gate.$.[0]! msg_gate-0)
                         )
+                        (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 13])
                        )
                       )
                       (xor
-                       (call %init_peer_id% ("callbackSrv" "response") [msg_gate-0])
-                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 2])
+                       (seq
+                        (canon %init_peer_id% $error  #error_canon)
+                        (call %init_peer_id% ("callbackSrv" "response") [success_gate-0 #error_canon])
+                       )
+                       (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 14])
                       )
                      )
-                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 3])
+                     (call %init_peer_id% ("errorHandlingSrv" "error") [%last_error% 15])
                     )
     `
     return callFunction$$(
         args,
         {
-    "functionName" : "cdbStoreIntermediary",
+    "functionName" : "cdbReregister",
     "arrow" : {
         "tag" : "arrow",
         "domain" : {
@@ -3374,42 +3418,10 @@ export function cdbStoreIntermediary(...args: any) {
                     "name" : "string"
                 },
                 "service_id" : {
-                    "tag" : "scalar",
-                    "name" : "string"
-                },
-                "intermediary" : {
-                    "tag" : "struct",
-                    "name" : "CdbIntermediary",
-                    "fields" : {
-                        "aud" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "did" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "iss" : {
-                            "tag" : "scalar",
-                            "name" : "string"
-                        },
-                        "keys" : {
-                            "tag" : "array",
-                            "type" : {
-                                "tag" : "struct",
-                                "name" : "CdbKey",
-                                "fields" : {
-                                    "encrypted_key" : {
-                                        "tag" : "scalar",
-                                        "name" : "string"
-                                    },
-                                    "recipient" : {
-                                        "tag" : "scalar",
-                                        "name" : "string"
-                                    }
-                                }
-                            }
-                        }
+                    "tag" : "option",
+                    "type" : {
+                        "tag" : "scalar",
+                        "name" : "string"
                     }
                 },
                 "cid" : {
@@ -3422,41 +3434,14 @@ export function cdbStoreIntermediary(...args: any) {
             "tag" : "unlabeledProduct",
             "items" : [
                 {
+                    "tag" : "scalar",
+                    "name" : "bool"
+                },
+                {
                     "tag" : "array",
                     "type" : {
-                        "tag" : "struct",
-                        "name" : "CdbIntermediary",
-                        "fields" : {
-                            "aud" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "did" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "iss" : {
-                                "tag" : "scalar",
-                                "name" : "string"
-                            },
-                            "keys" : {
-                                "tag" : "array",
-                                "type" : {
-                                    "tag" : "struct",
-                                    "name" : "CdbKey",
-                                    "fields" : {
-                                        "encrypted_key" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        },
-                                        "recipient" : {
-                                            "tag" : "scalar",
-                                            "name" : "string"
-                                        }
-                                    }
-                                }
-                            }
-                        }
+                        "tag" : "scalar",
+                        "name" : "string"
                     }
                 }
             ]

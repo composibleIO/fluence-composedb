@@ -13,7 +13,6 @@ path = "src/main.rs"
 [dependencies]
 marine-rs-sdk = { version = "0.7.1", features = ["logger"] }
 log = "0.4.14"
-strip-ansi-escapes = "0.1.1"
 serde = "1.0.149"
 
 [dev-dependencies]

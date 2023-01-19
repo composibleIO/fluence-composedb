@@ -56,12 +56,12 @@ export class ButtonService implements IButtonService {
         switch(id) {
 
             case 'eth-address':
-                await this.ui.main.eth.connectWallet(); // eth.signInWithEthereum();
+                await this.ui.main.session.new(this.ui.main.indexes[0].resources()); // eth.signInWithEthereum();
                 this.updateIdentityPane();
-                this.ui.main.authConnection();
+            //    this.ui.main.authConnection();
             break;
             case 'edit_display_name_button':
-                this.ui.main.initProfileForm();
+                this.ui.addProfileForm(this.ui.main.session.owner());
             break;
             case 'select-contractor':
                 this.ui.main.findContractor();

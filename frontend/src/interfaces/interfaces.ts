@@ -35,8 +35,8 @@ export interface CdbDirections {
 
 export interface CdbServerConfig {
     directions: CdbDirections,
-    indexes: CdbIndex[],
-    public_info: CdbPublicInfo
+    indexes: string[],
+    public_info: CdbPublicInfo[]
 }
 
 export interface ContractorDetails {
@@ -67,21 +67,21 @@ export interface CeramicResult {
     stdout: string,
 }
 
-export interface SecretKey {
-    encrypted_key: string,
-    recipient: string,
-}
+// export interface SecretKey {
+//     encrypted_key: string,
+//     recipient: string,
+// }
 
-export interface Intermediary {
-    aud: string,
-    did: string,
-    iss: string,
-    keys: SecretKey[]
-}
+// export interface Intermediary {
+//     aud: string,
+//     did: string,
+//     iss: string,
+//     keys: SecretKey[]
+// }
 
-export interface Capability extends Intermediary {
-    with: string,
-    do: string[],
-    expires: number,
-    signature?: string
-}
+// export interface Capability extends Intermediary {
+//     with: string,
+//     do: string[],
+//     expires: number,
+//     signature?: string
+// }

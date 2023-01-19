@@ -2,9 +2,16 @@
 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { compositeCompile,compositeDefinition,compositeDeploy } from './commands/composite.js';
+import { compositeCompile,compositeDefinition  } from './commands/composite.js';
 import { graphqlMutate, graphqlQuery } from './commands/graphql.js';
-import { resources } from './commands/index.js';
+import { resources, startIndex } from './commands/index.js';
+
+interface Result {
+  content: string,
+  count: number,
+  success: boolean,
+  error: string
+}
 
 
 yargs(hideBin(process.argv))
@@ -31,7 +38,7 @@ yargs(hideBin(process.argv))
     }
   )
   .command(
-    'deploy',
+    'index',
     'tell node to index a composite',
      (yargs) => {
       return yargs
@@ -40,14 +47,19 @@ yargs(hideBin(process.argv))
         type: 'string',
         describe: 'the URL for ceramic node'
       })
-      .option('n', {
-        alias: 'compositeName',
+      .option('d', {
+        alias: 'definition',
         type: 'string',
-        describe: 'the name of the composite to be used in filenames'
+        describe: 'serialized string of graphql schema'
+      })
+      .option('k', {
+        alias: 'key',
+        type: 'string',
+        describe: 'sprivate key to operate index'
       })
     },
     async (argv) => { 
-        let res = await compositeDeploy(String(argv.ceramicUrl), String(argv.compositeName)) 
+        let res = await startIndex(String(argv.ceramicUrl), String(argv.definition),String(argv.key), ) 
         console.log(res);
     }
   )
@@ -64,12 +76,34 @@ yargs(hideBin(process.argv))
       .option('d', {
         alias: 'definition',
         type: 'string',
-        describe: 'serialized version of grpahql definition'
+        describe: 'serialized version of runtime definition'
+      })
+      .option('q', {
+        alias: 'query',
+        type: 'string',
+        describe: 'serialized version of graphql query'
       })
     },
     async (argv) => { 
-        let res = await graphqlQuery(String(argv.ceramicUrl),String(argv.definition)) 
-        console.log(res);
+
+      let res: Result =  {
+        content: "",
+        count: 0,
+        error: "",
+        success: false,
+      }
+
+        try {
+          
+          res.content = await graphqlQuery(String(argv.ceramicUrl),String(argv.definition),String(argv.query));
+          res.success = true;
+        }
+        catch(err: any) {
+          console.log("error");
+          res.error = JSON.stringify(err)
+        }
+        
+        console.log(JSON.stringify(res));
     }
   )
   .command(
@@ -82,25 +116,45 @@ yargs(hideBin(process.argv))
         type: 'string',
         describe: 'the URL for ceramic node'
       })
-      .option('n', {
-        alias: 'name',
+      .option('d', {
+        alias: 'definition',
         type: 'string',
-        describe: 'name'
+        describe: 'serialized version of grpahql definition'
+      })
+      .option('q', {
+        alias: 'query',
+        type: 'string',
+        describe: 'serialized version of graphql query'
       })
       .option('s', {
         alias: 'session',
         type: 'string',
         describe: 'serialized did session'
       })
-      .option('d', {
-        alias: 'definition',
-        type: 'string',
-        describe: 'serialized version of grpahql definition'
-      })
     },
     async (argv) => { 
-        let res = await graphqlMutate(String(argv.ceramicUrl),String(argv.session),String(argv.name),String(argv.definition));
-        console.log(res);
+
+        let res: Result =  {
+          content: "",
+          count: 0,
+          error: "",
+          success: false,
+        }
+  
+          try {
+            
+            res.content = await graphqlMutate(String(argv.ceramicUrl),String(argv.session),String(argv.name),String(argv.definition));
+
+            // check if content actually contains a usefull response 
+            // for example an incorrect query seems to pass here 
+            res.success = true;
+          }
+          catch(err: any) {
+            console.log("error");
+            res.error = JSON.stringify(err)
+          }
+          
+          console.log(JSON.stringify(res));
     }
   )
   .command(

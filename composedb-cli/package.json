@@ -8,7 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "npx tsc",
     "bundle": "npx esbuild ./build/cli.js  --bundle --outfile=cdb.cjs --format=cjs --platform=node",
-    "package": "pkg cdb.cjs --targets node16-linux-x64 --output cdb"
+    "package": "pkg cdb.cjs --targets node16-linux-x64 --output tu-cdb"
   },
   "keywords": [],
   "author": "",

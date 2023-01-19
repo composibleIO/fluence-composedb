@@ -5,17 +5,15 @@ import "@fluencelabs/registry/registry-service.aqua"
 import "./types.aqua"
 
 service ComposeDBSrv("ComposeDBSrv"):
-    init(namespace: string, n: string, indexes: []CdbIndex) -> string
+    init(namespace: string, n: string, indexes: string) -> string
     contractor_details(cid: string) -> CdbContractorDetails
-    has_intermediary(user_address: string, cid: string) -> []CdbIntermediary
-    store_intermediary(intermediary: CdbIntermediary, cid: string) -> []CdbIntermediary
-    deploy_index(index: CdbIndex, cid: string) -> string
-    query(query: string, connection: CdbConnection, cid: string) -> CeramicResult
-    mutate(display_name: string, account_id: string, cap: string, connection: CdbConnection, cid: string) -> CeramicResult
-    serve(index: CdbIndex, cid: string) -> CdbConnection
-    connect(index: CdbIndex, cap: string, cid: string) -> CdbConnection
+    query(cid: string, definition: string, query: string) -> CdbResult
+    mutate(cid: string, definition: string, query: string, session: string) -> CdbResult
 
-func cdbInit(resource_id: ResourceId,  peer_id: PeerId, service_id: ?string, namespace: string, n: string, indexes: []CdbIndex) -> string, *string, *CdbConnection, bool, *Error:
+service TUComposeDBSrv("TUComposeDBSrv"):
+    query() -> CeramicResult
+
+func cdbInit(resource_id: ResourceId,  peer_id: PeerId, service_id: ?string, namespace: string, n: string, indexes: string) -> string, bool, *Error:
 
     results: *string
     connections: *CdbConnection
@@ -26,14 +24,9 @@ func cdbInit(resource_id: ResourceId,  peer_id: PeerId, service_id: ?string, nam
         -- store contractor details on ipfs and return cid
         cid <- ComposeDBSrv.init(namespace, n, indexes)
 
-        for i <- indexes: 
-            -- deploy composite 
-            results <- ComposeDBSrv.deploy_index(i, cid)
-            connections <- ComposeDBSrv.serve(i, cid)
-
         success, errors <- registerService(resource_id, cid, peer_id, service_id)
    
-    <- cid, results, connections, success, errors
+    <- cid, success, errors
 
 func cdbReregister(peer_id: PeerId, service_id: ?string, cid: string) -> bool, *Error:
 
@@ -49,10 +42,10 @@ func cdbReregister(peer_id: PeerId, service_id: ?string, cid: string) -> bool, *
 
 func cdbConfirmAvailability(peer_id: PeerId, cid: string, service_id: ?string) :
 
-        resource_id = "5zb7zPgUZTTvvJxT4E16sHo6CvguG9Rs2K91YAwGqiLM"
+    resource_id = "5zb7zPgUZTTvvJxT4E16sHo6CvguG9Rs2K91YAwGqiLM"
 
-        on peer_id: 
-            registerService(resource_id, cid, peer_id, service_id)
+    on peer_id: 
+        registerService(resource_id, cid, peer_id, service_id)
 
 
 
@@ -82,57 +75,63 @@ func cdbContratorDetails(peer_id: string, service_id: string, cid: string) -> *s
 
     <- error, success!, values!
 
+func cdbQuery(node: string, service_id: string, contractor_cid: string, definition: string, query: string) -> *string, bool, CdbResult:
 
+    status: *string
 
-func cdbHasIntermediary(peer_id: string, service_id: string, user_address: string, cid: string) -> []CdbIntermediary:
-
-    msg: *[]CdbIntermediary
-
-    on peer_id: 
-
-      ComposeDBSrv service_id
-      msg <- ComposeDBSrv.has_intermediary(user_address, cid)
-
-    <- msg!
-
-func cdbStoreIntermediary(peer_id: string, service_id: string, intermediary: CdbIntermediary, cid: string) -> []CdbIntermediary:
-
-    msg: *[]CdbIntermediary
-
-    on peer_id: 
-
-      ComposeDBSrv service_id
-      msg <- ComposeDBSrv.store_intermediary(intermediary, cid)
-
-    <- msg!
-
-
-func cdbConnect(peer_id: PeerId, service_id: string, index: CdbIndex, cap: string, cid: string) -> CdbConnection:
-
-    on peer_id: 
-
-        ComposeDBSrv service_id
-        c <- ComposeDBSrv.connect(index, cap, cid)
-
-    <- c
-
-func cdbQuery(node: string, service_id: string, query: string, connection: CdbConnection, cid: string) -> CeramicResult:
+    error: *string
+    success: *bool
+    values: *CdbResult
 
     on node:
 
         ComposeDBSrv service_id
-        ref <- ComposeDBSrv.query(query, connection, cid)
+        values <- ComposeDBSrv.query(contractor_cid, definition, query)
+        status <<- "ok"
 
-    <- ref
+    par status <- Peer.timeout(20000, "timeout") 
 
-func cdbMutate(node: string, service_id: string, display_name: string, account_id: string, cap: string, connection: CdbConnection, cid: string) -> CeramicResult:
+    if status! == "timeout":
+        success <<- false
+        error <<- status! 
+    else: 
+        success <<- true
+
+    <- error, success!, values!
+
+func cdbMutate(node: string, service_id: string, cid: string, definition: string, query: string, session: string) -> *string, bool, CdbResult:
+
+    status: *string
+
+    error: *string
+    success: *bool
+    values: *CdbResult
 
     on node:
 
         ComposeDBSrv service_id
-        res <- ComposeDBSrv.mutate(display_name, account_id, cap, connection, cid)
+        values <- ComposeDBSrv.mutate(cid, definition, query, session)
+        status <<- "ok"
 
-    <- res 
+    par status <- Peer.timeout(20000, "timeout") 
+
+    if status! == "timeout":
+        success <<- false
+        error <<- status! 
+    else: 
+        success <<- true
+
+    <- error, success!, values! 
+
+-- func cdbQueryTest(node: string) -> CeramicResult:
+
+--     on node: 
+
+--         TUComposeDBSrv "ef27fbd9-359e-4efc-aad2-19606182c8c6"
+--         ref <- TUComposeDBSrv.query()
+
+--     <- ref
+
 
 
 

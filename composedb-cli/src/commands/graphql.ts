@@ -1,27 +1,17 @@
 import { ComposeClient } from '@composedb/client';
 import { DIDSession } from 'did-session'
 import { newDid } from '../utils/did.js';
-import { base64urlToJSON } from '../utils/serialize.js';
+import { base64urlToJSON, base64urlToString } from '../utils/serialize.js';
 
-export const graphqlQuery = async (ceramic: string, definition_s: string) => {
+export const graphqlQuery = async (ceramic: string, definition_s: string, query_s: string) => {
 
     const definition = JSON.parse(base64urlToJSON(definition_s));
+    const query = base64urlToString(query_s);
 
     const client = new ComposeClient({ceramic, definition });
     client.setDID(await newDid(null));
 
-    let output = await client.executeQuery(`
-        query {
-            tU_ProfileIndex(first: 10) {
-                edges { 
-                    node { 
-                        displayName,
-                        accountId
-                    }
-                }
-            }
-        }
-    `);
+    let output = await client.executeQuery(query);
 
     return JSON.stringify(output.data);
 }

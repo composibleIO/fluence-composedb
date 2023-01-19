@@ -28,7 +28,6 @@
      WasmLoggerBuilder::new().build().unwrap();
  }
  
- 
  #[marine]
  pub fn tu_cdb_request(cmd: Vec<String>) -> MountedBinaryResult {
      let response = tu_cdb(cmd);

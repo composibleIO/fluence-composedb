@@ -98,16 +98,19 @@ export class HtmlService implements IHtmlService {
             let li = document.createElement('li');
             li.onclick = () => { this.ui.main.selectContractor(c) };
 
-            c.details.composedb.indexes = c.details.composedb.indexes.filter( (i) => i.name !== "tuIntermediaryIndex");
+        //    c.details.composedb.indexes = c.details.composedb.indexes.filter( (i) => i.name !== "tuIntermediaryIndex");
 
             const template = Handlebars.compile(`
-                <label>Eth address:</label>
-                <div>{{shortenAddr c.details.composedb.public_info.eth_address}}</div>
                 <label>Fluence peer:</label>
                 <div>{{shortenPeer c.metadata.peer_id}}</div>
-                <label>Indexes:</label>
-                <div>{{#each c.details.composedb.indexes}}<span>{{name}}</span>{{/each}}</div>
+      
             `);  
+
+            /*
+                      <label>Indexes:</label>
+                <div>{{#each c.details.composedb.indexes}}<span>{{name}}</span>{{/each}}</div>
+
+                */
 
             li.innerHTML = template({c});
             

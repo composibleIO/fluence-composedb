@@ -1,17 +1,14 @@
 import { IMainController } from "../controllers/main.controller";
-import { cdbQuery, cdbMutate, cdbContratorDetails, cdbConnect, getRecords, cdbHasIntermediary, cdbStoreIntermediary, CdbContratorDetailsResult } from "../_aqua/export";
-import { Contractor, CeramicResult, CdbIndex, CdbConnection, Intermediary } from "../interfaces/interfaces";
+import { cdbQuery, cdbMutate, cdbContratorDetails, getRecords,  CdbContratorDetailsResult } from "../_aqua/export";
+import { Contractor, CeramicResult, CdbIndex } from "../interfaces/interfaces";
 
 export interface IAquaService {
 
     main: IMainController;
     findRecords: (resource_id: string) => Promise<any>;
     getContractorDetails: (node: string, service_id: string, cid: string) => Promise<any>;
-    hasIntermediary: () => Promise<Intermediary[]>;
-    storeIntermediary: (intermediary: Intermediary) => Promise<Intermediary[]>;
-    connect: (index: CdbIndex) => Promise<CdbConnection>;
-    query: (query: string, connection: CdbConnection) => Promise<any>;
-    update: (displayName: string, accountId: string) => Promise<any>;
+    query: (definition: string, query: string) => Promise<any>;
+    mutate: (definition: string, query: string, session: string) => Promise<any>;
 }
 
 const node = "";
@@ -42,70 +39,30 @@ export class AquaService implements IAquaService {
         );
     }
 
-    async connect(index: CdbIndex): Promise<CdbConnection> {    
-     
-        return await cdbConnect(
+
+    async query(definition: string, query: string) {
+
+        return await cdbQuery(
             this.main.fluence.connection, 
             this.main.contractor.peerId.toString(), 
             this.main.contractor.serviceId.toString(),
-            index,
-            JSON.stringify(this.main.cap.getCap()),
             this.main.contractor.cid.toString(),
-            { ttl: 60000 }
-        )
-    } 
-
-    async query(query: string, connection:CdbConnection) {
-
-        let response = await cdbQuery(
-            this.main.fluence.connection, 
-            this.main.contractor.peerId.toString(), 
-            this.main.contractor.serviceId.toString(),
+            definition,
             query,
-            connection,
-            this.main.contractor.cid.toString()
-        );
-
-        // console.log(response);
-    
-        return JSON.parse(response.stderr);
+            { ttl: 60000}
+        )
     }
 
-    async update(displayName: string, accountId: string) {
+    async mutate(definition: string, query: string, session: string) {
 
         return await cdbMutate(
             this.main.fluence.connection, 
             this.main.contractor.peerId.toString(), 
             this.main.contractor.serviceId.toString(),
-            displayName, 
-            accountId,
-            JSON.stringify(this.main.cap.getCap()),
-            this.main.composedb.connection,
             this.main.contractor.cid.toString(),
-            { ttl: 60000}
-        )
-    }
-
-    async hasIntermediary() {
-
-        return await cdbHasIntermediary(
-            this.main.fluence.connection, 
-            this.main.contractor.peerId.toString(), 
-            this.main.contractor.serviceId.toString(), 
-            this.main.eth.walletAddress,
-            this.main.contractor.cid.toString(),
-            { ttl: 60000}
-        )
-    }
-
-    async storeIntermediary(intermediary: Intermediary) {
-
-        return await cdbStoreIntermediary(
-            this.main.fluence.connection, 
-            this.main.contractor.peerId.toString(), 
-            this.main.contractor.serviceId.toString(),
-            intermediary,
-            this.main.contractor.cid.toString(),
+            definition, 
+            query,
+            session,
             { ttl: 60000}
         )
     }

@@ -1,7 +1,0 @@
-{
-  "name": "ipfs_adapter",
-  "mountedBinaries":
-    {
-      "curl": "/usr/bin/ipfs"
-    }
-}
