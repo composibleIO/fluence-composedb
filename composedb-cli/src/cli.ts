@@ -2,7 +2,7 @@
 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { compositeCompile,compositeDefinition  } from './commands/composite.js';
+import { compositeDefinition, createFromSchema  } from './commands/composite.js';
 import { graphqlMutate, graphqlQuery } from './commands/graphql.js';
 import { resources, startIndex } from './commands/index.js';
 
@@ -17,27 +17,6 @@ interface Result {
 yargs(hideBin(process.argv))
   // Use the commands directory to scaffold.
   .command(
-    'compile',
-    'compile composite to runtime ...',
-     (yargs) => {
-      return yargs
-      .option('c', {
-        alias: 'ceramicUrl',
-        type: 'string',
-        describe: 'the URL for ceramic node'
-      })
-      .option('n', {
-        alias: 'compositeName',
-        type: 'string',
-        describe: 'the name of the composite to be used in filenames'
-      })
-    },
-    async (argv) => { 
-        let res = await compositeCompile(String(argv.ceramicUrl), String(argv.compositeName)) 
-        console.log(res);
-    }
-  )
-  .command(
     'index',
     'tell node to index a composite',
      (yargs) => {
@@ -50,12 +29,12 @@ yargs(hideBin(process.argv))
       .option('d', {
         alias: 'definition',
         type: 'string',
-        describe: 'serialized string of graphql schema'
+        describe: 'composite definition serialized in base64'
       })
       .option('k', {
         alias: 'key',
         type: 'string',
-        describe: 'sprivate key to operate index'
+        describe: 'private key to operate index'
       })
     },
     async (argv) => { 
@@ -76,12 +55,76 @@ yargs(hideBin(process.argv))
       .option('d', {
         alias: 'definition',
         type: 'string',
-        describe: 'serialized version of runtime definition'
+        describe: 'runtime definition serialized in base64'
       })
       .option('q', {
         alias: 'query',
         type: 'string',
-        describe: 'serialized version of graphql query'
+        describe: 'graphql query serialized in base64'
+      })
+    },
+    async (argv) => { 
+
+      let output: any;
+
+      let res: Result =  {
+        content: "",
+        count: 0,
+        error: "",
+        success: false,
+      }
+
+        try {
+          
+          output = await graphqlQuery(String(argv.ceramicUrl),String(argv.definition),String(argv.query));
+          // console.log(output);
+          if(output.errors && output.errors.length > 0) {
+            res.error = JSON.stringify(output.errors);
+            res.success = false;
+          } else {
+            let firstNode: any  = Object.values(output.data)[0];
+            let firstEdge: any = Object.values(firstNode)[0];
+            res.content = JSON.stringify(output.data);
+            res.count = firstEdge.length;
+            res.success = true;
+          }
+          
+        }
+        catch(err: any) {
+          res.error = "cli errored"
+        }
+        
+        process.stdout.write(JSON.stringify(res));
+    }
+  )
+  .command(
+    'mutate',
+    'add or update records',
+     (yargs) => {
+      return yargs
+      .option('c', {
+        alias: 'ceramicUrl',
+        demandOption : true,
+        type: 'string',
+        describe: 'the URL for ceramic node'
+      })
+      .option('d', {
+        alias: 'definition',
+        demandOption : true,
+        type: 'string',
+        describe: 'runtime definition serialized in base64'
+      })
+      .option('q', {
+        alias: 'query',
+        demandOption : true,
+        type: 'string',
+        describe: 'graphql query serialized in base64'
+      })
+      .option('s', {
+        alias: 'session',
+        demandOption : true,
+        type: 'string',
+        describe: 'did session serialized in base64'
       })
     },
     async (argv) => { 
@@ -93,82 +136,69 @@ yargs(hideBin(process.argv))
         success: false,
       }
 
-        try {
-          
-          res.content = await graphqlQuery(String(argv.ceramicUrl),String(argv.definition),String(argv.query));
-          res.success = true;
-        }
-        catch(err: any) {
-          console.log("error");
-          res.error = JSON.stringify(err)
-        }
-        
-        console.log(JSON.stringify(res));
-    }
-  )
-  .command(
-    'mutate',
-    'Alternative ComposeDB client',
-     (yargs) => {
-      return yargs
-      .option('c', {
-        alias: 'ceramicUrl',
-        type: 'string',
-        describe: 'the URL for ceramic node'
-      })
-      .option('d', {
-        alias: 'definition',
-        type: 'string',
-        describe: 'serialized version of grpahql definition'
-      })
-      .option('q', {
-        alias: 'query',
-        type: 'string',
-        describe: 'serialized version of graphql query'
-      })
-      .option('s', {
-        alias: 'session',
-        type: 'string',
-        describe: 'serialized did session'
-      })
-    },
-    async (argv) => { 
+      try {        
+        res.content = await graphqlMutate(String(argv.ceramicUrl),String(argv.session),String(argv.query),String(argv.definition));
+        res.success = true;
+      }
+      catch(err: any) {
+        res.error = JSON.stringify(err);
+      }
 
-        let res: Result =  {
-          content: "",
-          count: 0,
-          error: "",
-          success: false,
-        }
-  
-          try {
-            
-            res.content = await graphqlMutate(String(argv.ceramicUrl),String(argv.session),String(argv.name),String(argv.definition));
-
-            // check if content actually contains a usefull response 
-            // for example an incorrect query seems to pass here 
-            res.success = true;
-          }
-          catch(err: any) {
-            console.log("error");
-            res.error = JSON.stringify(err)
-          }
-          
-          console.log(JSON.stringify(res));
+      process.stdout.write(JSON.stringify(res));
     }
   )
   .command(
     'resources',
     'fetch array of resources indexed by client',
      (yargs) => {
-      return yargs.option('c', {
+      return yargs
+      .option('c', {
         alias: 'ceramicUrl',
+        demandOption : true,
         type: 'string',
         describe: 'the URL for ceramic node'
       })
+      .option('d', {
+        alias: 'definition',
+        demandOption : true,
+        type: 'string',
+        describe: 'runtime definition serialized in base64'
+      })
     },
     async (argv) => { 
-        let res = await resources(String(argv.ceramicUrl)) 
+        let res = await resources(String(argv.ceramicUrl),String(argv.definition)) 
+        console.log(res);
+    }
+  )
+  .command(
+    'createFromSchema',
+    'creates a runtime defintion from a graphql schema',
+     (yargs) => {
+      return yargs
+      .option('c', {
+        alias: 'ceramicUrl',
+        demandOption : true,
+        type: 'string',
+        describe: 'the URL for ceramic node'
+      })
+      .option('p', {
+        alias: 'path',
+        demandOption : true,
+        type: 'string',
+        describe: 'path to graphql schema'
+      })
+      .option('k', {
+        alias: 'privateKey',
+        demandOption : true,
+        type: 'string',
+        describe: 'private key'
+      })
+    },
+    async (argv) => { 
+
+        let s = argv.serialized === undefined || !argv.serialized ? false: true
+
+        let res = await createFromSchema(String(argv.ceramicUrl),String(argv.path),String(argv.privateKey)) 
         console.log(res);
     }
   )

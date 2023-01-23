@@ -71,6 +71,8 @@ export class ButtonService implements IButtonService {
 
     addEditButton(public_key: string): void {
 
+        // console.log(public_key);
+
         let tr = document.querySelector('table#profilelist tr[data-owner="' + public_key + '"]');
 
         if (tr != null) {
@@ -109,9 +111,9 @@ export class ButtonService implements IButtonService {
             this.buttons["eth-address"].parentNode.style.display = "flex";
         }
 
-        if (this.ui.main.composedb.isConnected()) {
-            this.buttons["select-contractor"].classList.add("connected"); 
-        }
+        // if (this.ui.main.composedb.isConnected()) {
+        //     this.buttons["select-contractor"].classList.add("connected"); 
+        // }
 
         if (this.ui.main.eth.walletAddress != undefined) {
             this.buttons["eth-address"].innerText = shortenPeerId(this.ui.main.eth.walletAddress);  

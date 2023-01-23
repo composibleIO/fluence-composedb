@@ -1,5 +1,5 @@
 import { IMainController } from "../controllers/main.controller";
-import { CdbConnection, CdbIndex, CdbServerConfig, Contractor, ContractorDetails } from "../interfaces/interfaces";
+import { CdbIndex, CdbServerConfig, Contractor, ContractorDetails } from "../interfaces/interfaces";
 import * as isIPFS from 'is-ipfs'
 import { pid } from "process";
 
@@ -12,7 +12,7 @@ export interface IContractorService {
     serverConfig: CdbServerConfig,
     find: () => Promise<Contractor[]>
     select: (contractor: Contractor) => Contractor
-    indexToPublicConnection: (index: CdbIndex) => CdbConnection
+
 }
 
 
@@ -101,19 +101,5 @@ export class ContractorService implements IContractorService {
         return contractor;
     }
 
-    indexToPublicConnection(index: CdbIndex): CdbConnection   {
-
-        let c: CdbConnection = {
-            composite: index.composite,
-            model: index.model,
-            name: index.name,
-            port: index.port,
-            pid,
-            "timestamp": Date.now(),
-            user: "public" + '_' + index.name
-        };
-
-        return c;
-    }
 }
 

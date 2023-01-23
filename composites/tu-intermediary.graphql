@@ -1,0 +1,7 @@
+type TU_Intermediary @createModel(accountRelation: LIST, description: "DID with encrypted keys shared by user and TU provider") {
+            
+    iss: String! @string(minLength: 42, maxLength: 42)
+    aud: String! @string(minLength: 42, maxLength: 42)
+    did: String! @string(minLength: 50, maxLength: 60) 
+}
+

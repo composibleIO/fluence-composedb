@@ -7,7 +7,7 @@ fi
 aqua run \
     --addr $RELAY \
     --input ./aqua/composedb.aqua \
-    --func 'cdbInit(resource_id, peer_id, service_id, namespace, n, indexes)' \
-    --data '{ "resource_id":"'$RESOURCE_ID'","peer_id":"'$NODE'","service_id":"'$SERVICE_ID'","namespace":"'$NAMESPACE'","n":"'$N'","indexes":"'$INDEXES'"}' \
+    --func 'cdbInit(resource_id, peer_id, service_id, namespace, n, indexes, pk)' \
+    --data '{ "resource_id":"'$RESOURCE_ID'","peer_id":"'$NODE'","service_id":"'$SERVICE_ID'","namespace":"'$NAMESPACE'","n":"'$N'","indexes":"'$INDEXES'","pk":"'$DIDKEY'"}' \
     --timeout 120000
 

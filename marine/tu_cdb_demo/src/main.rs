@@ -18,18 +18,14 @@ pub fn main() {}
 
 fn format_result(res: MountedBinaryResult) -> CdbResult {
 
-    let v : serde_json::Value = serde_json::from_str(&String::from_utf8(res.stdout).unwrap()).unwrap();
-    let stderr = String::from_utf8(res.stderr).unwrap();
+    let output = String::from_utf8(res.stdout).unwrap();
+
+    let v : serde_json::Value = serde_json::from_str(&output).unwrap();
 
     let mut count = v["count"].as_u64().unwrap();
     let mut content = v["content"].to_string();
     let mut error = v["error"].to_string();
     let mut success = v["success"].as_bool().unwrap();
-
-    if stderr.chars().count() > 0 {
-        error = stderr;
-        success = false;
-    }
 
     CdbResult {
         count,
@@ -41,15 +37,26 @@ fn format_result(res: MountedBinaryResult) -> CdbResult {
 
 pub fn ceramic_url(cid: &String) -> String {
 
-    let details = contractor_details(cid);
-    let d = details.composedb.directions;
-    format!("http://{}{}_ceramic:{}", d.namespace, d.n, d.ceramic_port)
+    let url: String;
+
+    if cid == "localhost" {
+        
+        url = String::from("http://0.0.0.0:7007");
+    
+    } else {
+        
+        let details = contractor_details(cid);
+        let d = details.composedb.directions;
+        url = format!("http://{}{}_ceramic:{}", d.namespace, d.n, d.ceramic_port);
+    }
+
+    url
 } 
 
 
 #[marine]
-pub fn init(namespace: &String, n: &String, indexes: String) -> String {
-    config::init(namespace, n, indexes)
+pub fn init(namespace: &String, n: &String, indexes: String, pk: String) -> String {
+    config::init(namespace, n, indexes, &pk)
 }
 
 #[marine]
@@ -88,12 +95,12 @@ pub fn query(contractor_cid: String, definition: String, query: String) -> CdbRe
 }
 
 #[marine]
-pub fn query(contractor_cid: String, definition: String, query: String, session: String) -> CdbResult {
+pub fn mutate(contractor_cid: String, definition: String, query: String, session: String) -> CdbResult {
 
     let ceramic_url = ceramic_url(&contractor_cid);
 
     let cmd = vec![
-        "query".to_owned(),
+        "mutate".to_owned(),
         "-c".to_owned(),
         ceramic_url.to_owned(),
         "-d".to_owned(),

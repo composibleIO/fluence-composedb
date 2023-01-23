@@ -13,17 +13,16 @@ export interface CdbPublicInfo {
 }
 
 export interface CdbIndex {
-    composite: string,
-    model: string,
+    composite_definition: string,
     name: string,
-    port: string
+    runtime_definition: string
 }
 
-export interface CdbConnection extends CdbIndex {
-    user: string
-    pid: number
-    timestamp: number
-}
+// export interface CdbConnection extends CdbIndex {
+//     user: string
+//     pid: number
+//     timestamp: number
+// }
 
 export interface CdbDirections {
 
@@ -35,7 +34,7 @@ export interface CdbDirections {
 
 export interface CdbServerConfig {
     directions: CdbDirections,
-    indexes: string[],
+    indexes: CdbIndex[],
     public_info: CdbPublicInfo[]
 }
 

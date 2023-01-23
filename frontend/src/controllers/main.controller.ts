@@ -11,22 +11,20 @@ import { CdbIndex, Contractor } from "../interfaces/interfaces";
 import { IButtonService, ButtonService } from "../services/button.service";
 import { ContractorService, IContractorService } from "../services/contractor.service";
 import { SessionService, ISessionService } from "../services/session.service";
-import { ComposeDBService, IComposeDBService } from "../services/composedb.service";
 import { base64urlToJSON, JSONToBase64url, StringToBase64url } from "../factories/serialize";
 
-//const indexName = "simpleProfileIndex";
-const indexName = "tU_ProfileIndex";
+
+const MY_INDEX = "TU_Profile";
 
 export interface IMainController {
 
     aqua: IAquaService;
     session: ISessionService;
-    composedb: IComposeDBService;
     contractor: IContractorService;
     did: IDidService;
     eth: IEthereumService;
     fluence: IFluenceService;
-    indexes: IIndexService[];
+    indexes: {[key: string]: IIndexService};
     ui: IUIController;    
     findContractor: () => void;
     selectContractor : (contractor: Contractor) => void
@@ -37,12 +35,11 @@ export interface IMainController {
 export class MainController implements IMainController  {
 
     aqua: IAquaService;    cap: ISessionService;
-    composedb: IComposeDBService;
     contractor: IContractorService;
     did: IDidService;
     eth: IEthereumService;
     fluence: IFluenceService;
-    indexes: IIndexService[] = [];
+    indexes: {[key: string]: IIndexService} = {};
     html: IHtmlService;
     session: ISessionService;
     ui: IUIController;
@@ -52,7 +49,6 @@ export class MainController implements IMainController  {
 
       this.aqua = new AquaService(this);
       this.session = new SessionService(this);
-      this.composedb = new ComposeDBService();
       this.contractor = new ContractorService(this);
       this.did = new DidService(this);
       this.eth = new EthereumService(this);
@@ -82,11 +78,11 @@ export class MainController implements IMainController  {
       this.contractor.select(contractor);
       this.ui.afterSelectContractor();
 
-      for (let definition of this.contractor.serverConfig.indexes) {
-          this.indexes.push(new IndexService(this, definition))
+      for (let index of this.contractor.serverConfig.indexes) {
+          this.indexes[index.name] = new IndexService(this, index)
       };
 
-      await this.renewProfileList(this.indexes[0]);
+      await this.renewProfileList(this.indexes[MY_INDEX]);
     }
 
 
@@ -95,21 +91,20 @@ export class MainController implements IMainController  {
     async ethAddressSwitch() {
       console.log({'address switch': Date.now()});
       this.ui.afterAddressSwitch();
-      await this.renewProfileList(this.indexes[0]);
+      await this.renewProfileList(this.indexes[MY_INDEX]);
       // this.authConnection();
     }
 
     async renewProfileList(index: IIndexService) {
 
         this.ui.beforeRenewProfileList();
-        await index.query('TU_Profile');
-        this.ui.afterUpdateProfile(this.eth.walletAddress)
+        await index.query();
+        await this.session.has(index.resources());
+      
     }
 
 
     async updateProfile(formData: any) {
-
-        await this.session.get(this.indexes[0].resources());
 
         if (this.session.owner() != formData["publicKey"]) {
           throw("somehow you switched wallets");

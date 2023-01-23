@@ -1,0 +1,7 @@
+type TU_Profile @createModel(accountRelation:SINGLE, description: "Extended profile for demo v2") {
+	    
+	owner: DID! @documentAccount
+	version: CommitID! @documentVersion
+	accountId: String! @string(minLength: 20, maxLength: 70)
+	displayName: String! @string(minLength: 1, maxLength: 100)
+}

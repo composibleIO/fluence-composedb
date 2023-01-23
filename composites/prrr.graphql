@@ -1,0 +1,148 @@
+type Query {
+  """Fetches an object given its ID"""
+  node(
+    """The ID of an object"""
+    id: ID!
+  ): Node
+
+  """Account currently authenticated on the Ceramic instance, if set"""
+  viewer: CeramicAccount
+  simpleProfileIndex(
+    """Returns the items in the list that come after the specified cursor."""
+    after: String
+
+    """Returns the first n items from the list."""
+    first: Int
+
+    """Returns the items in the list that come before the specified cursor."""
+    before: String
+
+    """Returns the last n items from the list."""
+    last: Int
+  ): SimpleProfileConnection
+}
+
+"""An object with an ID"""
+interface Node {
+  """The id of the object."""
+  id: ID!
+}
+
+type CeramicAccount implements Node {
+  """Globally unique identifier of the account (DID string)"""
+  id: ID!
+
+  """
+  Whether the Ceramic instance is currently authenticated with this account or not
+  """
+  isViewer: Boolean!
+  simpleProfile: SimpleProfile
+}
+
+type SimpleProfile implements Node {
+  id: ID!
+  displayName: String!
+
+  """Account controlling the document"""
+  owner: CeramicAccount!
+
+  """Current version of the document"""
+  version: CeramicCommitID!
+}
+
+"""A Ceramic Commit ID"""
+scalar CeramicCommitID
+
+"""A connection to a list of items."""
+type SimpleProfileConnection {
+  """Information to aid in pagination."""
+  pageInfo: PageInfo!
+
+  """A list of edges."""
+  edges: [SimpleProfileEdge]
+}
+
+"""Information about pagination in a connection."""
+type PageInfo {
+  """When paginating forwards, are there more items?"""
+  hasNextPage: Boolean!
+
+  """When paginating backwards, are there more items?"""
+  hasPreviousPage: Boolean!
+
+  """When paginating backwards, the cursor to continue."""
+  startCursor: String
+
+  """When paginating forwards, the cursor to continue."""
+  endCursor: String
+}
+
+"""An edge in a connection."""
+type SimpleProfileEdge {
+  """The item at the end of the edge"""
+  node: SimpleProfile
+
+  """A cursor for use in pagination"""
+  cursor: String!
+}
+
+type Mutation {
+  createSimpleProfile(input: CreateSimpleProfileInput!): CreateSimpleProfilePayload
+  updateSimpleProfile(input: UpdateSimpleProfileInput!): UpdateSimpleProfilePayload
+}
+
+type CreateSimpleProfilePayload {
+  """Fetches an object given its ID"""
+  node(
+    """The ID of an object"""
+    id: ID!
+  ): Node
+
+  """Account currently authenticated on the Ceramic instance, if set"""
+  viewer: CeramicAccount
+  document: SimpleProfile!
+  clientMutationId: String
+}
+
+input CreateSimpleProfileInput {
+  content: SimpleProfileInput!
+  clientMutationId: String
+}
+
+input SimpleProfileInput {
+  displayName: String!
+}
+
+type UpdateSimpleProfilePayload {
+  """Fetches an object given its ID"""
+  node(
+    """The ID of an object"""
+    id: ID!
+  ): Node
+
+  """Account currently authenticated on the Ceramic instance, if set"""
+  viewer: CeramicAccount
+  document: SimpleProfile!
+  clientMutationId: String
+}
+
+input UpdateSimpleProfileInput {
+  id: ID!
+  content: PartialSimpleProfileInput!
+  options: UpdateOptionsInput
+  clientMutationId: String
+}
+
+input PartialSimpleProfileInput {
+  displayName: String
+}
+
+input UpdateOptionsInput {
+  """
+  Fully replace the document contents instead of performing a shallow merge
+  """
+  replace: Boolean = false
+
+  """Only perform mutation if the document matches the provided version"""
+  version: CeramicCommitID
+}

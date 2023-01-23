@@ -1,0 +1,10 @@
+type TU_Intermediary @loadModel(id: "kjzl6hvfrbw6c9tklfrk2id3t0zxgj8ttnqkaudwmx8j5blt9m3istosxzktrjh") {
+	id: ID!
+}
+
+type TU_Key @createModel(accountRelation: LIST, description: "Encrypted keys shared by user and TU provider") {
+    intermediary: StreamID! @documentReference(model: "TU_Intermediary")
+    did: String! @string(minLength: 40, maxLength: 60)
+    recipient: String! @string(minLength: 42, maxLength: 42)
+    encrypted_key: String! @string(maxLength: 1000)
+}

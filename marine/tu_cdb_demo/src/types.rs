@@ -37,18 +37,19 @@ pub struct ComposeDbDirections {
     pub namespace: String
 }
 
-// #[marine]
-// #[derive(Debug, Deserialize, Serialize, Clone)]
-// pub struct ComposeDbIndex {
-//     pub definition: String,
-//     pub references: String,
-//     pub name: String,
+#[marine]
+#[derive(Debug, Deserialize, Serialize, Clone)]
+pub struct ComposeDbIndex {
+    pub composite_definition: String,
+    pub name: String,
+    pub runtime_definition: String
+}
 
 #[marine]
 #[derive(Debug, Deserialize, Serialize, Clone)]
 pub struct ComposeDbConfig {
     pub directions: ComposeDbDirections,
-    pub indexes: Vec<String>,
+    pub indexes: Vec<ComposeDbIndex>,
     pub public_info: Vec<ComposeDbPublicInfo>,
 }
 

@@ -5,7 +5,7 @@ import "@fluencelabs/registry/registry-service.aqua"
 import "./types.aqua"
 
 service ComposeDBSrv("ComposeDBSrv"):
-    init(namespace: string, n: string, indexes: string) -> string
+    init(namespace: string, n: string, indexes: string, pk: string) -> string
     contractor_details(cid: string) -> CdbContractorDetails
     query(cid: string, definition: string, query: string) -> CdbResult
     mutate(cid: string, definition: string, query: string, session: string) -> CdbResult
@@ -13,7 +13,7 @@ service ComposeDBSrv("ComposeDBSrv"):
 service TUComposeDBSrv("TUComposeDBSrv"):
     query() -> CeramicResult
 
-func cdbInit(resource_id: ResourceId,  peer_id: PeerId, service_id: ?string, namespace: string, n: string, indexes: string) -> string, bool, *Error:
+func cdbInit(resource_id: ResourceId,  peer_id: PeerId, service_id: ?string, namespace: string, n: string, indexes: string, pk: string) -> string, bool, *Error:
 
     results: *string
     connections: *CdbConnection
@@ -22,7 +22,7 @@ func cdbInit(resource_id: ResourceId,  peer_id: PeerId, service_id: ?string, nam
 
         ComposeDBSrv service_id!
         -- store contractor details on ipfs and return cid
-        cid <- ComposeDBSrv.init(namespace, n, indexes)
+        cid <- ComposeDBSrv.init(namespace, n, indexes, pk)
 
         success, errors <- registerService(resource_id, cid, peer_id, service_id)
    

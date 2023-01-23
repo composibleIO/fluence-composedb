@@ -28,28 +28,27 @@ data CdbPublicInfo:
     eth_address: string
     public_encryption_key: string
 
--- data CdbIndex: 
---     composite: string
---     model: string
---     name: string
---     port: string
+data CdbIndex: 
+    composite_definition: string
+    name: string
+    runtime_definition: string
 
 data CdbConfig:
     directions: CdbDirections
-    indexes: []string
+    indexes: []CdbIndex
     public_info: []CdbPublicInfo
 
 data CdbContractorDetails:
     composedb: CdbConfig
 
-data CdbKey:
-    encrypted_key: string
-    recipient: string
+-- data CdbKey:
+--     encrypted_key: string
+--     recipient: string
 
-data CdbIntermediary:
-    aud: string
-    did: string
-    iss: string
-    keys: []CdbKey
+-- data CdbIntermediary:
+--     aud: string
+--     did: string
+--     iss: string
+--     keys: []CdbKey
 
     

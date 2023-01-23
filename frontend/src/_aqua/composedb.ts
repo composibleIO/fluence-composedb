@@ -67,7 +67,7 @@ export function registerTUComposeDBSrv(...args: any) {
 
 
 export interface ComposeDBSrvDef {
-    contractor_details: (cid: string, callParams: CallParams$$<'cid'>) => { composedb: { directions: { ceramic_port: string; express_port: string; n: string; namespace: string; }; indexes: string[]; public_info: { eth_address: string; public_encryption_key: string; }[]; }; } | Promise<{ composedb: { directions: { ceramic_port: string; express_port: string; n: string; namespace: string; }; indexes: string[]; public_info: { eth_address: string; public_encryption_key: string; }[]; }; }>;
+    contractor_details: (cid: string, callParams: CallParams$$<'cid'>) => { composedb: { directions: { ceramic_port: string; express_port: string; n: string; namespace: string; }; indexes: { composite_definition: string; name: string; runtime_definition: string; }[]; public_info: { eth_address: string; public_encryption_key: string; }[]; }; } | Promise<{ composedb: { directions: { ceramic_port: string; express_port: string; n: string; namespace: string; }; indexes: { composite_definition: string; name: string; runtime_definition: string; }[]; public_info: { eth_address: string; public_encryption_key: string; }[]; }; }>;
     init: (namespace: string, n: string, indexes: string, callParams: CallParams$$<'namespace' | 'n' | 'indexes'>) => string | Promise<string>;
     mutate: (cid: string, definition: string, query: string, session: string, callParams: CallParams$$<'cid' | 'definition' | 'query' | 'session'>) => { content: string; count: number; error: string; success: boolean; } | Promise<{ content: string; count: number; error: string; success: boolean; }>;
     query: (cid: string, definition: string, query: string, callParams: CallParams$$<'cid' | 'definition' | 'query'>) => { content: string; count: number; error: string; success: boolean; } | Promise<{ content: string; count: number; error: string; success: boolean; }>;
@@ -133,8 +133,22 @@ export function registerComposeDBSrv(...args: any) {
                                         "indexes" : {
                                             "tag" : "array",
                                             "type" : {
-                                                "tag" : "scalar",
-                                                "name" : "string"
+                                                "tag" : "struct",
+                                                "name" : "CdbIndex",
+                                                "fields" : {
+                                                    "composite_definition" : {
+                                                        "tag" : "scalar",
+                                                        "name" : "string"
+                                                    },
+                                                    "name" : {
+                                                        "tag" : "scalar",
+                                                        "name" : "string"
+                                                    },
+                                                    "runtime_definition" : {
+                                                        "tag" : "scalar",
+                                                        "name" : "string"
+                                                    }
+                                                }
                                             }
                                         },
                                         "public_info" : {
@@ -607,7 +621,7 @@ export function cdbMutate(...args: any) {
 }
 
  
-export type CdbContratorDetailsResult = [string[], boolean, { composedb: { directions: { ceramic_port: string; express_port: string; n: string; namespace: string; }; indexes: string[]; public_info: { eth_address: string; public_encryption_key: string; }[]; }; }]
+export type CdbContratorDetailsResult = [string[], boolean, { composedb: { directions: { ceramic_port: string; express_port: string; n: string; namespace: string; }; indexes: { composite_definition: string; name: string; runtime_definition: string; }[]; public_info: { eth_address: string; public_encryption_key: string; }[]; }; }]
 export function cdbContratorDetails(
     peer_id: string,
     service_id: string,
@@ -884,8 +898,22 @@ export function cdbContratorDetails(...args: any) {
                                 "indexes" : {
                                     "tag" : "array",
                                     "type" : {
-                                        "tag" : "scalar",
-                                        "name" : "string"
+                                        "tag" : "struct",
+                                        "name" : "CdbIndex",
+                                        "fields" : {
+                                            "composite_definition" : {
+                                                "tag" : "scalar",
+                                                "name" : "string"
+                                            },
+                                            "name" : {
+                                                "tag" : "scalar",
+                                                "name" : "string"
+                                            },
+                                            "runtime_definition" : {
+                                                "tag" : "scalar",
+                                                "name" : "string"
+                                            }
+                                        }
                                     }
                                 },
                                 "public_info" : {

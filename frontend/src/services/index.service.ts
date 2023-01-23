@@ -1,3 +1,4 @@
+import { CdbIndex } from "../interfaces/interfaces";
 import { IMainController } from "../controllers/main.controller";
 import { base64urlToJSON, StringToBase64url } from "../factories/serialize";
 
@@ -10,7 +11,7 @@ interface CdbModel {
 export interface IIndexService {
     main: IMainController
     resources: () => string[]
-    query: (name: string) => Promise<any>
+    query: () => Promise<any>
     mutate: (name: string, formData: any) => Promise<any>
     drill: (data: any, index_name: string) => any[]
 }
@@ -19,18 +20,22 @@ export class IndexService {
 
     _models : any[] = [];
     _resources:  string[] = []
-    _definition: string;
+    _runtime_definition: string;
+    _composite_definition: string;
+    _name: string;
 
-    constructor(public main: IMainController, definition: string) {
+    constructor(public main: IMainController, index: CdbIndex) {
     
-        this.parseDefintion(definition)
+        this.parseIndex(index)
     }
 
-    parseDefintion(definition: string) {
+    parseIndex(index: CdbIndex) {
 
-        this._definition = definition;
+        this._name = index.name;
+        this._runtime_definition = index.runtime_definition;
+        this._composite_definition = index.composite_definition;
 
-        let d = JSON.parse(base64urlToJSON(definition));
+        let d = base64urlToJSON(this._runtime_definition);
 
         for (let m of Object.keys(d.models)) {
             this._models.push({
@@ -43,6 +48,8 @@ export class IndexService {
         for (let m of this._models) {
             this._resources.push("ceramic://*?model=" + m.id);
         }
+
+        console.log(this);
     }
 
     resources() {
@@ -72,19 +79,25 @@ export class IndexService {
     formatQuery(model: CdbModel) {
 
         // should i really try to derive queries? Isnt the point of graphql to make custom queries? 
-        
-        return StringToBase64url(`
+
+        const query = `
         query {
             ` + this.formatIndexName(model.name) + `(first: 24) {
                 edges { 
                     node { 
+                        owner {
+                            id
+                        },
+                        version,
                         displayName,
                         accountId
                     }
                 }
             }
         }
-      `);
+      `;
+
+        return StringToBase64url(query.replace(/\s+/g, ''));
     }
 
     formatMutation(model: CdbModel, formData: any) {
@@ -111,7 +124,10 @@ export class IndexService {
 
     responseHandler(modelName: string, error: string, success: boolean, data: any) {
 
+        console.log(data);
+
         if(success) {
+          
             let content = JSON.parse(data.content.replace(/\\/g,'').substring(1).slice(0, -1));
             if(data.success) {
               let listData = this.drill(content, this.formatIndexName(modelName));
@@ -124,19 +140,23 @@ export class IndexService {
           } 
     }
 
-    async query(modelName: string) {
+    async query() {
 
-            let model = this._models.find( m => m.name == modelName);
-            let query = this.formatQuery(model);
-            let [error, success, data] = await this.main.aqua.query(this._definition, query);
-            this.responseHandler(modelName, error, success, data);
+        let model = this._models.find( m => m.name == this._name);
+        let query = this.formatQuery(model);
+        console.log(query);
+        let [error, success, data] = await this.main.aqua.query(this._runtime_definition, query);
+        this.responseHandler(this._name, error, success, data);
     }
 
     async mutate(modelName: string, formData: any) {
 
         let model = this._models.find( m => m.name == modelName);
         let query = this.formatMutation(model,formData);
-        let [error, success, data] = await this.main.aqua.mutate(this._definition, query, await this.main.session.serialize(this._resources));
-        this.responseHandler(modelName, error, success, data);
+
+        console.log(query);
+        let [error, success, data] = await this.main.aqua.mutate(this._runtime_definition, query, await this.main.session.serialize(this._resources));
+        
+        if(error) console.log(error);
 }
  }

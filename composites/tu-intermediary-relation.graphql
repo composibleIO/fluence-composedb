@@ -1,0 +1,8 @@
+type TU_Key @loadModel(id: "kjzl6hvfrbw6c6ekt9l7ig206vtyzsxsb1tzrp4m15tfmse9egjte2jxynt6ojr"){
+	id: ID!
+}
+
+type TU_Intermediary @loadModel(id: "kjzl6hvfrbw6c9tklfrk2id3t0zxgj8ttnqkaudwmx8j5blt9m3istosxzktrjh") {
+    
+	keys: [TU_Key] @relationFrom(model: "TU_Key", property: "intermediary")
+}
