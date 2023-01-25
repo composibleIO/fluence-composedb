@@ -41,6 +41,8 @@ export class EthereumService implements IEthereumService {
                 this.main.ethAddressSwitch();
             },100);
         });
+
+        // this.connectWallet();
     }
 
     get chain() {
@@ -49,6 +51,9 @@ export class EthereumService implements IEthereumService {
     }
 
     async connectWallet() : Promise<string> {
+
+
+        // alert for no metamask ....
 
         await provider.send('eth_requestAccounts', [])
             .catch(() => alert('user rejected request'));

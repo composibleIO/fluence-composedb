@@ -19,7 +19,7 @@ export interface IUIController {
     beforeFindContractor: () => void;
     beforeSelectContractor: (selection: Contractor[]) => void;
     afterSelectContractor: () => void;
-    afterAddressSwitch: () => void;
+    afterAddressSwitch: (owner: string) => void;
     beforeRenewProfileList: () => void;
     afterRenewProfileList: (listData: any[]) => void;
     beforeCheckCapability: () => void;
@@ -81,13 +81,14 @@ export class UIController {
         this.buttons.updateIdentityPane();
     }
 
-    afterAddressSwitch() {
+    afterAddressSwitch(owner: string) {
         
         // this.layout.hideSection("intermediary");
         // this.layout.hideSection("capability");
         // document.getElementById("validated").hidden = true; 
         // document.getElementById("cap").innerHTML = "";
         this.buttons.updateIdentityPane();
+        this.buttons.addEditButton(owner);
     }
 
     beforeRenewProfileList() {
@@ -103,27 +104,6 @@ export class UIController {
         this.layout.showSection("capability");
     }
 
-    // afterCheckCapability(cap: Capability) {
-    //     document.getElementById("cap").innerHTML = '<ul><li>with:' + cap.with + '</li><li>do:' + cap.do + '</li><li>expires:' + cap.expires + '</li></ul>';
-    //     document.getElementById("spinner").style.display = "flex";
-    // }
-
-    // afterCheckIntermediary(intermediary: Intermediary) {
-    //     this.layout.showSection("intermediary");
-    //     document.getElementById("eth-did").innerText = intermediary.did;
-    // }
-
-    // afterConnection(connection: CdbConnection) {
-
-    //     document.getElementById("spinner").style.display = "none";
-    //     document.getElementById("validated").hidden = false; 
-    //     this.buttons.updateIdentityPane();
-    //     // this.buttons.addEditButton(this.main.cap.getCap().iss);
-    //     // let b = this.forms.checkForNew(this.main.cap.getCap().iss);
-    //     // if (!b) {
-    //     //   this.forms.addProfileForm(this.main.cap.getCap());
-    //     // }
-    // }
 
     addProfileForm(owner: string) {
         this.forms.addProfileForm(owner);

@@ -29,6 +29,7 @@ export interface IMainController {
     findContractor: () => void;
     selectContractor : (contractor: Contractor) => void
     ethAddressSwitch: () => void;
+    initSession: () => void;
     updateProfile: (formData: any) => void;
   }
 
@@ -51,7 +52,6 @@ export class MainController implements IMainController  {
       this.session = new SessionService(this);
       this.contractor = new ContractorService(this);
       this.did = new DidService(this);
-      this.eth = new EthereumService(this);
       this.fluence = new FluenceService(this);
       this.ui = new UIController(this);
       this.init();
@@ -83,34 +83,57 @@ export class MainController implements IMainController  {
       };
 
       await this.renewProfileList(this.indexes[MY_INDEX]);
+      
+      this.initUser();
+    }
+
+    async initUser() {
+
+      // choose beteeen session only and eth address / metamask 
+
+      this.eth = new EthereumService(this);
+      let address = await this.eth.connectWallet();
+      this.ui.afterAddressSwitch(this.eth.walletAddress);
+      // this.ui.afterUpdateProfile(address);
+
+    }
+
+    async initSession() {
+
+      let owner = await this.session.has(this.indexes[MY_INDEX]);
+      this.ui.addProfileForm(owner);
     }
 
 
     // 
 
     async ethAddressSwitch() {
-      this.ui.afterAddressSwitch();
-      await this.session.has(this.indexes[MY_INDEX].resources());
+     
+      // await this.session.has(this.indexes[MY_INDEX]);
       await this.renewProfileList(this.indexes[MY_INDEX]);
+      this.ui.afterAddressSwitch(this.eth.walletAddress);
       
     }
 
     async renewProfileList(index: IIndexService) {
 
         this.ui.beforeRenewProfileList();
-        await index.query();
-        await this.session.has(index.resources());
-      
+        await index.query();   
+     
     }
 
 
     async updateProfile(formData: any) {
 
-        if (this.session.owner() != formData["publicKey"]) {
+        if (this.eth.walletAddress != formData["publicKey"]) {
           throw("somehow you switched wallets");
         }
+
+        // just checking again -- flow for new addresses
+        await this.session.has(this.indexes[MY_INDEX]);
+    
         // index name on form data ? 
-        await this.indexes[MY_INDEX].mutate('TU_Profile', formData);
+        await this.indexes[MY_INDEX].mutate(formData);
         // all on index ??? 
         await this.renewProfileList(this.indexes[MY_INDEX]);
         this.ui.afterUpdateProfile(this.session.owner());

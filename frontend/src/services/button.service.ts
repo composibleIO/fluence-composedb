@@ -55,13 +55,14 @@ export class ButtonService implements IButtonService {
 
         switch(id) {
 
-            case 'eth-address':
-                await this.ui.main.session.new(this.ui.main.indexes[0].resources()); // eth.signInWithEthereum();
+            case 'select-eth-address':
+                this.ui.main.eth.connectWallet();
+             //   await this.ui.main.session.new(this.ui.main.indexes["TU_Profile"]); // eth.signInWithEthereum();
                 this.updateIdentityPane();
             //    this.ui.main.authConnection();
             break;
             case 'edit_display_name_button':
-                this.ui.addProfileForm(this.ui.main.session.owner());
+                this.ui.main.initSession();
             break;
             case 'select-contractor':
                 this.ui.main.findContractor();
@@ -111,15 +112,16 @@ export class ButtonService implements IButtonService {
 
             this.buttons["select-contractor"].innerText = shortenPeerId(this.ui.main.contractor.object.metadata.peer_id);
             this.buttons["select-contractor"].parentNode.style.display = "block";
-            this.buttons["eth-address"].parentNode.style.display = "flex";
+            
         }
 
         // if (this.ui.main.composedb.isConnected()) {
         //     this.buttons["select-contractor"].classList.add("connected"); 
         // }
 
-        if (this.ui.main.eth.walletAddress != undefined) {
-            this.buttons["eth-address"].innerText = shortenPeerId(this.ui.main.eth.walletAddress);  
+        if (this.ui.main.eth && this.ui.main.eth.walletAddress != undefined) {
+            this.buttons["select-eth-address"].parentNode.style.display = "block";
+            this.buttons["select-eth-address"].innerText = shortenPeerId(this.ui.main.eth.walletAddress);  
         }
 
          this.init();

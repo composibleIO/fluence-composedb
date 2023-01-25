@@ -3,14 +3,15 @@ import { IMainController } from "../controllers/main.controller";
 import { DIDSession } from "did-session";
 import { base64urlToJSON } from "../factories/serialize";
 import { toChecksumAddress } from "ethereumjs-util";
+import { IIndexService } from "./index.service";
 
 export interface ISessionService {
 
-    has: (resources:string[]) => void
-    store: (session: DIDSession) => void
-    new: (resources:string[]) => Promise<DIDSession>
+    has: (index:IIndexService) => Promise<string>
+    store: (index: IIndexService, session: DIDSession) => void
+    new: (index:IIndexService) => Promise<DIDSession>
     owner: () => string
-    serialize: (resources: string[]) => Promise<string>
+    serialize: (index:IIndexService) => Promise<string>
 }
 
 export class SessionService implements ISessionService {
@@ -19,37 +20,36 @@ export class SessionService implements ISessionService {
 
     constructor(public main: IMainController) {}
 
-    async has(resources:string[]) {   
+    async has(index: IIndexService) : Promise<string> {   
+
+        let session_ref = index.name + '-' + this.main.eth.walletAddress;
         
-        // does not take into account the address .....
-        // is this necessary? 
-        // or should i - only - trigger a resign? 
-        
-        if (this._currentSession == null && ls.get('TU_Profile') != undefined) {
+        if (this._currentSession == null && ls.get(session_ref) != undefined) {
            
-            this._currentSession = base64urlToJSON(ls.get('TU_Profile'));
-            console.log(this._currentSession);
+            this._currentSession = await DIDSession.fromSession(ls.get(session_ref));
+            // console.log(this._currentSession);
         } 
      
         if (this._currentSession == null || 
             this._currentSession == undefined || 
-            !this.validate(this._currentSession,resources)
+            !this.validate(this._currentSession,index.resources())
             ) {   
             
-            await this.new(resources) 
+            await this.new(index) 
         }
 
-        this.main.ui.afterUpdateProfile(this.owner());
+        return this.owner();
+
     }
 
-    store(session: DIDSession) {
-        ls.set('TU_Profile', session.serialize());
+    store(index: IIndexService, session: DIDSession) {
+        ls.set(index.name + '-' + this.owner(), session.serialize());
     }
 
-    async new(resources: string[]) {
+    async new(index: IIndexService) {
         console.log("new session")
-        this._currentSession = await this.main.did.deriveDidPkh(resources);
-        this.store(this._currentSession);
+        this._currentSession = await this.main.did.deriveDidPkh(index.resources());
+        this.store(index, this._currentSession);
         return this._currentSession;
     }
 
@@ -61,7 +61,7 @@ export class SessionService implements ISessionService {
         return (session.hasSession && !session.isExpired  /* && session.resources == resources */ ) ? true : false;
     }
 
-    async serialize(resources: string[]) {
-        return this.validate(this._currentSession, resources) ? this._currentSession.serialize() : (await this.new(resources)).serialize()
+    async serialize(index: IIndexService) {
+        return this.validate(this._currentSession, index.resources()) ? this._currentSession.serialize() : (await this.new(index)).serialize()
     }
 }

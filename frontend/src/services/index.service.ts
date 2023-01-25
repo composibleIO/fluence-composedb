@@ -10,9 +10,10 @@ interface CdbModel {
 
 export interface IIndexService {
     main: IMainController
+    name: string
     resources: () => string[]
     query: () => Promise<any>
-    mutate: (name: string, formData: any) => Promise<any>
+    mutate: (formData: any) => Promise<any>
     drill: (data: any, index_name: string) => any[]
 }
 
@@ -29,9 +30,11 @@ export class IndexService {
         this.parseIndex(index)
     }
 
-    parseIndex(index: CdbIndex) {
+    get name() {
+        return this._name;
+    }
 
-        console.log(index);
+    parseIndex(index: CdbIndex) {
 
         this._name = index.name;
         this._runtime_definition = index.runtime_definition;
@@ -49,6 +52,7 @@ export class IndexService {
             });
         }
 
+        // necessary? 
         for (let m of this._models) {
             this._resources.push("ceramic://*?model=" + m.id);
         }
@@ -80,13 +84,13 @@ export class IndexService {
         return "create" + modelName;
     }
 
-    formatQuery(model: CdbModel) {
+    formatQuery() {
 
         // should i really try to derive queries? Isnt the point of graphql to make custom queries? 
 
         const query = `
         query {
-            ` + this.formatIndexName(model.name) + `(first: 24) {
+            ` + this.formatIndexName(this.name) + `(first: 24) {
                 edges { 
                     node { 
                         owner {
@@ -104,11 +108,11 @@ export class IndexService {
         return StringToBase64url(query.replace(/\s+/g, ''));
     }
 
-    formatMutation(model: CdbModel, formData: any) {
+    formatMutation(formData: any) {
         
         const query = `
         mutation {
-          ` + this.formateMutationMethod(model.name) + `(
+          ` + this.formateMutationMethod(this.name) + `(
                 input: {
                     content: {
                         displayName: "` + formData.displayName + `",
@@ -150,22 +154,19 @@ export class IndexService {
 
     async query() {
 
-        let model = this._models.find( m => m.name == this._name);
-        let query = this.formatQuery(model);
+        let query = this.formatQuery();
         // console.log(query);
         let [error, success, data] = await this.main.aqua.query(this._runtime_definition, query);
         this.responseHandler(this._name, error, success, data);
     }
 
-    async mutate(modelName: string, formData: any) {
+    async mutate(formData: any) {
 
-        let model = this._models.find( m => m.name == modelName);
-        let query = this.formatMutation(model,formData);
-
-        console.log(query);
-        console.log(await this.main.session.serialize(this._resources));
-        let [error, success, data] = await this.main.aqua.mutate(this._runtime_definition, query, await this.main.session.serialize(this._resources));
-        console.log(data);
+        let query = this.formatMutation(formData);
+        // console.log(query);
+        // console.log(await this.main.session.serialize(this._resources));
+        let [error, success, data] = await this.main.aqua.mutate(this._runtime_definition, query, await this.main.session.serialize(this));
+        // console.log(data);
         if(error) console.log(error);
 }
  }
