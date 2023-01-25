@@ -89,10 +89,10 @@ export class MainController implements IMainController  {
     // 
 
     async ethAddressSwitch() {
-      console.log({'address switch': Date.now()});
       this.ui.afterAddressSwitch();
+      await this.session.has(this.indexes[MY_INDEX].resources());
       await this.renewProfileList(this.indexes[MY_INDEX]);
-      // this.authConnection();
+      
     }
 
     async renewProfileList(index: IIndexService) {
@@ -109,13 +109,10 @@ export class MainController implements IMainController  {
         if (this.session.owner() != formData["publicKey"]) {
           throw("somehow you switched wallets");
         }
-
         // index name on form data ? 
-        let index = this.indexes[0];
-
-        await index.mutate('TU_Profile', formData);
+        await this.indexes[MY_INDEX].mutate('TU_Profile', formData);
         // all on index ??? 
-        await this.renewProfileList(index);
+        await this.renewProfileList(this.indexes[MY_INDEX]);
         this.ui.afterUpdateProfile(this.session.owner());
 
     }

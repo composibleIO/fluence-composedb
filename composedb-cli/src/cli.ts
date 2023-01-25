@@ -2,7 +2,7 @@
 
 import yargs from 'yargs';
 import { hideBin } from 'yargs/helpers';
-import { compositeDefinition, createFromSchema  } from './commands/composite.js';
+import { createFromSchema  } from './commands/composite.js';
 import { graphqlMutate, graphqlQuery } from './commands/graphql.js';
 import { resources, startIndex } from './commands/index.js';
 
@@ -129,6 +129,8 @@ yargs(hideBin(process.argv))
     },
     async (argv) => { 
 
+      let output: any;
+
       let res: Result =  {
         content: "",
         count: 0,
@@ -137,11 +139,18 @@ yargs(hideBin(process.argv))
       }
 
       try {        
-        res.content = await graphqlMutate(String(argv.ceramicUrl),String(argv.session),String(argv.query),String(argv.definition));
-        res.success = true;
+        output = await graphqlMutate(String(argv.ceramicUrl),String(argv.session),String(argv.query),String(argv.definition));
+        if(output.errors && output.errors.length > 0) {
+          res.error = JSON.stringify(output.errors);
+          res.success = false;
+        } else {
+          res.content = JSON.stringify(output.data);
+          res.count = 1;
+          res.success = true;
+        }
       }
       catch(err: any) {
-        res.error = JSON.stringify(err);
+        res.error = "cli errored"
       }
 
       process.stdout.write(JSON.stringify(res));
@@ -199,26 +208,6 @@ yargs(hideBin(process.argv))
         let s = argv.serialized === undefined || !argv.serialized ? false: true
 
         let res = await createFromSchema(String(argv.ceramicUrl),String(argv.path),String(argv.privateKey)) 
-        console.log(res);
-    }
-  )
-  .command(
-    'definition',
-    'fetch definition',
-     (yargs) => {
-      return yargs
-      .option('c', {
-        alias: 'ceramicUrl',
-        type: 'string',
-        describe: 'the URL for ceramic node'
-      })
-      .boolean('serialized')
-    },
-    async (argv) => { 
-
-        let s = argv.serialized === undefined || !argv.serialized ? false: true
-
-        let res = await compositeDefinition(String(argv.ceramicUrl),"tu-profile", s) 
         console.log(res);
     }
   )

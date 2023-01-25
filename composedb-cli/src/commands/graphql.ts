@@ -19,9 +19,12 @@ export const graphqlQuery = async (ceramic: string, definition_s: string, query_
 
 export const graphqlMutate = async (ceramic: string, session_string: string, query_s: string, definition_s: string) => {
 
-    const definition = JSON.parse(base64urlToJSON(definition_s));
+    const definition = base64urlToJSON(definition_s);
     const session = await DIDSession.fromSession(session_string);
     const query = base64urlToString(query_s);
+
+    // console.log(definition);
+    // console.log(session.did["_capability"]["p"]);
 
     const client = new ComposeClient({ceramic, definition});
     client.setDID(session.did);

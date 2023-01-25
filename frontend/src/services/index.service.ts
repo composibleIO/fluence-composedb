@@ -31,11 +31,15 @@ export class IndexService {
 
     parseIndex(index: CdbIndex) {
 
+        console.log(index);
+
         this._name = index.name;
         this._runtime_definition = index.runtime_definition;
         this._composite_definition = index.composite_definition;
 
         let d = base64urlToJSON(this._runtime_definition);
+
+        console.log(d);
 
         for (let m of Object.keys(d.models)) {
             this._models.push({
@@ -102,7 +106,7 @@ export class IndexService {
 
     formatMutation(model: CdbModel, formData: any) {
         
-        return StringToBase64url(`
+        const query = `
         mutation {
           ` + this.formateMutationMethod(model.name) + `(
                 input: {
@@ -118,8 +122,11 @@ export class IndexService {
                     accountId  
                 }
             }
-        }
-    `);
+        }`;
+
+        console.log(query);
+
+        return StringToBase64url(query.replace(/\s+/g, ''));
     }
 
     responseHandler(modelName: string, error: string, success: boolean, data: any) {
@@ -130,6 +137,7 @@ export class IndexService {
           
             let content = JSON.parse(data.content.replace(/\\/g,'').substring(1).slice(0, -1));
             if(data.success) {
+                console.log(content);
               let listData = this.drill(content, this.formatIndexName(modelName));
               this.main.ui.afterRenewProfileList(listData);
             } else {
@@ -144,7 +152,7 @@ export class IndexService {
 
         let model = this._models.find( m => m.name == this._name);
         let query = this.formatQuery(model);
-        console.log(query);
+        // console.log(query);
         let [error, success, data] = await this.main.aqua.query(this._runtime_definition, query);
         this.responseHandler(this._name, error, success, data);
     }
@@ -155,8 +163,9 @@ export class IndexService {
         let query = this.formatMutation(model,formData);
 
         console.log(query);
+        console.log(await this.main.session.serialize(this._resources));
         let [error, success, data] = await this.main.aqua.mutate(this._runtime_definition, query, await this.main.session.serialize(this._resources));
-        
+        console.log(data);
         if(error) console.log(error);
 }
  }

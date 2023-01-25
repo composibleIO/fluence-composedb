@@ -75,13 +75,16 @@ export class ButtonService implements IButtonService {
 
         let tr = document.querySelector('table#profilelist tr[data-owner="' + public_key + '"]');
 
-        if (tr != null) {
+        if (tr == null) {
 
+            this.ui.forms.addProfileForm(public_key);
+
+        } else {
             tr.classList.add('active');
             let td = tr.querySelector('td:last-of-type');
             td.innerHTML = '<button id="edit_display_name_button">Edit</button>';
             this.armButton(td.querySelector("button"));
-        }
+        } 
     }
 
     updateIdentityPane() {

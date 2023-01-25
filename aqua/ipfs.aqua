@@ -1,0 +1,8 @@
+import "@fluencelabs/aqua-ipfs/ipfs-api"
+
+
+func extIpfsAddress(peer_id: string) -> string:
+
+    ext <- get_external_api_multiaddr(peer_id)
+
+    <- ext.multiaddr 

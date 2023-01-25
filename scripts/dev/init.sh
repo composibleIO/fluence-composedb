@@ -4,6 +4,20 @@ then
   export $(cat $ENV | xargs)
 fi
 
+## can i use aqua to get external address? 
+
+# CID=$(aqua run \
+#     --addr $RELAY \
+#     --input ./aqua/ipfs.aqua \
+#     --func 'extIpfsAddress(peer_id)' \
+#     --data '{ "peer_id":"'$NODE'"}')
+
+# IFS='/'
+# read -a strarr <<< "${CID}"
+
+# ## can i loop through folder? 
+# IPFSOUTPUT=$(curl -X POST -F file=@indexes/index-tu-profile.json "http://${strarr[2]}:${strarr[4]}/api/v0/dag/put?pin=true")
+
 aqua run \
     --addr $RELAY \
     --input ./aqua/composedb.aqua \

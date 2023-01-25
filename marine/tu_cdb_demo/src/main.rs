@@ -20,6 +20,8 @@ fn format_result(res: MountedBinaryResult) -> CdbResult {
 
     let output = String::from_utf8(res.stdout).unwrap();
 
+    // println!("{:?}", output);
+
     let v : serde_json::Value = serde_json::from_str(&output).unwrap();
 
     let mut count = v["count"].as_u64().unwrap();

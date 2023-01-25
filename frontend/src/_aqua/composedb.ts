@@ -68,7 +68,7 @@ export function registerTUComposeDBSrv(...args: any) {
 
 export interface ComposeDBSrvDef {
     contractor_details: (cid: string, callParams: CallParams$$<'cid'>) => { composedb: { directions: { ceramic_port: string; express_port: string; n: string; namespace: string; }; indexes: { composite_definition: string; name: string; runtime_definition: string; }[]; public_info: { eth_address: string; public_encryption_key: string; }[]; }; } | Promise<{ composedb: { directions: { ceramic_port: string; express_port: string; n: string; namespace: string; }; indexes: { composite_definition: string; name: string; runtime_definition: string; }[]; public_info: { eth_address: string; public_encryption_key: string; }[]; }; }>;
-    init: (namespace: string, n: string, indexes: string, callParams: CallParams$$<'namespace' | 'n' | 'indexes'>) => string | Promise<string>;
+    init: (namespace: string, n: string, indexes: string, pk: string, callParams: CallParams$$<'namespace' | 'n' | 'indexes' | 'pk'>) => string | Promise<string>;
     mutate: (cid: string, definition: string, query: string, session: string, callParams: CallParams$$<'cid' | 'definition' | 'query' | 'session'>) => { content: string; count: number; error: string; success: boolean; } | Promise<{ content: string; count: number; error: string; success: boolean; }>;
     query: (cid: string, definition: string, query: string, callParams: CallParams$$<'cid' | 'definition' | 'query'>) => { content: string; count: number; error: string; success: boolean; } | Promise<{ content: string; count: number; error: string; success: boolean; }>;
 }
@@ -189,6 +189,10 @@ export function registerComposeDBSrv(...args: any) {
                             "name" : "string"
                         },
                         "indexes" : {
+                            "tag" : "scalar",
+                            "name" : "string"
+                        },
+                        "pk" : {
                             "tag" : "scalar",
                             "name" : "string"
                         }
@@ -1265,6 +1269,7 @@ export function cdbInit(
     namespace: string,
     n: string,
     indexes: string,
+    pk: string,
     config?: {ttl?: number}
 ): Promise<CdbInitResult>;
 
@@ -1276,6 +1281,7 @@ export function cdbInit(
     namespace: string,
     n: string,
     indexes: string,
+    pk: string,
     config?: {ttl?: number}
 ): Promise<CdbInitResult>;
 
@@ -1291,18 +1297,21 @@ export function cdbInit(...args: any) {
                           (seq
                            (seq
                             (seq
-                             (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
-                             (call %init_peer_id% ("getDataSrv" "resource_id") [] resource_id)
+                             (seq
+                              (call %init_peer_id% ("getDataSrv" "-relay-") [] -relay-)
+                              (call %init_peer_id% ("getDataSrv" "resource_id") [] resource_id)
+                             )
+                             (call %init_peer_id% ("getDataSrv" "peer_id") [] peer_id)
                             )
-                            (call %init_peer_id% ("getDataSrv" "peer_id") [] peer_id)
+                            (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
                            )
-                           (call %init_peer_id% ("getDataSrv" "service_id") [] service_id)
+                           (call %init_peer_id% ("getDataSrv" "namespace") [] namespace)
                           )
-                          (call %init_peer_id% ("getDataSrv" "namespace") [] namespace)
+                          (call %init_peer_id% ("getDataSrv" "n") [] n)
                          )
-                         (call %init_peer_id% ("getDataSrv" "n") [] n)
+                         (call %init_peer_id% ("getDataSrv" "indexes") [] indexes)
                         )
-                        (call %init_peer_id% ("getDataSrv" "indexes") [] indexes)
+                        (call %init_peer_id% ("getDataSrv" "pk") [] pk)
                        )
                        (new $connections
                         (new $results
@@ -1310,7 +1319,7 @@ export function cdbInit(...args: any) {
                           (call -relay- ("op" "noop") [])
                           (xor
                            (seq
-                            (call peer_id (service_id.$.[0]! "init") [namespace n indexes] cid)
+                            (call peer_id (service_id.$.[0]! "init") [namespace n indexes pk] cid)
                             (new $successful
                              (new $error_get
                               (new $success
@@ -1993,6 +2002,10 @@ export function cdbInit(...args: any) {
                     "name" : "string"
                 },
                 "indexes" : {
+                    "tag" : "scalar",
+                    "name" : "string"
+                },
+                "pk" : {
                     "tag" : "scalar",
                     "name" : "string"
                 }

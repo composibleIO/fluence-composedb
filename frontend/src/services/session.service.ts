@@ -19,7 +19,11 @@ export class SessionService implements ISessionService {
 
     constructor(public main: IMainController) {}
 
-    async has(resources:string[]) {     
+    async has(resources:string[]) {   
+        
+        // does not take into account the address .....
+        // is this necessary? 
+        // or should i - only - trigger a resign? 
         
         if (this._currentSession == null && ls.get('TU_Profile') != undefined) {
            

@@ -63,6 +63,8 @@ export class ContractorService implements IContractorService {
         let peers : string[] = [];
         let selection : Contractor[] = [];
 
+        console.log(records);
+
         for (let record of records[0]) {
             let peerId = record.metadata.peer_id;
             if (peers.indexOf(peerId) < 0) {
@@ -81,13 +83,24 @@ export class ContractorService implements IContractorService {
         }
 
         for (let contractor of selection) {
-            let [error, success, values] = await this.main.aqua.getContractorDetails(contractor.metadata.peer_id,contractor.metadata.service_id[0], contractor.metadata.value);
-            if(success) {
-                contractor.details = values;
-            } else {
-                console.log(error);
-                console.log(contractor.details)
+
+            try {
+
+                let [error, success, values] = await this.main.aqua.getContractorDetails(contractor.metadata.peer_id,contractor.metadata.service_id[0], contractor.metadata.value);
+                if(success) {
+                    contractor.details = values;
+                } else {
+                    console.log(error);
+                    console.log(contractor.details)
+                }
+            } catch(err) {
+
+                contractor.details = null;
+                console.log(err);
+
             }
+
+           
         }
 
         selection = selection.filter( (c) => c.details !== null && c.details !== undefined)
