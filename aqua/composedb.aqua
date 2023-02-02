@@ -10,8 +10,8 @@ service ComposeDBSrv("ComposeDBSrv"):
     query(cid: string, definition: string, query: string) -> CdbResult
     mutate(cid: string, definition: string, query: string, session: string) -> CdbResult
 
-service TUComposeDBSrv("TUComposeDBSrv"):
-    query() -> CeramicResult
+-- service TUComposeDBSrv("TUComposeDBSrv"):
+--     query() -> CeramicResult
 
 func cdbInit(resource_id: ResourceId,  peer_id: PeerId, service_id: ?string, namespace: string, n: string, indexes: string, pk: string) -> string, bool, *Error:
 
@@ -28,15 +28,15 @@ func cdbInit(resource_id: ResourceId,  peer_id: PeerId, service_id: ?string, nam
    
     <- cid, success, errors
 
-func cdbReregister(peer_id: PeerId, service_id: ?string, cid: string) -> bool, *Error:
+-- func cdbReregister(peer_id: PeerId, service_id: ?string, cid: string) -> bool, *Error:
 
-    resource_id = "5zb7zPgUZTTvvJxT4E16sHo6CvguG9Rs2K91YAwGqiLM"
+--     resource_id = "5zb7zPgUZTTvvJxT4E16sHo6CvguG9Rs2K91YAwGqiLM"
 
-    on peer_id: 
+--     on peer_id: 
 
-        success, errors <- registerService(resource_id, cid, peer_id, service_id)
+--         success, errors <- registerService(resource_id, cid, peer_id, service_id)
 
-    <- success, errors
+--     <- success, errors
 
 
 

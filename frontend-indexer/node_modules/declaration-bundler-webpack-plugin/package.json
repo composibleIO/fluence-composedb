@@ -1,0 +1,24 @@
+{
+  "name": "declaration-bundler-webpack-plugin",
+  "version": "1.0.3",
+  "description": "Generates a single INTERNAL module declaration file from separate generated declaration files from an EXTERNAL module",
+  "main": "plugin.js",
+  "scripts": {
+    "build": "tsc"
+  },
+  "keywords": [
+    "typescript",
+    "declaration",
+    "bundling",
+    "webpack"
+  ],
+  "author": {
+    "name": "René Verheij",
+    "email": "rpwverheij@gmail.com"
+  },
+
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^1.7.3"
+  }
+}

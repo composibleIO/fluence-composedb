@@ -10,4 +10,4 @@ aqua script add \
     --input ./aqua/composedb.aqua \
     --func 'cdbConfirmAvailability(peer_id, cid, service_id)' \
     --data '{ "peer_id":"'$NODE'","cid":"'$CID'","service_id":"'$SERVICE_ID'"}' \
-    --interval 86400   # 24 hours 
+    --interval 43200   # 24 hours 

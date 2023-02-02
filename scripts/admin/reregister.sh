@@ -6,7 +6,7 @@ fi
 
 aqua run \
     --addr $RELAY \
-    --input ./aqua/composedb.aqua \
+    --input ./aqua/server.aqua \
     --func 'cdbReregister(peer_id, service_id, cid)' \
-    --data '{ "peer_id":"'$NODE'","service_id":"'$SERVICE_ID'","cid":"'$CID'"}' \
+    --data '{ "peer_id":"'$NODE'","service_id":"'$DEMO_SERVICE_ID'","cid":"'$CID'"}' \
     --timeout 30000

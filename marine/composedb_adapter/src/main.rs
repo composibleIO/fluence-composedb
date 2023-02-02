@@ -27,6 +27,47 @@
  fn main() {
      WasmLoggerBuilder::new().build().unwrap();
  }
+
+
+// //  'fetch records', 
+//  fn query() -> MountedBinaryResult {
+//     let cmd = vec!(
+//         "query".to_owned()
+//     );
+//     tu_cdb(cmd)
+//  }
+
+// //  'add or update records',
+// fn mutate() -> MountedBinaryResult {
+//     let cmd = vec!(
+//         "mutate".to_owned()
+//     );
+//     tu_cdb(cmd)
+// }
+
+// // creates a runtime defintion from a graphql schema'
+// fn createFromSchema() -> {
+//     let cmd = vec!(
+//         "createFromSchema".to_owned()
+//     );
+//     tu_cdb(cmd)
+// }
+
+//  // 'tell node to index a composite',
+//  fn index() -> MountedBinaryResult {
+//     let cmd = vec!(
+//         "index".to_owned()
+//     );
+//     tu_cdb(cmd)
+//  }
+
+// // fetch array of resources indexed by client',
+// fn resources() -> MountedBinaryResult {
+//     let cmd = vec!(
+//         "resources".to_owned()
+//     );
+//     tu_cdb(cmd)
+// }
  
  #[marine]
  pub fn tu_cdb_request(cmd: Vec<String>) -> MountedBinaryResult {

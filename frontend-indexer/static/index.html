@@ -1,0 +1,101 @@
+<!doctype html>
+
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <title>Transport Union - ComposeDB Indexer</title>
+  <meta name="description" content="">
+  <meta name="author" content="Joera Mulders">
+
+  <link rel="stylesheet" type="text/css" href="./styles.css">
+
+</head>
+
+
+
+<body>
+
+    <aside id="identity-pane">
+
+        
+        <div id="local_peer" class="block" style="display: none;">
+          <label>local peer:</label>
+          <button id="select-local-peer" type="button">Sign in</button>
+        </div>
+        <div id="relay_peer" class="block" style="display: none;">
+          <label>relay peer:</label>
+          <button id="select-relay-peer" type="button" >Connect</button>
+        </div>
+        <div id="relay_peer" class="block" style="display: none;">
+          <label>resource provider:</label>
+          <button id="select-contractor" type="button" >Connect</button>
+        </div>
+        <div id="eth-address" class="block" style="display: none;">
+          <label>address:</label>
+          <button id="select-eth-address" type="button" >Connect</button>
+        </div>
+    </aside>
+
+    <main id="main">  
+
+      <section>
+        <h1>Fluence+ComposeDB</h1>
+        <p>This is a proof of concept demo to show:</p>
+        <ol>
+          <li>a decentralised DBaaS on the Fluence network,</li>   
+        </ol>
+       
+    </section>
+
+    <section id="select_contractor" hidden>
+
+      <div class="block" style="display: flex; ">
+        <label>Select a resource provider</label>
+        <ul id="contractor_select_list"></ul>
+      </div>
+      <div class="spinner"></div>
+    </section>
+
+    <section id="select_eth_address" hidden> <!-- style="visibility: hidden";-->
+
+      <!-- <div id="eth-address" class="block" style="display: flex;">
+        <label>Select an Ethereum address as user: </label>
+        <button id="eth-address" type="button">Sign in with Metamask</button>
+      </div> -->
+
+    </section>
+
+    <section id="intermediary" hidden>
+      <div class="block" style="display: flex;">
+        <label>Intermediary:</label>
+        <span id="eth-did"></span>
+        
+        <!-- ... establishing write capabilities at the decentralized database ... -->
+      </div>
+    </section>
+
+    <section id="capability" hidden>
+      <div class="block" style="display: flex;">
+        <label>Capability:</label>
+        <span id="cap"></span>
+        <div id="spinner" class=""></div>
+        <span id="validated" hidden>Signature got validated</span>
+      </div>
+    </section>
+
+  </main>
+
+  <aside id="data-pane">
+
+    <section id="list">
+      <div class="spinner"></div>
+      <div class="block" style="display: flex;"></div>
+    </section>
+
+  </aside>
+
+  <script src="./scripts.js"></script>
+</body>
+</html>

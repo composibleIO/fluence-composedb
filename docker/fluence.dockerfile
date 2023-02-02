@@ -1,4 +1,4 @@
-FROM fluencelabs/fluence:ipfs_v0.0.65_67
+FROM fluencelabs/rust-peer:ipfs_0.0.76
 
 WORKDIR /usr/bin
 COPY tu-cdb .

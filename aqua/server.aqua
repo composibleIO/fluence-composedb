@@ -1,0 +1,15 @@
+import Peer, PeerId from "@fluencelabs/aqua-lib/builtin.aqua"
+import "@fluencelabs/registry/resources-api.aqua"
+import "@fluencelabs/registry/registry-service.aqua"
+
+-- import "./types.aqua"
+
+func cdbReregister(peer_id: PeerId, service_id: ?string, cid: string) -> bool, *Error:
+
+    resource_id = "5zb7zPgUZTTvvJxT4E16sHo6CvguG9Rs2K91YAwGqiLM"
+
+    on peer_id: 
+
+        success, errors <- registerService(resource_id, cid, peer_id, service_id)
+
+    <- success, errors
