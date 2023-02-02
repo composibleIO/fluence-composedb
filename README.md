@@ -1,12 +1,12 @@
 
 # Fluence+ComposeDB
 
-The Transport Union explores distributed backend applications that are governed by collective decision making, seeking innovations by combining functionalities of various decentralized protocols. 
+Transport Union explores distributed backend applications that are governed by collective decision making, seeking innovations by combining functionalities of various decentralized protocols. 
 
 This is a proof of concept demo to show:
 
 1. decentralized access to ComposeDB resource providers,
-2. authentication with DID-session,
+2. authentication with DID-session
 
 
 ## Fluence
@@ -19,7 +19,14 @@ This is a proof of concept demo to show:
 
 ## Approach
 
+Fluence network provides two main functionalities, namely 1/ a decentralised marketplace for peers offering services, and  2/ microservices exposing a command line interface for a node of a different protocol. Combining the two we can create a marketplace for access to various protocols and their functionalities. 
+
 This branch contains an alternative command line interface for ComposeDB tailored to work with Fluence services. I have used the default frontend libraries made by the Composedb team. 
+
+![diagram](./schema.png)
+
+
+
 
 
 [DEMO HERE!](https://fluence-composedb.transport-union.dev/)
