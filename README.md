@@ -23,13 +23,137 @@ Fluence network provides two main functionalities, namely 1/ a decentralised mar
 
 This branch contains an alternative command line interface for ComposeDB tailored to work with Fluence services. I have used the default frontend libraries made by the Composedb team. 
 
-![diagram](./schema.png)
+## Documentation in Progress
+
+ComposeDB terminology: A data structure is represented as a composite which is made up from (re-usable) models. This composite has 1/a composite-definition used to create necessary elements on the ceramic network, and 2/ a runtime definition used to index the data for the composite. Indexing the data means that the ComposeDB instance will store data related to the composite in a local sql database that can be queried with graphQL.
+
+
+The initialization of the marine service involves 1/ command to the custom ComposeDB cli to start indexing the data for data 2/ the creation of an object with contractorDetails 3/ storing that object on the Fluence peer's local IPFS node, 4/ returining the cid, and then registering the service on the network with the cid included in the value property 
+
+&nbsp;
+
+&nbsp;
+
+
+```mermaid 
+sequenceDiagram;
+
+    participant Aqua
+    participant Marine
+    participant IPFS 
+    participant /usr/bin/tu-cdb
+
+    Aqua->>Marine: Init(namespace,n,_indexes,pk)
+    Marine->>/usr/bin/tu-cdb: index(_index,pk)
+    Marine->>Marine: creates contractorDetails 
+    Marine->>IPFS: Store contractorDetails
+    IPFS->>Aqua: cid
+    Aqua->>Aqua: register_resource(peerId,serviceId,cid)
+```
+
+
+Diagram below 
+
+&nbsp;
+
+&nbsp;
+
+
+```mermaid 
+erDiagram 
+
+    ARGSFORREGISERTINGSERVICE {
+
+        string resourceId
+        string peer_id
+        string service_id
+        cid value "cid for ipfs dag with contractorDetails "
+    }
+   
+    CONTRACTORDETAILS {
+        object directions
+        array indexes
+        object public_info
+    }
+
+    INDEX {
+     string name
+     base64 composite_definition
+     base64 runtime_definition 
+    }
+
+    DIRECTIONS {
+        string namespace "cdb"
+        int n "count for instances"
+        string ceramic_port
+    }
+
+     CONTRACTORDETAILS ||--|{ INDEX : contains
+
+     CONTRACTORDETAILS ||--|{ DIRECTIONS : contains
+
+     ARGSFORREGISERTINGSERVICE ||--|| CONTRACTORDETAILS : contains
+
+```
+&nbsp;
+
+&nbsp;
+
+
+```mermaid 
+sequenceDiagram;
+
+    participant Metamask
+    participant Frontend
+    participant Aqua
+    participant Marine
+    participant IPFS 
+    participant /usr/bin/tu-cdb
+
+    Frontend ->> Aqua: findContractors()
+    Aqua ->> Aqua: getRecords()
+    Aqua ->> Frontend: []contractors
+    Frontend ->> Marine: forEach: getContractorDetails(cid)
+    Marine ->> IPFS: dag get cid
+    IPFS ->> Marine: contractorDetails
+    Marine ->> Frontend: contractorDetails
+    Frontend ->> Frontend: selectContractor()
+    Frontend ->> Aqua: renewProfileList() 
+    Aqua ->> Marine: cdbQuery(cid, runtime_def,query)
+    Marine ->> /usr/bin/tu-cdb: query(runtime_def,query)
+    /usr/bin/tu-cdb ->> Frontend: content 
+    Frontend ->> Frontend: hasValidSession()
+    Frontend ->> Metamask: if session is unsigned
+    Metamask ->> Frontend: signature
+    Frontend ->> Aqua: update()
+    Aqua ->> Marine: cdbMutate(cid, runtime_def,query,session)
+    Marine ->> /usr/bin/tu-cdb: mutate(runtime_def,query,session)
+    /usr/bin/tu-cdb ->> Frontend: result 
+    Frontend ->> Aqua: renewProfileList() 
+    Aqua ->> Marine: cdbQuery(cid, runtime_def,query)
+    Marine ->> /usr/bin/tu-cdb: query(runtime_def,query)
+    /usr/bin/tu-cdb ->> Frontend: content 
+
+
+
+
+```
+&nbsp;
+
+&nbsp;
+
+
 
 
 
 
 
 [DEMO HERE!](https://fluence-composedb.transport-union.dev/)
+
+&nbsp;
+
+&nbsp;
+
 
 
 ## globals
